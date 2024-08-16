@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searchable and Filterable Table</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="search-container">
+    <label for="searchInput">Search:</label>
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search for abstracts...">
+    
+    <label for="methodFilter">Filter by Method:</label>
+    <select id="methodFilter" onchange="filterTable()">
+        <option value="">All</option>
+        <option value="Quantitative">Quantitative</option>
+        <option value="Qualitative">Qualitative</option>
+        <!-- Add more options as needed -->
+    </select>
+    
+    <label for="areaFilter">Filter by Research Area:</label>
+    <select id="areaFilter" onchange="filterTable()">
+        <option value="">All</option>
+        <option value="Area 1">Area 1</option>
+        <option value="Area 2">Area 2</option>
+        <!-- Add more options as needed -->
+    </select>
+</div>
+
+<table id="abstractTable">
+    <thead>
+        <tr>
+            <th>Abstract ID</th>
+            <th>Abstract Text</th>
+            <th>Main Method</th>
+            <th>Research Area 1</th>
+            <th>Research Area 2</th>
+            <th>Research Area 3</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>001</td>
+            <td>This is a sample abstract text for quantitative research.</td>
+            <td>Quantitative</td>
+            <td>Area 1</td>
+            <td>Area 2</td>
+            <td>Area 3</td>
+        </tr>
+        <tr>
+            <td>002</td>
+            <td>This is another abstract text for qualitative research.</td>
+            <td>Qualitative</td>
+            <td>Area 1</td>
+            <td>Area 3</td>
+            <td>Area 4</td>
+        </tr>
+        <!-- Add more rows as needed -->
+    </tbody>
+</table>
+
+<script>
+    function filterTable() {
+        var searchInput = document.getElementById("searchInput").value.toLowerCase();
+        var methodFilter = document.getElementById("methodFilter").value.toLowerCase();
+        var areaFilter = document.getElementById("areaFilter").value.toLowerCase();
+        var table = document.getElementById("abstractTable");
+        var tr = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < tr.length; i++) {
+            var tdAbstract = tr[i].getElementsByTagName("td")[1];
+            var tdMethod = tr[i].getElementsByTagName("td")[2];
+            var tdArea1 = tr[i].getElementsByTagName("td")[3];
+            var tdArea2 = tr[i].getElementsByTagName("td")[4];
+            var tdArea3 = tr[i].getElementsByTagName("td")[5];
+
+            if (tdAbstract) {
+                var abstractText = tdAbstract.textContent || tdAbstract.innerText;
+                var methodText = tdMethod.textContent || tdMethod.innerText;
+                var area1Text = tdArea1.textContent || tdArea1.innerText;
+                var area2Text = tdArea2.textContent || tdArea2.innerText;
+                var area3Text = tdArea3.textContent || tdArea3.innerText;
+
+                if (abstractText.toLowerCase().indexOf(searchInput) > -1 && 
+                    (methodFilter === "" || methodText.toLowerCase() === methodFilter) && 
+                    (areaFilter === "" || area1Text.toLowerCase() === areaFilter || area2Text.toLowerCase() === areaFilter || area3Text.toLowerCase() === areaFilter)) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
