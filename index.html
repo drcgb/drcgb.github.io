@@ -6,13 +6,13 @@
     <title>Searchable and Filterable Table</title>
     <style>
         body {
-            font-family: Arial, sans-serif; /* Set Arial font for the entire page */
-            font-size: 14px; /* Set uniform font size */
+            font-family: Arial, sans-serif;
+            font-size: 14px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px; /* Add space above the table */
+            margin-top: 20px;
         }
         table, th, td {
             border: 1px solid black;
@@ -23,23 +23,25 @@
         }
         th {
             background-color: #f2f2f2;
-            white-space: normal; /* Allow text wrapping */
-            text-align: center; /* Center the text in the column headings */
+            white-space: normal;
+            text-align: center;
         }
         th:nth-child(3), td:nth-child(3) {
-            width: 35%; /* Make the Preliminary Title & Abstract column wider */
+            width: 35%;
         }
         th:not(:nth-child(3)), td:not(:nth-child(3)) {
-            width: 13%; /* Distribute remaining width evenly among other columns */
+            width: 13%;
         }
         .search-container {
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
         }
         #searchInput {
-            width: 100%; /* Make the search bar the same width as the table */
+            width: 87%; /* Adjusted to align with the last column */
         }
         .filter-container {
-            margin-top: 10px; /* Add space above the filter options */
+            margin-top: 10px;
             display: flex;
             align-items: center;
         }
@@ -50,13 +52,17 @@
             color: #555;
         }
         .clear-filters {
-            margin-left: 20px; /* Add space between the filters and the button */
+            margin-left: 20px;
             cursor: pointer;
-            background-color: #007bff;
+            background-color: #28a745; /* Default to green when no filters */
             color: white;
             border: none;
             padding: 5px 10px;
             border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .clear-filters.active {
+            background-color: #007bff; /* Blue when filters are active */
         }
     </style>
 </head>
@@ -80,7 +86,7 @@
         <!-- Add more options as needed -->
     </select>
 
-    <button class="clear-filters" onclick="clearFilters()">Clear filters</button>
+    <button class="clear-filters" onclick="clearFilters()">No filters selected</button>
 </div>
 
 <div class="filter-notice" id="filterNotice" style="display: none;">
@@ -113,6 +119,7 @@
                 allRows = data.split("\n").slice(1); // Remove header row
                 populateTable(allRows);
                 populateFilterOptions(allRows);
+                updateClearFiltersButton(); // Ensure correct button state on load
             })
             .catch(error => console.error('Error loading CSV data:', error));
     });
@@ -164,8 +171,8 @@
 
         rows.forEach(row => {
             const columns = row.split(",");
-            const mainMethod = columns[1].trim(); // Main Method
-            const researchAreas = [columns[5].trim(), columns[6].trim(), columns[7].trim()]; // Research Areas
+            const mainMethod = columns[1].trim();
+            const researchAreas = [columns[5].trim(), columns[6].trim(), columns[7].trim()];
 
             // Count occurrences for Main Method
             if (mainMethod) {
@@ -210,16 +217,17 @@
         const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
         const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
         const filterNotice = document.getElementById("filterNotice");
+        const clearFiltersButton = document.querySelector(".clear-filters");
         let filteredRows = allRows;
 
-        // Display the filter notice if any filter or search is active
+        // Check if any filters or search are active
         if (searchInput || methodFilter || areaFilter) {
             filterNotice.style.display = "block";
             filteredRows = allRows.filter(row => {
                 const columns = row.split(",");
-                const abstractText = columns[4].trim().toLowerCase(); // Preliminary Abstract
-                const mainMethod = columns[1].trim().toLowerCase(); // Main Method
-                const researchAreas = [columns[5].trim().toLowerCase(), columns[6].trim().toLowerCase(), columns[7].trim().toLowerCase()]; // Research Areas
+                const abstractText = columns[4].trim().toLowerCase();
+                const mainMethod = columns[1].trim().toLowerCase();
+                const researchAreas = [columns[5].trim().toLowerCase(), columns[6].trim().toLowerCase(), columns[7].trim().toLowerCase()];
 
                 const matchesSearch = abstractText.includes(searchInput);
                 const matchesMethod = !methodFilter || mainMethod === methodFilter;
@@ -227,14 +235,26 @@
 
                 return matchesSearch && matchesMethod && matchesArea;
             });
+
+            clearFiltersButton.textContent = "Clear filters";
+            clearFiltersButton.classList.add("active");
         } else {
             filterNotice.style.display = "none";
+            clearFiltersButton.textContent = "No filters selected";
+            clearFiltersButton.classList.remove("active");
         }
 
+        updateClearFiltersButton(); // Update button style and text based on filters
         populateTable(filteredRows);
     }
 
     function clearFilters() {
         document.getElementById("searchInput").value = ""; // Clear the search input
-        document.getElementById("methodFilter").selectedIndex = 0;
-        document.getElementById("areaFilter").
+        document.getElementById("methodFilter").selectedIndex = 0; // Reset the method filter
+        document.getElementById("areaFilter").selectedIndex = 0; // Reset the area filter
+        filterTable(); // Trigger table filtering to reset the view
+}
+</script>
+</body>
+</html>
+```
