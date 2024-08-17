@@ -124,45 +124,51 @@
             .catch(error => console.error('Error loading CSV data:', error));
     });
 
-    function populateTable(rows) {
-        const tbody = document.querySelector("#abstractTable tbody");
-        tbody.innerHTML = ""; // Clear previous rows
+   function populateTable(rows) {
+    const tbody = document.querySelector("#abstractTable tbody");
+    tbody.innerHTML = ""; // Clear previous rows
 
-        rows.forEach(row => {
-            const columns = row.split(",");
-            const tr = document.createElement("tr");
+    rows.forEach(row => {
+        const columns = row.split(",");
+        
+        // Ensure there are enough columns in the row
+        if (columns.length < 8) {
+            console.warn("Skipping row due to missing columns:", row);
+            return;
+        }
 
-            // Populate table cells with appropriate columns
-            const abstractID = columns[0].trim(); // Abstract ID
-            let mainMethod = columns[1].trim(); // Main Method
-            const methodDetail = columns[2].trim(); // Method Detail
-            const preliminaryTitle = columns[3].trim(); // Preliminary Title
-            const preliminaryAbstract = columns[4].trim(); // Preliminary Abstract
-            const researchArea1 = columns[5].trim(); // Research Area 1
-            const researchArea2 = columns[6].trim(); // Research Area 2
-            const researchArea3 = columns[7].trim(); // Research Area 3
+        const tr = document.createElement("tr");
 
-            // Combine Main Method and Method Detail if Method Detail exists
-            if (methodDetail) {
-                mainMethod += ` (${methodDetail})`;
-            }
+        // Populate table cells with appropriate columns, using `trim()` safely
+        const abstractID = columns[0] ? columns[0].trim() : ''; // Abstract ID
+        let mainMethod = columns[1] ? columns[1].trim() : ''; // Main Method
+        const methodDetail = columns[2] ? columns[2].trim() : ''; // Method Detail
+        const preliminaryTitle = columns[3] ? columns[3].trim() : ''; // Preliminary Title
+        const preliminaryAbstract = columns[4] ? columns[4].trim() : ''; // Preliminary Abstract
+        const researchArea1 = columns[5] ? columns[5].trim() : ''; // Research Area 1
+        const researchArea2 = columns[6] ? columns[6].trim() : ''; // Research Area 2
+        const researchArea3 = columns[7] ? columns[7].trim() : ''; // Research Area 3
 
-            // Combine Preliminary Title and Preliminary Abstract
-            const titleAndAbstract = `<strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}`;
+        // Combine Main Method and Method Detail if Method Detail exists
+        if (methodDetail) {
+            mainMethod += ` (${methodDetail})`;
+        }
 
-            tr.innerHTML = `
-                <td>${abstractID}</td>
-                <td>${mainMethod}</td>
-                <td>${titleAndAbstract}</td>
-                <td>${researchArea1}</td>
-                <td>${researchArea2}</td>
-                <td>${researchArea3}</td>
-            `;
+        // Combine Preliminary Title and Preliminary Abstract
+        const titleAndAbstract = `<strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}`;
 
-            tbody.appendChild(tr);
-        });
-    }
+        tr.innerHTML = `
+            <td>${abstractID}</td>
+            <td>${mainMethod}</td>
+            <td>${titleAndAbstract}</td>
+            <td>${researchArea1}</td>
+            <td>${researchArea2}</td>
+            <td>${researchArea3}</td>
+        `;
 
+        tbody.appendChild(tr);
+    });
+}
     function populateFilterOptions(rows) {
         const methodFilter = document.getElementById("methodFilter");
         const areaFilter = document.getElementById("areaFilter");
@@ -257,4 +263,3 @@
 </script>
 </body>
 </html>
-```
