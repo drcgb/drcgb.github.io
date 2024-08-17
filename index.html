@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Searchable and Filterable Table</title>
     <style>
+        body {
+            font-family: Arial, sans-serif; /* Set Arial font for the entire page */
+            font-size: 14px; /* Set uniform font size */
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px; /* Add space above the table */
         }
         table, th, td {
             border: 1px solid black;
@@ -18,100 +23,218 @@
         }
         th {
             background-color: #f2f2f2;
+            white-space: normal; /* Allow text wrapping */
+            text-align: center; /* Center the text in the column headings */
+        }
+        th:nth-child(3), td:nth-child(3) {
+            width: 35%; /* Make the Preliminary Title & Abstract column wider */
+        }
+        th:not(:nth-child(3)), td:not(:nth-child(3)) {
+            width: 13%; /* Distribute remaining width evenly among other columns */
         }
         .search-container {
             margin-bottom: 20px;
+        }
+        #searchInput {
+            width: 100%; /* Make the search bar the same width as the table */
+        }
+        .filter-container {
+            margin-top: 10px; /* Add space above the filter options */
+            display: flex;
+            align-items: center;
+        }
+        .filter-notice {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-style: italic;
+            color: #555;
+        }
+        .clear-filters {
+            margin-left: 20px; /* Add space between the filters and the button */
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
 <div class="search-container">
-    <label for="searchInput">Search:</label>
-    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search for abstracts...">
-    
-    <label for="methodFilter">Filter by Method:</label>
+    <label for="searchInput"><strong>Search:</strong></label>
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search abstracts...">
+</div>
+
+<div class="filter-container">
+    <label for="methodFilter">Filter by Main Method:</label>
     <select id="methodFilter" onchange="filterTable()">
         <option value="">All</option>
-        <option value="Quantitative">Quantitative</option>
-        <option value="Qualitative">Qualitative</option>
-        <!-- Add more options as needed -->
+        <!-- Options will be dynamically populated -->
     </select>
     
-    <label for="areaFilter">Filter by Research Area:</label>
+    <label for="areaFilter" style="margin-left: 20px;">Filter by Research Area:</label>
     <select id="areaFilter" onchange="filterTable()">
         <option value="">All</option>
-        <option value="Area 1">Area 1</option>
-        <option value="Area 2">Area 2</option>
         <!-- Add more options as needed -->
     </select>
+
+    <button class="clear-filters" onclick="clearFilters()">Clear filters</button>
+</div>
+
+<div class="filter-notice" id="filterNotice" style="display: none;">
+    You are currently filtering the results.
 </div>
 
 <table id="abstractTable">
     <thead>
         <tr>
-            <th>Abstract ID</th>
-            <th>Abstract Text</th>
-            <th>Main Method</th>
-            <th>Research Area 1</th>
-            <th>Research Area 2</th>
-            <th>Research Area 3</th>
+            <th><div>Abstract<br>ID</div></th>
+            <th><div>Main<br>Method</div></th>
+            <th><div>Preliminary<br>Title & Abstract</div></th>
+            <th><div>Research<br>Area 1</div></th>
+            <th><div>Research<br>Area 2</div></th>
+            <th><div>Research<br>Area 3</div></th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>001</td>
-            <td>This is a sample abstract text for quantitative research.</td>
-            <td>Quantitative</td>
-            <td>Area 1</td>
-            <td>Area 2</td>
-            <td>Area 3</td>
-        </tr>
-        <tr>
-            <td>002</td>
-            <td>This is another abstract text for qualitative research.</td>
-            <td>Qualitative</td>
-            <td>Area 1</td>
-            <td>Area 3</td>
-            <td>Area 4</td>
-        </tr>
-        <!-- Add more rows as needed -->
+        <!-- Rows will be populated here by JavaScript -->
     </tbody>
 </table>
 
 <script>
-    function filterTable() {
-        var searchInput = document.getElementById("searchInput").value.toLowerCase();
-        var methodFilter = document.getElementById("methodFilter").value.toLowerCase();
-        var areaFilter = document.getElementById("areaFilter").value.toLowerCase();
-        var table = document.getElementById("abstractTable");
-        var tr = table.getElementsByTagName("tr");
+    let allRows = [];
 
-        for (var i = 1; i < tr.length; i++) {
-            var tdAbstract = tr[i].getElementsByTagName("td")[1];
-            var tdMethod = tr[i].getElementsByTagName("td")[2];
-            var tdArea1 = tr[i].getElementsByTagName("td")[3];
-            var tdArea2 = tr[i].getElementsByTagName("td")[4];
-            var tdArea3 = tr[i].getElementsByTagName("td")[5];
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_Final.csv")
+            .then(response => response.text())
+            .then(data => {
+                allRows = data.split("\n").slice(1); // Remove header row
+                populateTable(allRows);
+                populateFilterOptions(allRows);
+            })
+            .catch(error => console.error('Error loading CSV data:', error));
+    });
 
-            if (tdAbstract) {
-                var abstractText = tdAbstract.textContent || tdAbstract.innerText;
-                var methodText = tdMethod.textContent || tdMethod.innerText;
-                var area1Text = tdArea1.textContent || tdArea1.innerText;
-                var area2Text = tdArea2.textContent || tdArea2.innerText;
-                var area3Text = tdArea3.textContent || tdArea3.innerText;
+    function populateTable(rows) {
+        const tbody = document.querySelector("#abstractTable tbody");
+        tbody.innerHTML = ""; // Clear previous rows
 
-                if (abstractText.toLowerCase().indexOf(searchInput) > -1 && 
-                    (methodFilter === "" || methodText.toLowerCase() === methodFilter) && 
-                    (areaFilter === "" || area1Text.toLowerCase() === areaFilter || area2Text.toLowerCase() === areaFilter || area3Text.toLowerCase() === areaFilter)) {
-                    tr[i].style.display = "";
+        rows.forEach(row => {
+            const columns = row.split(",");
+            const tr = document.createElement("tr");
+
+            // Populate table cells with appropriate columns
+            const abstractID = columns[0].trim(); // Abstract ID
+            let mainMethod = columns[1].trim(); // Main Method
+            const methodDetail = columns[2].trim(); // Method Detail
+            const preliminaryTitle = columns[3].trim(); // Preliminary Title
+            const preliminaryAbstract = columns[4].trim(); // Preliminary Abstract
+            const researchArea1 = columns[5].trim(); // Research Area 1
+            const researchArea2 = columns[6].trim(); // Research Area 2
+            const researchArea3 = columns[7].trim(); // Research Area 3
+
+            // Combine Main Method and Method Detail if Method Detail exists
+            if (methodDetail) {
+                mainMethod += ` (${methodDetail})`;
+            }
+
+            // Combine Preliminary Title and Preliminary Abstract
+            const titleAndAbstract = `<strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}`;
+
+            tr.innerHTML = `
+                <td>${abstractID}</td>
+                <td>${mainMethod}</td>
+                <td>${titleAndAbstract}</td>
+                <td>${researchArea1}</td>
+                <td>${researchArea2}</td>
+                <td>${researchArea3}</td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function populateFilterOptions(rows) {
+        const methodFilter = document.getElementById("methodFilter");
+        const areaFilter = document.getElementById("areaFilter");
+        const methodCounts = {};
+        const areaCounts = {};
+
+        rows.forEach(row => {
+            const columns = row.split(",");
+            const mainMethod = columns[1].trim(); // Main Method
+            const researchAreas = [columns[5].trim(), columns[6].trim(), columns[7].trim()]; // Research Areas
+
+            // Count occurrences for Main Method
+            if (mainMethod) {
+                if (methodCounts[mainMethod]) {
+                    methodCounts[mainMethod]++;
                 } else {
-                    tr[i].style.display = "none";
+                    methodCounts[mainMethod] = 1;
                 }
             }
+
+            // Count occurrences for Research Areas
+            researchAreas.forEach(area => {
+                if (area) {
+                    if (areaCounts[area]) {
+                        areaCounts[area]++;
+                    } else {
+                        areaCounts[area] = 1;
+                    }
+                }
+            });
+        });
+
+        // Populate method filter options with counts
+        for (const method in methodCounts) {
+            const option = document.createElement("option");
+            option.value = method;
+            option.textContent = `${method} [${methodCounts[method]} matches]`;
+            methodFilter.appendChild(option);
+        }
+
+        // Populate area filter options with counts
+        for (const area in areaCounts) {
+            const option = document.createElement("option");
+            option.value = area;
+            option.textContent = `${area} [${areaCounts[area]} matches]`;
+            areaFilter.appendChild(option);
         }
     }
-</script>
 
-</body>
-</html>
+    function filterTable() {
+        const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
+        const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
+        const filterNotice = document.getElementById("filterNotice");
+        let filteredRows = allRows;
+
+        // Display the filter notice if any filter or search is active
+        if (searchInput || methodFilter || areaFilter) {
+            filterNotice.style.display = "block";
+            filteredRows = allRows.filter(row => {
+                const columns = row.split(",");
+                const abstractText = columns[4].trim().toLowerCase(); // Preliminary Abstract
+                const mainMethod = columns[1].trim().toLowerCase(); // Main Method
+                const researchAreas = [columns[5].trim().toLowerCase(), columns[6].trim().toLowerCase(), columns[7].trim().toLowerCase()]; // Research Areas
+
+                const matchesSearch = abstractText.includes(searchInput);
+                const matchesMethod = !methodFilter || mainMethod === methodFilter;
+                const matchesArea = !areaFilter || researchAreas.includes(areaFilter);
+
+                return matchesSearch && matchesMethod && matchesArea;
+            });
+        } else {
+            filterNotice.style.display = "none";
+        }
+
+        populateTable(filteredRows);
+    }
+
+    function clearFilters() {
+        document.getElementById("searchInput").value = ""; // Clear the search input
+        document.getElementById("methodFilter").selectedIndex = 0;
+        document.getElementById("areaFilter").
