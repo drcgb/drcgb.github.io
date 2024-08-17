@@ -109,66 +109,66 @@
     </tbody>
 </table>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
     let allRows = [];
 
     document.addEventListener("DOMContentLoaded", function() {
-        fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_Final.csv")
-            .then(response => response.text())
+        fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
+            .then(response => response.arrayBuffer())
             .then(data => {
-                allRows = data.split("\n").slice(1); // Remove header row
+                const workbook = XLSX.read(data, {type: "array"});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                allRows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                allRows = allRows.slice(1); // Remove header row
                 populateTable(allRows);
                 populateFilterOptions(allRows);
                 updateClearFiltersButton(); // Ensure correct button state on load
             })
-            .catch(error => console.error('Error loading CSV data:', error));
+            .catch(error => console.error('Error loading XLSX data:', error));
     });
 
-   function populateTable(rows) {
-    const tbody = document.querySelector("#abstractTable tbody");
-    tbody.innerHTML = ""; // Clear previous rows
+    function populateTable(rows) {
+        const tbody = document.querySelector("#abstractTable tbody");
+        tbody.innerHTML = ""; // Clear previous rows
 
-    rows.forEach(row => {
-        const columns = row.split(",");
-        
-        // Ensure there are enough columns in the row
-        if (columns.length < 8) {
-            console.warn("Skipping row due to missing columns:", row);
-            return;
-        }
+        rows.forEach(row => {
+            if (row.length < 8) {
+                console.warn("Skipping row due to missing columns:", row);
+                return;
+            }
 
-        const tr = document.createElement("tr");
+            const tr = document.createElement("tr");
 
-        // Populate table cells with appropriate columns, using `trim()` safely
-        const abstractID = columns[0] ? columns[0].trim() : ''; // Abstract ID
-        let mainMethod = columns[1] ? columns[1].trim() : ''; // Main Method
-        const methodDetail = columns[2] ? columns[2].trim() : ''; // Method Detail
-        const preliminaryTitle = columns[3] ? columns[3].trim() : ''; // Preliminary Title
-        const preliminaryAbstract = columns[4] ? columns[4].trim() : ''; // Preliminary Abstract
-        const researchArea1 = columns[5] ? columns[5].trim() : ''; // Research Area 1
-        const researchArea2 = columns[6] ? columns[6].trim() : ''; // Research Area 2
-        const researchArea3 = columns[7] ? columns[7].trim() : ''; // Research Area 3
+            const abstractID = row[0] ? row[0].trim() : ''; // Abstract ID
+            let mainMethod = row[1] ? row[1].trim() : ''; // Main Method
+            const methodDetail = row[2] ? row[2].trim() : ''; // Method Detail
+            const preliminaryTitle = row[3] ? row[3].trim() : ''; // Preliminary Title
+            const preliminaryAbstract = row[4] ? row[4].trim() : ''; // Preliminary Abstract
+            const researchArea1 = row[5] ? row[5].trim() : ''; // Research Area 1
+            const researchArea2 = row[6] ? row[6].trim() : ''; // Research Area 2
+            const researchArea3 = row[7] ? row[7].trim() : ''; // Research Area 3
 
-        // Combine Main Method and Method Detail if Method Detail exists
-        if (methodDetail) {
-            mainMethod += ` (${methodDetail})`;
-        }
+            if (methodDetail) {
+                mainMethod += ` (${methodDetail})`;
+            }
 
-        // Combine Preliminary Title and Preliminary Abstract
-        const titleAndAbstract = `<strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}`;
+            const titleAndAbstract = `<strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}`;
 
-        tr.innerHTML = `
-            <td>${abstractID}</td>
-            <td>${mainMethod}</td>
-            <td>${titleAndAbstract}</td>
-            <td>${researchArea1}</td>
-            <td>${researchArea2}</td>
-            <td>${researchArea3}</td>
-        `;
+            tr.innerHTML = `
+                <td>${abstractID}</td>
+                <td>${mainMethod}</td>
+                <td>${titleAndAbstract}</td>
+                <td>${researchArea1}</td>
+                <td>${researchArea2}</td>
+                <td>${researchArea3}</td>
+            `;
 
-        tbody.appendChild(tr);
-    });
-}
+            tbody.appendChild(tr);
+        });
+    }
+
     function populateFilterOptions(rows) {
         const methodFilter = document.getElementById("methodFilter");
         const areaFilter = document.getElementById("areaFilter");
@@ -176,11 +176,9 @@
         const areaCounts = {};
 
         rows.forEach(row => {
-            const columns = row.split(",");
-            const mainMethod = columns[1].trim();
-            const researchAreas = [columns[5].trim(), columns[6].trim(), columns[7].trim()];
+            const mainMethod = row[1] ? row[1].trim() : '';
+            const researchAreas = [row[5] ? row[5].trim() : '', row[6] ? row[6].trim() : '', row[7] ? row[7].trim() : ''];
 
-            // Count occurrences for Main Method
             if (mainMethod) {
                 if (methodCounts[mainMethod]) {
                     methodCounts[mainMethod]++;
@@ -189,7 +187,6 @@
                 }
             }
 
-            // Count occurrences for Research Areas
             researchAreas.forEach(area => {
                 if (area) {
                     if (areaCounts[area]) {
@@ -201,7 +198,6 @@
             });
         });
 
-        // Populate method filter options with counts
         for (const method in methodCounts) {
             const option = document.createElement("option");
             option.value = method;
@@ -209,7 +205,6 @@
             methodFilter.appendChild(option);
         }
 
-        // Populate area filter options with counts
         for (const area in areaCounts) {
             const option = document.createElement("option");
             option.value = area;
@@ -226,14 +221,12 @@
         const clearFiltersButton = document.querySelector(".clear-filters");
         let filteredRows = allRows;
 
-        // Check if any filters or search are active
         if (searchInput || methodFilter || areaFilter) {
             filterNotice.style.display = "block";
             filteredRows = allRows.filter(row => {
-                const columns = row.split(",");
-                const abstractText = columns[4].trim().toLowerCase();
-                const mainMethod = columns[1].trim().toLowerCase();
-                const researchAreas = [columns[5].trim().toLowerCase(), columns[6].trim().toLowerCase(), columns[7].trim().toLowerCase()];
+                const abstractText = row[4].trim().toLowerCase();
+                const mainMethod = row[1].trim().toLowerCase();
+                const researchAreas = [row[5] ? row[5].trim().toLowerCase() : '', row[6] ? row[6].trim().toLowerCase() : '', row[7] ? row[7].trim().toLowerCase() : ''];
 
                 const matchesSearch = abstractText.includes(searchInput);
                 const matchesMethod = !methodFilter || mainMethod === methodFilter;
@@ -259,7 +252,25 @@
         document.getElementById("methodFilter").selectedIndex = 0; // Reset the method filter
         document.getElementById("areaFilter").selectedIndex = 0; // Reset the area filter
         filterTable(); // Trigger table filtering to reset the view
-}
+    }
+
+    function updateClearFiltersButton() {
+        const clearFiltersButton = document.querySelector(".clear-filters");
+        const searchInput = document.getElementById("searchInput").value;
+        const methodFilter = document.getElementById("methodFilter").value;
+        const areaFilter = document.getElementById("areaFilter").value;
+
+        if (searchInput || methodFilter || areaFilter) {
+            clearFiltersButton.textContent = "Clear filters";
+            clearFiltersButton.classList.add("active");
+            clearFiltersButton.style.backgroundColor = "#007bff"; // Blue when filters are active
+        } else {
+            clearFiltersButton.textContent = "No filters selected";
+            clearFiltersButton.classList.remove("active");
+            clearFiltersButton.style.backgroundColor = "#28a745"; // Green when no filters
+        }
+    }
 </script>
+
 </body>
 </html>
