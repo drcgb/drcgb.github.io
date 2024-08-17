@@ -129,46 +129,52 @@
             .catch(error => console.error('Error loading XLSX data:', error));
     });
 
-    function populateTable(rows) {
-        const tbody = document.querySelector("#abstractTable tbody");
-        tbody.innerHTML = ""; // Clear previous rows
+function populateTable(rows) {
+    const tbody = document.querySelector("#abstractTable tbody");
+    tbody.innerHTML = ""; // Clear previous rows
 
-        rows.forEach(row => {
-            if (row.length < 8) {
-                console.warn("Skipping row due to missing columns:", row);
-                return;
-            }
+    rows.forEach(row => {
+        // Handle rows with 6, 7, or 8 columns
+        let abstractID = '', mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', researchArea1 = '', researchArea2 = '', researchArea3 = '';
 
-            const tr = document.createElement("tr");
+        if (row.length >= 6) {
+            abstractID = row[0] ? String(row[0]).trim() : ''; // Abstract ID
+            mainMethod = row[1] ? String(row[1]).trim() : ''; // Main Method
+            methodDetail = row[2] ? String(row[2]).trim() : ''; // Method Detail
+            preliminaryTitle = row[3] ? String(row[3]).trim() : ''; // Preliminary Title
+            preliminaryAbstract = row[4] ? String(row[4]).trim() : ''; // Preliminary Abstract
+            researchArea1 = row[5] ? String(row[5]).trim() : ''; // Research Area 1
+        }
 
-            const abstractID = row[0] ? row[0].trim() : ''; // Abstract ID
-            let mainMethod = row[1] ? row[1].trim() : ''; // Main Method
-            const methodDetail = row[2] ? row[2].trim() : ''; // Method Detail
-            const preliminaryTitle = row[3] ? row[3].trim() : ''; // Preliminary Title
-            const preliminaryAbstract = row[4] ? row[4].trim() : ''; // Preliminary Abstract
-            const researchArea1 = row[5] ? row[5].trim() : ''; // Research Area 1
-            const researchArea2 = row[6] ? row[6].trim() : ''; // Research Area 2
-            const researchArea3 = row[7] ? row[7].trim() : ''; // Research Area 3
+        if (row.length >= 7) {
+            researchArea2 = row[6] ? String(row[6]).trim() : ''; // Research Area 2
+        }
 
-            if (methodDetail) {
-                mainMethod += ` (${methodDetail})`;
-            }
+        if (row.length === 8) {
+            researchArea3 = row[7] ? String(row[7]).trim() : ''; // Research Area 3
+        }
 
-            const titleAndAbstract = `<strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}`;
+        // Combine Main Method and Method Detail if Method Detail exists
+        if (methodDetail) {
+            mainMethod += ` (${methodDetail})`;
+        }
 
-            tr.innerHTML = `
-                <td>${abstractID}</td>
-                <td>${mainMethod}</td>
-                <td>${titleAndAbstract}</td>
-                <td>${researchArea1}</td>
-                <td>${researchArea2}</td>
-                <td>${researchArea3}</td>
-            `;
+        // Combine Preliminary Title and Preliminary Abstract
+        const titleAndAbstract = `<strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}`;
 
-            tbody.appendChild(tr);
-        });
-    }
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${abstractID}</td>
+            <td>${mainMethod}</td>
+            <td>${titleAndAbstract}</td>
+            <td>${researchArea1}</td>
+            <td>${researchArea2}</td>
+            <td>${researchArea3}</td>
+        `;
 
+        tbody.appendChild(tr);
+    });
+}
     function populateFilterOptions(rows) {
         const methodFilter = document.getElementById("methodFilter");
         const areaFilter = document.getElementById("areaFilter");
