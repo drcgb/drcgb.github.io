@@ -5,108 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Searchable and Filterable Table</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-            white-space: normal;
-            text-align: center;
-        }
-        th:nth-child(3), td:nth-child(3) {
-            width: 35%;
-        }
-        th:not(:nth-child(3)), td:not(:nth-child(3)) {
-            width: 13%;
-        }
-        .search-container {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
+        body { font-family: Arial, sans-serif; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid black; padding: 10px; }
+        th { background-color: #f2f2f2; white-space: normal; text-align: center; }
+        th:nth-child(1), td:nth-child(1) { text-align: center; width: 10%; } /* Center text in Abstract ID and set narrow width */
+        th:nth-child(3), td:nth-child(3) { width: auto; } /* Make Preliminary Title & Abstract as wide as possible */
+        th:not(:nth-child(3)), td:not(:nth-child(3)) { width: 15%; } /* Make other columns narrow */
+        .search-container, .filter-container { margin-bottom: 10px; display: flex; align-items: center; }
         #searchInput {
-            width: 87%; /* Adjusted to align with the last column */
+            width: 100%;
+            padding-left: 24px;
+            font-size: 14px; /* Set font size to match the rest of the text */
+            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16l-4.4 4.4a1 1 0 01-1.4 0L2 19.2a1 1 0 010-1.4L6.4 14a8 8 0 111.6 1.6zM14 10a4 4 0 10-8 0 4 4 0 008 0z" /%3E%3C/svg%3E');
+            background-position: 8px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            -webkit-appearance: none; /* Removes default search icon on WebKit browsers */
+            -moz-appearance: none; /* Removes default search icon on Firefox */
         }
-        .filter-container {
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-        }
-        .filter-notice {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            font-style: italic;
-            color: #555;
-        }
-        .clear-filters {
-            margin-left: 20px;
-            cursor: pointer;
-            background-color: #28a745; /* Default to green when no filters */
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .clear-filters.active {
-            background-color: #007bff; /* Blue when filters are active */
-        }
+        .clear-filters { margin-left: 20px; cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
+        .clear-filters.active { background-color: red; } /* Red when filters are active */
+        .filter-notice { margin: 10px 0; font-style: italic; color: #555; }
     </style>
 </head>
 <body>
 
 <div class="search-container">
-    <label for="searchInput"><strong>Search:</strong></label>
-    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search abstracts...">
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 Search abstracts...">
 </div>
 
 <div class="filter-container">
     <label for="methodFilter">Filter by Main Method:</label>
-    <select id="methodFilter" onchange="filterTable()">
-        <option value="">All</option>
-        <!-- Options will be dynamically populated -->
-    </select>
-    
+    <select id="methodFilter" onchange="filterTable()"><option value="">All</option></select>
     <label for="areaFilter" style="margin-left: 20px;">Filter by Research Area:</label>
-    <select id="areaFilter" onchange="filterTable()">
-        <option value="">All</option>
-        <!-- Add more options as needed -->
-    </select>
-
+    <select id="areaFilter" onchange="filterTable()"><option value="">All</option></select>
     <button class="clear-filters" onclick="clearFilters()">No filters selected</button>
 </div>
 
-<div class="filter-notice" id="filterNotice" style="display: none;">
-    You are currently filtering the results.
-</div>
+<div class="filter-notice" id="filterNotice" style="display: none;">You are currently filtering the results.</div>
 
 <table id="abstractTable">
     <thead>
-        <tr>
-            <th><div>Abstract<br>ID</div></th>
-            <th><div>Main<br>Method</div></th>
-            <th><div>Preliminary<br>Title & Abstract</div></th>
-            <th><div>Research<br>Area 1</div></th>
-            <th><div>Research<br>Area 2</div></th>
-            <th><div>Research<br>Area 3</div></th>
-        </tr>
+        <tr><th>Abstract<br>ID</th><th>Main<br>Method</th><th>Preliminary<br>Title & Abstract</th><th>Research<br>Area 1</th><th>Research<br>Area 2</th><th>Research<br>Area 3</th></tr>
     </thead>
-    <tbody>
-        <!-- Rows will be populated here by JavaScript -->
-    </tbody>
+    <tbody></tbody>
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
@@ -115,168 +58,48 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
-            .then(response => response.arrayBuffer())
+            .then(res => res.arrayBuffer())
             .then(data => {
-                const workbook = XLSX.read(data, {type: "array"});
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                allRows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-                allRows = allRows.slice(1); // Remove header row
-                populateTable(allRows);
-                populateFilterOptions(allRows);
-                updateClearFiltersButton(); // Ensure correct button state on load
+                const sheet = XLSX.read(data, {type: "array"}).Sheets[XLSX.read(data, {type: "array"}).SheetNames[0]];
+                allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
+                populateTable(allRows); populateFilterOptions(allRows); updateClearFiltersButton();
             })
-            .catch(error => console.error('Error loading XLSX data:', error));
+            .catch(err => console.error('Error loading XLSX data:', err));
     });
 
-function populateTable(rows) {
-    const tbody = document.querySelector("#abstractTable tbody");
-    tbody.innerHTML = ""; // Clear previous rows
+    function populateTable(rows) {
+        const tbody = document.querySelector("#abstractTable tbody");
+        tbody.innerHTML = ""; // Clear previous rows
+        rows.forEach(row => {
+            const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', researchArea1 = '', researchArea2 = '', researchArea3 = ''] = row;
+            tbody.innerHTML += `<tr>
+                <td>${abstractID || ''}</td>
+                <td>${mainMethod + (methodDetail ? ` (${methodDetail})` : '')}</td>
+                <td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td>
+                <td>${researchArea1}</td>
+                <td>${researchArea2}</td>
+                <td>${researchArea3}</td>
+            </tr>`;
+        });
+    }
 
-    rows.forEach(row => {
-        // Handle rows with 6, 7, or 8 columns
-        let abstractID = '', mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', researchArea1 = '', researchArea2 = '', researchArea3 = '';
-
-        if (row.length >= 6) {
-            abstractID = row[0] ? String(row[0]).trim() : ''; // Abstract ID
-            mainMethod = row[1] ? String(row[1]).trim() : ''; // Main Method
-            methodDetail = row[2] ? String(row[2]).trim() : ''; // Method Detail
-            preliminaryTitle = row[3] ? String(row[3]).trim() : ''; // Preliminary Title
-            preliminaryAbstract = row[4] ? String(row[4]).trim() : ''; // Preliminary Abstract
-            researchArea1 = row[5] ? String(row[5]).trim() : ''; // Research Area 1
-        }
-
-        if (row.length >= 7) {
-            researchArea2 = row[6] ? String(row[6]).trim() : ''; // Research Area 2
-        }
-
-        if (row.length === 8) {
-            researchArea3 = row[7] ? String(row[7]).trim() : ''; // Research Area 3
-        }
-
-        // Combine Main Method and Method Detail if Method Detail exists
-        if (methodDetail) {
-            mainMethod += ` (${methodDetail})`;
-        }
-
-        // Combine Preliminary Title and Preliminary Abstract
-        const titleAndAbstract = `<strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}`;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${abstractID}</td>
-            <td>${mainMethod}</td>
-            <td>${titleAndAbstract}</td>
-            <td>${researchArea1}</td>
-            <td>${researchArea2}</td>
-            <td>${researchArea3}</td>
-        `;
-
-        tbody.appendChild(tr);
-    });
-}
     function populateFilterOptions(rows) {
         const methodFilter = document.getElementById("methodFilter");
         const areaFilter = document.getElementById("areaFilter");
-        const methodCounts = {};
-        const areaCounts = {};
-
+        const methodCounts = {}, areaCounts = {};
         rows.forEach(row => {
-            const mainMethod = row[1] ? row[1].trim() : '';
-            const researchAreas = [row[5] ? row[5].trim() : '', row[6] ? row[6].trim() : '', row[7] ? row[7].trim() : ''];
-
-            if (mainMethod) {
-                if (methodCounts[mainMethod]) {
-                    methodCounts[mainMethod]++;
-                } else {
-                    methodCounts[mainMethod] = 1;
-                }
-            }
-
-            researchAreas.forEach(area => {
-                if (area) {
-                    if (areaCounts[area]) {
-                        areaCounts[area]++;
-                    } else {
-                        areaCounts[area] = 1;
-                    }
-                }
-            });
+            const mainMethod = row[1] || '', researchAreas = [row[5] || '', row[6] || '', row[7] || ''];
+            if (mainMethod) methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
+            researchAreas.forEach(area => area && (areaCounts[area] = (areaCounts[area] || 0) + 1));
         });
 
-        for (const method in methodCounts) {
-            const option = document.createElement("option");
-            option.value = method;
-            option.textContent = `${method} [${methodCounts[method]} matches]`;
-            methodFilter.appendChild(option);
-        }
-
-        for (const area in areaCounts) {
-            const option = document.createElement("option");
-            option.value = area;
-            option.textContent = `${area} [${areaCounts[area]} matches]`;
-            areaFilter.appendChild(option);
-        }
+        methodFilter.innerHTML += Object.entries(methodCounts).sort(([a], [b]) => a.localeCompare(b))
+            .map(([method, count]) => `<option value="${method}">${method} [${count} matches]</option>`).join('');
+        areaFilter.innerHTML += Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b))
+            .map(([area, count]) => `<option value="${area}">${area} [${count} matches]</option>`).join('');
     }
 
     function filterTable() {
         const searchInput = document.getElementById("searchInput").value.toLowerCase();
         const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
-        const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
-        const filterNotice = document.getElementById("filterNotice");
-        const clearFiltersButton = document.querySelector(".clear-filters");
-        let filteredRows = allRows;
-
-        if (searchInput || methodFilter || areaFilter) {
-            filterNotice.style.display = "block";
-            filteredRows = allRows.filter(row => {
-                const abstractText = row[4].trim().toLowerCase();
-                const mainMethod = row[1].trim().toLowerCase();
-                const researchAreas = [row[5] ? row[5].trim().toLowerCase() : '', row[6] ? row[6].trim().toLowerCase() : '', row[7] ? row[7].trim().toLowerCase() : ''];
-
-                const matchesSearch = abstractText.includes(searchInput);
-                const matchesMethod = !methodFilter || mainMethod === methodFilter;
-                const matchesArea = !areaFilter || researchAreas.includes(areaFilter);
-
-                return matchesSearch && matchesMethod && matchesArea;
-            });
-
-            clearFiltersButton.textContent = "Clear filters";
-            clearFiltersButton.classList.add("active");
-        } else {
-            filterNotice.style.display = "none";
-            clearFiltersButton.textContent = "No filters selected";
-            clearFiltersButton.classList.remove("active");
-        }
-
-        updateClearFiltersButton(); // Update button style and text based on filters
-        populateTable(filteredRows);
-    }
-
-    function clearFilters() {
-        document.getElementById("searchInput").value = ""; // Clear the search input
-        document.getElementById("methodFilter").selectedIndex = 0; // Reset the method filter
-        document.getElementById("areaFilter").selectedIndex = 0; // Reset the area filter
-        filterTable(); // Trigger table filtering to reset the view
-    }
-
-    function updateClearFiltersButton() {
-        const clearFiltersButton = document.querySelector(".clear-filters");
-        const searchInput = document.getElementById("searchInput").value;
-        const methodFilter = document.getElementById("methodFilter").value;
-        const areaFilter = document.getElementById("areaFilter").value;
-
-        if (searchInput || methodFilter || areaFilter) {
-            clearFiltersButton.textContent = "Clear filters";
-            clearFiltersButton.classList.add("active");
-            clearFiltersButton.style.backgroundColor = "#007bff"; // Blue when filters are active
-        } else {
-            clearFiltersButton.textContent = "No filters selected";
-            clearFiltersButton.classList.remove("active");
-            clearFiltersButton.style.backgroundColor = "#28a745"; // Green when no filters
-        }
-    }
-</script>
-
-</body>
-</html>
+        const areaFilter = document.getElementById("areaFilter").value
