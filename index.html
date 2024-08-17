@@ -11,18 +11,14 @@
         th { background-color: #f2f2f2; white-space: normal; text-align: center; }
         th:nth-child(1), td:nth-child(1) { text-align: center; width: 10%; } /* Center text in Abstract ID and set narrow width */
         th:nth-child(3), td:nth-child(3) { width: auto; } /* Make Preliminary Title & Abstract as wide as possible */
-        th:not(:nth-child(3)), td:not(:nth-child(3)) { width: 15%; } /* Make other columns narrow */
+        th:not(:nth-child(3)), td:not(:nth-child(3)) { width: 10%; } /* Make other columns narrow */
         .search-container, .filter-container { margin-bottom: 10px; display: flex; align-items: center; }
         #searchInput {
             width: 100%;
-            padding-left: 24px;
-            font-size: 14px; /* Set font size to match the rest of the text */
-            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16l-4.4 4.4a1 1 0 01-1.4 0L2 19.2a1 1 0 010-1.4L6.4 14a8 8 0 111.6 1.6zM14 10a4 4 0 10-8 0 4 4 0 008 0z" /%3E%3C/svg%3E');
-            background-position: 8px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            -webkit-appearance: none; /* Removes default search icon on WebKit browsers */
-            -moz-appearance: none; /* Removes default search icon on Firefox */
+            font-size: 14px; /* Ensure the font size matches the rest of the text */
+            padding: 10px; /* Adjust padding to keep a consistent look */
+            border: 1px solid #ccc; /* Add a border to match other inputs */
+            border-radius: 4px; /* Slight rounding to match typical search bars */
         }
         .clear-filters { margin-left: 20px; cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
         .clear-filters.active { background-color: red; } /* Red when filters are active */
@@ -32,7 +28,7 @@
 <body>
 
 <div class="search-container">
-    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 Search abstracts...">
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search abstracts...">
 </div>
 
 <div class="filter-container">
@@ -60,9 +56,12 @@
         fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
             .then(res => res.arrayBuffer())
             .then(data => {
-                const sheet = XLSX.read(data, {type: "array"}).Sheets[XLSX.read(data, {type: "array"}).SheetNames[0]];
-                allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
-                populateTable(allRows); populateFilterOptions(allRows); updateClearFiltersButton();
+                const workbook = XLSX.read(data, {type: "array"});
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1); // Skip header row
+                populateTable(allRows);
+                populateFilterOptions(allRows);
+                updateClearFiltersButton();
             })
             .catch(err => console.error('Error loading XLSX data:', err));
     });
@@ -102,4 +101,32 @@
     function filterTable() {
         const searchInput = document.getElementById("searchInput").value.toLowerCase();
         const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
-        const areaFilter = document.getElementById("areaFilter").value
+        const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
+        const filterNotice = document.getElementById("filterNotice");
+        const clearFiltersButton = document.querySelector(".clear-filters");
+
+        const filteredRows = allRows.filter(row => {
+            const [ , mainMethod = '', , , abstractText = '', researchArea1 = '', researchArea2 = '', researchArea3 = ''] = row;
+            const researchAreas = [researchArea1.toLowerCase(), researchArea2.toLowerCase(), researchArea3.toLowerCase()];
+            return abstractText.toLowerCase().includes(searchInput) &&
+                (!methodFilter || mainMethod.toLowerCase() === methodFilter) &&
+                (!areaFilter || researchAreas.includes(areaFilter));
+        });
+
+        filterNotice.style.display = (searchInput || methodFilter || areaFilter) ? "block" : "none";
+        clearFiltersButton.textContent = (searchInput || methodFilter || areaFilter) ? "Clear filters" : "No filters selected";
+        clearFiltersButton.classList.toggle("active", !!(searchInput || methodFilter || areaFilter));
+        clearFiltersButton.style.backgroundColor = clearFiltersButton.classList.contains("active") ? "red" : "#28a745";
+        populateTable(filteredRows);
+    }
+
+    function clearFilters() {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("methodFilter").selectedIndex = 0;
+        document.getElementById("areaFilter").selectedIndex = 0;
+        filterTable();
+    }
+</script>
+
+</body>
+</html>
