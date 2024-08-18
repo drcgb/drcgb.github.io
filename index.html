@@ -10,16 +10,21 @@
         .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
             font-family: Arial, sans-serif; font-size: 14px; line-height: 1.2;
         }
-        .dataTables_wrapper .dataTables_filter input {
-            width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
-        }
         .dataTables_wrapper .dataTables_filter {
             text-align: left;
             width: 100%;
             margin-bottom: 10px;
         }
+        .dataTables_wrapper .dataTables_filter input {
+            width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
+        }
         .filter-container {
-            display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;
+            display: flex; flex-wrap: wrap; align-items: center;
+            margin-bottom: 10px;
+            margin-top: 20px; /* Adds space between search bar and filters */
+        }
+        .filter-container label, .filter-container select {
+            font-size: 14px; margin-right: 10px; padding-right: 10px;
         }
         .dataTables_wrapper .dataTables_length {
             float: right;
@@ -45,9 +50,6 @@
         }
         .filter-notice {
             margin: 10px 0; font-style: italic; color: #555;
-        }
-        .filter-container label, .filter-container select {
-            font-size: 14px; margin-right: 10px; padding-right: 10px;
         }
     </style>
 </head>
