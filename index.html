@@ -50,6 +50,12 @@
         .search-container input {
             width: 99%; ; margin-right: 20px padding: 10px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc;
         }
+        .abstract-title {
+            margin-top: 10px;
+        }
+        .areas-section {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -100,7 +106,7 @@
             info: false,
             autoWidth: false,
             ordering: false,
-            lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
+            lengthMenu: [[25, 50, 75, -1], [25, 50, 75, `${allRows.length} (All)`]],
             language: { lengthMenu: 'Show up to _MENU_ records per page' },
             columns: [{ title: "Preliminary Title and Abstract" }]
         });
@@ -110,8 +116,8 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><strong>${preliminaryTitle}</strong>`;
-            const methodAndAreas = `<strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+            const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><strong class="abstract-title">${preliminaryTitle}</strong>`;
+            const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}</td></tr>`;
         }).join('');
     }
