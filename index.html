@@ -93,6 +93,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
     let allRows = [];
+    let dataTable;
 
     document.addEventListener("DOMContentLoaded", async () => {
         try {
@@ -110,7 +111,7 @@
     });
 
     function initializeDataTable() {
-        $('#abstractTable').DataTable({
+        dataTable = $('#abstractTable').DataTable({
             paging: true,
             searching: true,
             info: true,
@@ -130,8 +131,11 @@
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
         }).join('');
-        $('#abstractTable').DataTable().clear().draw();
-        $('#abstractTable').DataTable().rows.add($(tbody).children()).draw();
+        
+        if (dataTable) {
+            dataTable.clear().draw();
+            dataTable.rows.add($(tbody).children()).draw();
+        }
     }
 
     function populateFilterOptions(rows) {
@@ -172,7 +176,7 @@
     }
 
     document.getElementById("searchInput").addEventListener("input", function() {
-        $('#abstractTable').DataTable().search(this.value).draw();
+        dataTable.search(this.value).draw();
     });
     document.getElementById("methodFilter").addEventListener("change", filterTable);
     document.getElementById("areaFilter").addEventListener("change", filterTable);
@@ -186,3 +190,4 @@
     }
 </script>
 </body>
+</html>
