@@ -9,19 +9,13 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         table, th, td { border: 1px solid black; padding: 10px; }
         th { background-color: #f2f2f2; white-space: normal; text-align: center; }
-        th:nth-child(1), td:nth-child(1) { text-align: center; width: 10%; } /* Center text in Abstract ID and set narrow width */
-        th:nth-child(3), td:nth-child(3) { width: auto; } /* Make Preliminary Title & Abstract as wide as possible */
-        th:not(:nth-child(3)), td:not(:nth-child(3)) { width: 10%; } /* Make other columns narrow */
+        th:nth-child(1), td:nth-child(1) { text-align: center; width: 10%; }
+        th:nth-child(3), td:nth-child(3) { width: auto; }
+        th:not(:nth-child(3)), td:not(:nth-child(3)) { width: 10%; }
         .search-container, .filter-container { margin-bottom: 10px; display: flex; align-items: center; }
-        #searchInput {
-            width: 100%;
-            font-size: 14px; /* Ensure the font size matches the rest of the text */
-            padding: 10px; /* Adjust padding to keep a consistent look */
-            border: 1px solid #ccc; /* Add a border to match other inputs */
-            border-radius: 4px; /* Slight rounding to match typical search bars */
-        }
+        #searchInput { width: 100%; font-size: 14px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         .clear-filters { margin-left: 20px; cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
-        .clear-filters.active { background-color: red; } /* Red when filters are active */
+        .clear-filters.active { background-color: red; }
         .filter-notice { margin: 10px 0; font-style: italic; color: #555; }
     </style>
 </head>
@@ -39,11 +33,11 @@
     <button class="clear-filters" onclick="clearFilters()">No filters selected</button>
 </div>
 
-<div class="filter-notice" id="filterNotice" style="display: none;">You are currently filtering the results.</div>
+<div class="filter-notice" id="filterNotice" style="display: none;"></div>
 
 <table id="abstractTable">
     <thead>
-        <tr><th>Abstract<br>ID</th><th>Main<br>Method</th><th>Preliminary<br>Title & Abstract</th><th>Research<br>Area 1</th><th>Research<br>Area 2</th><th>Research<br>Area 3</th></tr>
+        <tr><th>Abstract<br>ID</th><th>Main<br>Method</th><th>Preliminary<br>Title & Abstract</th><th>Research<br>Areas</th></tr>
     </thead>
     <tbody></tbody>
 </table>
@@ -52,13 +46,12 @@
 <script>
     let allRows = [];
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", () => {
         fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
             .then(res => res.arrayBuffer())
             .then(data => {
-                const workbook = XLSX.read(data, {type: "array"});
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1); // Skip header row
+                const sheet = XLSX.read(data, {type: "array"}).Sheets[XLSX.read(data, {type: "array"}).SheetNames[0]];
+                allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
                 populateTable(allRows);
                 populateFilterOptions(allRows);
                 updateClearFiltersButton();
@@ -68,52 +61,52 @@
 
     function populateTable(rows) {
         const tbody = document.querySelector("#abstractTable tbody");
-        tbody.innerHTML = ""; // Clear previous rows
+        tbody.innerHTML = "";
         rows.forEach(row => {
-            const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', researchArea1 = '', researchArea2 = '', researchArea3 = ''] = row;
-            tbody.innerHTML += `<tr>
-                <td>${abstractID || ''}</td>
-                <td>${mainMethod + (methodDetail ? ` (${methodDetail})` : '')}</td>
-                <td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td>
-                <td>${researchArea1}</td>
-                <td>${researchArea2}</td>
-                <td>${researchArea3}</td>
-            </tr>`;
+            const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
+            const researchAreasCombined = researchAreas.filter(Boolean).join(', ');
+            const methodText = mainMethod + (methodDetail ? `<br>(${methodDetail})` : '');
+            tbody.innerHTML += `<tr><td>${abstractID || ''}</td><td>${methodText}</td><td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td><td>${researchAreasCombined}</td></tr>`;
         });
     }
 
     function populateFilterOptions(rows) {
-        const methodFilter = document.getElementById("methodFilter");
-        const areaFilter = document.getElementById("areaFilter");
+        const methodFilter = document.getElementById("methodFilter"), areaFilter = document.getElementById("areaFilter");
         const methodCounts = {}, areaCounts = {};
         rows.forEach(row => {
-            const mainMethod = row[1] || '', researchAreas = [row[5] || '', row[6] || '', row[7] || ''];
+            const mainMethod = row[1] || '', researchAreas = row.slice(5, 11);
             if (mainMethod) methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
             researchAreas.forEach(area => area && (areaCounts[area] = (areaCounts[area] || 0) + 1));
         });
-
-        methodFilter.innerHTML += Object.entries(methodCounts).sort(([a], [b]) => a.localeCompare(b))
-            .map(([method, count]) => `<option value="${method}">${method} [${count} matches]</option>`).join('');
-        areaFilter.innerHTML += Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b))
-            .map(([area, count]) => `<option value="${area}">${area} [${count} matches]</option>`).join('');
+        methodFilter.innerHTML += Object.entries(methodCounts).sort(([, a], [, b]) => b - a).map(([method, count]) => `<option value="${method}">${method} [${count} matches]</option>`).join('');
+        areaFilter.innerHTML += Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b)).map(([area, count]) => `<option value="${area}">${area} [${count} matches]</option>`).join('');
     }
 
     function filterTable() {
-        const searchInput = document.getElementById("searchInput").value.toLowerCase();
-        const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
-        const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
-        const filterNotice = document.getElementById("filterNotice");
-        const clearFiltersButton = document.querySelector(".clear-filters");
+        const searchInput = document.getElementById("searchInput").value.toLowerCase(), methodFilter = document.getElementById("methodFilter").value, areaFilter = document.getElementById("areaFilter").value;
+        const filterNotice = document.getElementById("filterNotice"), clearFiltersButton = document.querySelector(".clear-filters");
 
         const filteredRows = allRows.filter(row => {
-            const [ , mainMethod = '', , , abstractText = '', researchArea1 = '', researchArea2 = '', researchArea3 = ''] = row;
-            const researchAreas = [researchArea1.toLowerCase(), researchArea2.toLowerCase(), researchArea3.toLowerCase()];
-            return abstractText.toLowerCase().includes(searchInput) &&
-                (!methodFilter || mainMethod.toLowerCase() === methodFilter) &&
-                (!areaFilter || researchAreas.includes(areaFilter));
+            const [ , mainMethod = '', , , abstractText = '', ...researchAreas] = row;
+            const researchAreasCombined = researchAreas.map(area => area.toLowerCase());
+            return abstractText.toLowerCase().includes(searchInput) && (!methodFilter || mainMethod.toLowerCase() === methodFilter.toLowerCase()) && (!areaFilter || researchAreasCombined.includes(areaFilter.toLowerCase()));
         });
 
-        filterNotice.style.display = (searchInput || methodFilter || areaFilter) ? "block" : "none";
+        let filterMessage = "You are currently filtering the results";
+        const activeFilters = [];
+
+        if (searchInput) activeFilters.push(`searching for "${searchInput}"`);
+        if (methodFilter) activeFilters.push(`Main Method: "${methodFilter}"`);
+        if (areaFilter) activeFilters.push(`Research Area: "${areaFilter}"`);
+
+        if (activeFilters.length > 0) {
+            filterMessage += ` by ${activeFilters.join(", ")}.`;
+            filterNotice.style.display = "block";
+            filterNotice.textContent = filterMessage;
+        } else {
+            filterNotice.style.display = "none";
+        }
+
         clearFiltersButton.textContent = (searchInput || methodFilter || areaFilter) ? "Clear filters" : "No filters selected";
         clearFiltersButton.classList.toggle("active", !!(searchInput || methodFilter || areaFilter));
         clearFiltersButton.style.backgroundColor = clearFiltersButton.classList.contains("active") ? "red" : "#28a745";
