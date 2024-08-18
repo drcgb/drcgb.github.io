@@ -4,25 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Searchable and Filterable Table</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
     <style>
-        body, table { font-family: Arial, sans-serif; font-size: 14px; width: 100%; margin-top: 20px; }
-        table, th, td { border: 1px solid black; padding: 10px; border-collapse: collapse; }
-        th { background-color: #f2f2f2; text-align: left; vertical-align: middle; }
-        th:nth-child(1), td:nth-child(1) { text-align: right; width: 20%; vertical-align: top; }
-        td:nth-child(2) { text-align: left; vertical-align: top; }
-        .search-container, .filter-container { margin-bottom: 10px; display: flex; align-items: center; }
-        #searchInput, .clear-filters { font-size: 14px; padding: 10px; border-radius: 4px; }
-        #searchInput { width: 100%; border: 1px solid #ccc; }
-        .clear-filters { margin-left: 20px; cursor: pointer; background-color: #28a745; color: white; border: none; transition: background-color 0.3s, color 0.3s; }
+        body { font-family: Arial, sans-serif; font-size: 14px; }
+        .dataTables_wrapper .dataTables_filter input { width: 100%; font-size: 14px; padding: 10px; border-radius: 4px; margin-left: 0; }
+        .dataTables_wrapper .dataTables_filter { float: left; text-align: left; }
+        .dataTables_wrapper .dataTables_length { float: right; }
+        .clear-filters { cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
         .clear-filters.active { background-color: red; }
         .filter-notice { margin: 10px 0; font-style: italic; color: #555; }
     </style>
 </head>
 <body>
-
-<div class="search-container">
-    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search abstracts...">
-</div>
 
 <div class="filter-container">
     <label for="methodFilter">Filter by Main Method:</label>
@@ -34,13 +27,15 @@
 
 <div class="filter-notice" id="filterNotice" style="display: none;"></div>
 
-<table id="abstractTable">
+<table id="abstractTable" class="display">
     <thead>
         <tr><th>Abstract Details</th><th>Preliminary Title and Abstract</th></tr>
     </thead>
     <tbody></tbody>
 </table>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
     let allRows = [];
@@ -53,6 +48,12 @@
                 allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
                 populateTable(allRows);
                 populateFilterOptions(allRows);
+                $('#abstractTable').DataTable({ // Initialize DataTables
+                    paging: true,
+                    searching: false, // Disable default DataTables search
+                    info: false,
+                    autoWidth: false
+                });
             })
             .catch(err => console.error('Error loading XLSX data:', err));
     });
@@ -95,7 +96,18 @@
         document.querySelector("#filterNotice").style.display = filteredRows.length < allRows.length ? "block" : "none";
         document.querySelector(".clear-filters").classList.toggle("active", filteredRows.length < allRows.length);
         document.querySelector(".clear-filters").textContent = filteredRows.length < allRows.length ? "Clear filters" : "No filters selected";
+
+        // Destroy the current DataTable before populating the new data
+        $('#abstractTable').DataTable().clear().destroy();
+
+        // Populate the table with filtered rows and reinitialize DataTables
         populateTable(filteredRows);
+        $('#abstractTable').DataTable({
+            paging: true,
+            searching: false,
+            info: false,
+            autoWidth: false
+        });
     }
 
     function clearFilters() {
