@@ -68,13 +68,24 @@
                 margin-bottom: 10px;
             }
         
-            .filter-status-btn {
-                margin-left: 10px;
-                padding: 8px 12px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: background-color 0.3s, color 0.3s;
+            .filter-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap if necessary */
+    justify-content: flex-start; /* Align items to the start */
+    align-items: center; /* Align items vertically */
+    gap: 10px; /* Add space between filter groups */
+    margin-bottom: 10px;
+    width: 100%; /* Ensure the container takes up full width */
+}
+
+.filter-status-btn {
+    margin-left: 10px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
             }
             .filter-status-btn.green {
                 background-color: #28a745;
@@ -145,15 +156,11 @@
             <label for="methodFilter">Filter(Method):</label>
             <select id="methodFilter"><option value="">All</option></select>
         </div>
-        <div class="filter-group">
+        <div class="filter-group" style="margin-left: 20px;">
             <label for="areaFilter">Filter(Areas):</label>
             <select id="areaFilter"><option value="">All</option></select>
         </div>
         <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
-    </div>
-
-    <!-- Download PDF Button -->
-    <div class="download-pdf-container">
         <button id="downloadPDF" class="filter-status-btn">Download full table as PDF</button>
     </div>
 
@@ -397,15 +404,13 @@ function testFilterWithout(filterType) {
 }
 
 document.getElementById('downloadPDF').addEventListener('click', function() {
-    // Import the jsPDF and autoTable plugins
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
 
-    // Get the unfiltered table data
+    // Combine Main Method and Method Detail columns, and adjust data accordingly
     const rows = allRows.map(row => [
         row[0], // Abstract ID
-        row[1], // Main Method
-        row[2], // Method Detail
+        `${row[1]} ${row[2]}`, // Combined Main Method and Method Detail
         row[3], // Preliminary Title
         row[4], // Preliminary Abstract
         row.slice(5, 11).filter(Boolean).join('; ') // Research Areas
@@ -413,21 +418,25 @@ document.getElementById('downloadPDF').addEventListener('click', function() {
 
     // Add title
     doc.setFontSize(16);
-    doc.text("Full Table Data", 14, 22);
+    doc.text("Psych Hons Prelim Abstracts 2024", 14, 22);
 
-    // Generate the table
+    // Generate the table with adjusted column widths
     doc.autoTable({
-        head: [['Abstract ID', 'Main Method', 'Method Detail', 'Preliminary Title', 'Preliminary Abstract', 'Research Areas']],
+        head: [['Abstract ID', 'Method', 'Preliminary Title', 'Preliminary Abstract', 'Research Areas']],
         body: rows,
         startY: 30,
         styles: { fontSize: 8 },
-        margin: { top: 10 }
+        margin: { top: 10 },
+        rowPageBreak: 'avoid', // Prevent rows from splitting across pages
+        columnStyles: {
+            0: { cellWidth: 30 }, // Make Abstract ID column slightly wider
+            // Other columns retain their default widths
+        },
     });
 
     // Save the PDF
     doc.save('table_data.pdf');
 });
-
 
 </script>
 </body>
