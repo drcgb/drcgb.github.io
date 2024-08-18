@@ -11,12 +11,17 @@
             font-family: Arial, sans-serif; font-size: 14px; line-height: 1.2;
         }
         .dataTables_wrapper .dataTables_filter {
+            display: none; /* Hide the automatically generated search bar */
+        }
+        .custom-search-container {
             text-align: left;
-            width: 100%;
             margin-bottom: 10px;
         }
-        .dataTables_wrapper .dataTables_filter input {
-            width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
+        .custom-search-container input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 16px;
         }
         .dataTables_wrapper .method-filter-container {
             text-align: left;
@@ -39,11 +44,13 @@
 </head>
 <body>
 
-<!-- Filter Method and Search Bar -->
+<!-- Custom Search Bar -->
+<div class="custom-search-container">
+    <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
+</div>
+
+<!-- Filter Method -->
 <div class="dataTables_wrapper">
-    <div class="dataTables_filter" id="abstractTable_filter">
-        <input type="search" placeholder="🔍Search abstracts..." aria-controls="abstractTable">
-    </div>
     <div class="method-filter-container">
         <label for="methodFilter">Filter(Method):</label>
         <select id="methodFilter"><option value="">All</option></select>
@@ -92,7 +99,12 @@
             language: {
                 lengthMenu: 'Show up to _MENU_ records per page',
             },
-            dom: '<"top"fl>rt<"bottom"p><"clear">',
+            dom: '<"top"l>rt<"bottom"p><"clear">',
+        });
+
+        // Link the custom search input to the DataTable search functionality
+        $('#customSearch').on('input', function() {
+            dataTable.search(this.value).draw();
         });
 
         // Attach filter method change event
