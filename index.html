@@ -87,7 +87,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
     let allRows = [];
-    let dataTable;
 
     document.addEventListener("DOMContentLoaded", async () => {
         try {
@@ -98,14 +97,14 @@
             allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
             populateFilterOptions(allRows);
             initializeDataTable();
-            filterTable(); // Initial population of the table
+            populateTable(allRows); // Populate the table initially
         } catch (err) {
             console.error('Error loading XLSX data:', err);
         }
     });
 
     function initializeDataTable() {
-        dataTable = $('#abstractTable').DataTable({
+        $('#abstractTable').DataTable({
             paging: true,
             searching: false,
             info: false,
@@ -124,8 +123,8 @@
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
         }).join('');
-        dataTable.clear().draw();
-        dataTable.rows.add($(tbody).find('tr')).draw();
+        $('#abstractTable').DataTable().clear().destroy(); // Clear and destroy the existing DataTable
+        initializeDataTable(); // Reinitialize the DataTable after updating the rows
     }
 
     function populateFilterOptions(rows) {
@@ -163,15 +162,14 @@
         document.getElementById("filterNotice").style.display = activeFilters.length ? "block" : "none";
         document.getElementById("filterNotice").textContent = filterMessage;
 
-        dataTable.clear();
-        populateTable(filteredRows);
+        populateTable(filteredRows); // Repopulate the table with filtered rows
     }
 
     function clearFilters() {
         document.getElementById("searchInput").value = "";
         document.getElementById("methodFilter").selectedIndex = 0;
         document.getElementById("areaFilter").selectedIndex = 0;
-        filterTable();
+        filterTable(); // Reapply the filter with cleared inputs
     }
 
     document.getElementById("searchInput").addEventListener("input", filterTable);
