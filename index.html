@@ -23,11 +23,14 @@
             border-radius: 4px;
             font-size: 16px;
         }
-        .dataTables_wrapper .method-filter-container {
+        .dataTables_wrapper .filter-container {
             text-align: left;
             margin-bottom: 10px;
             display: flex;
             align-items: center;
+        }
+        .filter-container label {
+            margin-right: 10px;
         }
         .dataTables_wrapper .dataTables_length {
             text-align: right;
@@ -71,11 +74,13 @@
     <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
 </div>
 
-<!-- Filter Method and Status Button -->
+<!-- Filter Method and Areas with Status Button -->
 <div class="dataTables_wrapper">
-    <div class="method-filter-container">
+    <div class="filter-container">
         <label for="methodFilter">Filter(Method):</label>
         <select id="methodFilter"><option value="">All</option></select>
+        <label for="areaFilter" style="margin-left: 20px;">Filter(Areas):</label>
+        <select id="areaFilter"><option value="">All</option></select>
         <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
     </div>
 </div>
@@ -105,6 +110,7 @@
 
             populateTable(allRows);
             populateMethodFilter(allRows);
+            populateAreaFilter(allRows);
             initializeDataTable();
         } catch (err) {
             console.error('Error loading XLSX data:', err);
@@ -138,10 +144,18 @@
             updateFilterStatus();
         });
 
+        // Attach filter area change event
+        $('#areaFilter').on('change', function() {
+            const selectedArea = this.value.toLowerCase();
+            dataTable.search(selectedArea).draw();
+            updateFilterStatus();
+        });
+
         // Clear filters button
         $('#filterStatusBtn').on('click', function() {
             if ($(this).hasClass('red')) {
                 $('#methodFilter').val('');
+                $('#areaFilter').val('');
                 $('#customSearch').val('');
                 dataTable.search('').columns().search('').draw();
                 updateFilterStatus();
@@ -176,11 +190,29 @@
         }).join('');
     }
 
+    function populateAreaFilter(rows) {
+        const areaCounts = {};
+        rows.forEach(row => {
+            const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+            researchAreas.forEach(area => {
+                if (area) {
+                    areaCounts[area] = (areaCounts[area] || 0) + 1;
+                }
+            });
+        });
+
+        const areaFilter = document.getElementById("areaFilter");
+        areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
+            return `<option value="${area}">${area} [${count} matches]</option>`;
+        }).join('');
+    }
+
     function updateFilterStatus() {
         const searchValue = $('#customSearch').val().trim();
         const methodValue = $('#methodFilter').val();
+        const areaValue = $('#areaFilter').val();
 
-        const filterActive = searchValue !== '' || methodValue !== '';
+        const filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
 
         const button = $('#filterStatusBtn');
         if (filterActive) {
