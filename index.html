@@ -53,7 +53,11 @@
         .abstract-title {
             margin-top: 10px;
         }
+        .method-section {
+            margin-bottom: 10px;
+        }
         .areas-section {
+            margin-top: 5px;
             margin-bottom: 10px;
         }
     </style>
@@ -116,7 +120,7 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><strong class="abstract-title">${preliminaryTitle}</strong>`;
+            const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><strong class="abstract-title">${preliminaryTitle}</strong>`;
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}</td></tr>`;
         }).join('');
