@@ -110,9 +110,9 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>[ Abstract ID: #</strong>${abstractID}<strong> ]</strong> ${preliminaryTitle}`;
+            const titleWithID = `<strong>Abstract ID: #</strong>${abstractID}  <strong>|</strong>  </strong>${preliminaryTitle}</strong>`;
             const methodAndAreas = `<strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}  <strong>|</strong>  <strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td><strong>${titleWithID}</strong><br>${preliminaryAbstract}<br><br>${methodAndAreas}</td></tr>`;
+            return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}</td></tr>`;
         }).join('');
     }
 
