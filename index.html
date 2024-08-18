@@ -52,6 +52,11 @@
             background-color: red;
             color: white;
         }
+        .filter-notice {
+            margin-top: 10px;
+            font-style: italic;
+            color: #555;
+        }
         table, th, td {
             padding: 0px;
             border-collapse: collapse;
@@ -84,6 +89,9 @@
         <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
     </div>
 </div>
+
+<!-- Filter Notice -->
+<div class="filter-notice" id="filterNotice" style="display: none;"></div>
 
 <!-- Table -->
 <table id="abstractTable" class="display">
@@ -154,6 +162,7 @@
             });
 
             updateFilterStatus();
+            updateFilterNotice();
         }
 
         // Link the custom search input, method filter, and area filter to update the table
@@ -227,9 +236,29 @@
         if (filterActive) {
             button.removeClass('green').addClass('red').text('Click to clear filters');
         } else {
-            button.removeClass('red').addClass('green').text('No filters active
+            button.removeClass('red
 
-');
+').addClass('green').text('No filters active');
+        }
+    }
+
+    function updateFilterNotice() {
+        const searchValue = $('#customSearch').val().trim();
+        const methodValue = $('#methodFilter').val();
+        const areaValue = $('#areaFilter').val();
+
+        let activeFilters = [];
+        if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
+        if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
+        if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
+
+        const notice = $('#filterNotice');
+        const filteredRowCount = dataTable.rows({filter: 'applied'}).count();
+
+        if (activeFilters.length > 0) {
+            notice.text(`Active Filters: ${activeFilters.join(', ')} | ${filteredRowCount} record(s) found.`).show();
+        } else {
+            notice.hide();
         }
     }
 </script>
