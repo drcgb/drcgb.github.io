@@ -11,7 +11,7 @@
         th { background-color: #f2f2f2; white-space: normal; text-align: center; }
         th:nth-child(1), td:nth-child(1), th:nth-child(2), td:nth-child(2) { width: 8%; text-align: center; } /* Narrow and center Abstract ID and Main Method columns */
         th:nth-child(3), td:nth-child(3) { width: auto; } /* Preliminary Title & Abstract takes the remaining space */
-        th:not(:nth-child(3)), td:not(:nth-child(3)) { width: 15%; }
+        th:not(:nth-child(3)), td:not(:nth-child(3)) { width: 10%; }
         .search-container, .filter-container { margin-bottom: 10px; display: flex; align-items: center; }
         #searchInput { width: 100%; font-size: 14px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         .clear-filters { margin-left: 20px; cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
@@ -79,56 +79,4 @@
             researchAreas.forEach(area => area && (areaCounts[area] = (areaCounts[area] || 0) + 1));
         });
         methodFilter.innerHTML += Object.entries(methodCounts).sort(([, a], [, b]) => b - a).map(([method, count]) => `<option value="${method}">${method} [${count} matches]</option>`).join('');
-        areaFilter.innerHTML += Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b)).map(([area, count]) => `<option value="${area}">${area} [${count} matches]</option>`).join('');
-    }
-
-    function filterTable() {
-        const searchInput = document.getElementById("searchInput").value.toLowerCase();
-        const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
-        const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
-        const filterNotice = document.getElementById("filterNotice");
-        const clearFiltersButton = document.querySelector(".clear-filters");
-
-        const filteredRows = allRows.filter(row => {
-            const [ , mainMethod = '', , , abstractText = '', ...researchAreas] = row;
-            const researchAreasLower = researchAreas.map(area => area.toLowerCase());
-
-            const matchesSearch = abstractText.toLowerCase().includes(searchInput);
-            const matchesMethod = !methodFilter || mainMethod.toLowerCase() === methodFilter;
-            const matchesArea = !areaFilter || researchAreasLower.some(area => area === areaFilter);
-
-            return matchesSearch && matchesMethod && matchesArea;
-        });
-
-        let filterMessage = "You are currently filtering the results";
-        const activeFilters = [];
-
-        if (searchInput) activeFilters.push(`searching for "${searchInput}"`);
-        if (methodFilter) activeFilters.push(`Main Method: "${methodFilter}"`);
-        if (areaFilter) activeFilters.push(`Research Area: "${areaFilter}"`);
-
-        if (activeFilters.length > 0) {
-            filterMessage += ` by ${activeFilters.join(", ")}.`;
-            filterNotice.style.display = "block";
-            filterNotice.textContent = filterMessage;
-        } else {
-            filterNotice.style.display = "none";
-        }
-
-        clearFiltersButton.textContent = activeFilters.length > 0 ? "Clear filters" : "No filters selected";
-        clearFiltersButton.classList.toggle("active", activeFilters.length > 0);
-        clearFiltersButton.style.backgroundColor = activeFilters.length > 0 ? "red" : "#28a745";
-
-        populateTable(filteredRows);
-    }
-
-    function clearFilters() {
-        document.getElementById("searchInput").value = "";
-        document.getElementById("methodFilter").selectedIndex = 0;
-        document.getElementById("areaFilter").selectedIndex = 0;
-        filterTable();
-    }
-</script>
-
-</body>
-</html>
+        areaFilter.innerHTML += Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b)).map(([area, count]) => `<option value="${area}">${area}
