@@ -226,7 +226,7 @@
 
         const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML += Object.entries(methodCounts).map(([method, count]) => {
-            return `<option value="${method}">${method} ~[${count} matches]</option>`;
+            return `<option value="${method}">${method} [~${count} matches]</option>`;
         }).join('');
         console.log("Method filter populated.");
     }
