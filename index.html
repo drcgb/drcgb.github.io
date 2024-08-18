@@ -129,77 +129,81 @@
     });
 
     function initializeDataTable() {
-        console.log("Initializing DataTable...");
-        $.fn.dataTable.ext.search.push(function(settings, data) {
-    const searchValue = $('#customSearch').val().toLowerCase().trim();
-    const methodValue = $('#methodFilter').val().toLowerCase().trim();
-    const areaValue = $('#areaFilter').val().toLowerCase().trim();
+    console.log("Initializing DataTable...");
 
-    // Safely get values and ensure they are not undefined
-    const mainMethod = (data[1] || '').toLowerCase().trim(); // Second column: "Main Method"
-    const rowContent = (data[0] || '').toLowerCase().trim(); // Assuming the areas and other searchable content are in the first column (index 0)
+    $.fn.dataTable.ext.search.push(function(settings, data) {
+        const searchValue = $('#customSearch').val().toLowerCase().trim();
+        const methodValue = $('#methodFilter').val().toLowerCase().trim();
+        const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-    // Exact match for the method filter
-    const methodMatch = methodValue === '' || mainMethod === methodValue; // Updated comparison here
+        // Safely get values and ensure they are not undefined
+        const mainMethod = (data[1] || '').toLowerCase().trim(); // Second column: "Main Method"
+        const rowContent = (data[0] || '').toLowerCase().trim(); // Assuming the areas and other searchable content are in the first column (index 0)
 
-    // Partial match for the area filter
-    const areaMatch = areaValue === '' || rowContent.includes(areaValue);
+        console.log('Method Filter:', methodValue);
+        console.log('Main Method:', mainMethod);
 
-    // Partial match for the search input
-    const searchMatch = searchValue === '' || rowContent.includes(searchValue);
+        // Exact match for the method filter
+        const methodMatch = methodValue === '' || mainMethod === methodValue;
 
-    return methodMatch && areaMatch && searchMatch;
-});
+        // Partial match for the area filter
+        const areaMatch = areaValue === '' || rowContent.includes(areaValue);
 
-        dataTable = $('#abstractTable').DataTable({
-            paging: true,
-            searching: true,
-            info: true,
-            autoWidth: false,
-            ordering: false,
-            lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
-            language: {
-                lengthMenu: 'Show up to _MENU_ records per page',
-            },
-            dom: '<"top"l>rt<"bottom"p><"clear">',
-        });
+        // Partial match for the search input
+        const searchMatch = searchValue === '' || rowContent.includes(searchValue);
 
-        // Initial filtering
+        return methodMatch && areaMatch && searchMatch;
+    });
+
+    dataTable = $('#abstractTable').DataTable({
+        paging: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        ordering: false,
+        lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
+        language: {
+            lengthMenu: 'Show up to _MENU_ records per page',
+        },
+        dom: '<"top"l>rt<"bottom"p><"clear">',
+    });
+
+    // Initial filtering
+    dataTable.draw();
+
+    // Attach events
+    $('#customSearch').on('input', function() {
         dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
 
-        // Attach events
-        $('#customSearch').on('input', function() {
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    // Clear filters button
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
-        });
+        }
+    });
 
-        $('#methodFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
-
-        $('#areaFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
-
-        // Clear filters button
-        $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red')) {
-                $('#methodFilter').val('');
-                $('#areaFilter').val('');
-                $('#customSearch').val('');
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            }
-        });
-
-        console.log("DataTable initialized.");
-    }
+    console.log("DataTable initialized.");
+}
 
     function populateTable(rows) {
         console.log("Populating table...");
