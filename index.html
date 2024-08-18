@@ -131,25 +131,25 @@
     function initializeDataTable() {
         console.log("Initializing DataTable...");
         $.fn.dataTable.ext.search.push(function(settings, data) {
-    const searchValue = $('#customSearch').val().toLowerCase().trim();
-    const methodValue = $('#methodFilter').val().toLowerCase().trim();
-    const areaValue = $('#areaFilter').val().toLowerCase().trim();
+            const searchValue = $('#customSearch').val().toLowerCase().trim();
+            const methodValue = $('#methodFilter').val().toLowerCase().trim();
+            const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-    // Safely get values and ensure they are not undefined
-    const mainMethod = (data[1] || '').toLowerCase().trim(); // Second column: "Main Method"
-    const rowContent = (data[0] || '').toLowerCase().trim(); // Assuming the areas and other searchable content are in the first column (index 0)
+            // Safely get values and ensure they are not undefined
+            const mainMethod = (data[1] || '').toLowerCase().trim(); // Second column: "Main Method"
+            const rowContent = (data[0] || '').toLowerCase().trim(); // Assuming the areas and other searchable content are in the first column (index 0)
 
-    // Exact match for the method filter
-    const methodMatch = methodValue === '' || mainMethod === methodValue;
+            // Exact match for the method filter
+            const methodMatch = methodValue === '' || mainMethod === methodValue;
 
-    // Partial match for the area filter
-    const areaMatch = areaValue === '' || rowContent.includes(areaValue);
+            // Partial match for the area filter
+            const areaMatch = areaValue === '' || rowContent.includes(areaValue);
 
-    // Partial match for the search input
-    const searchMatch = searchValue === '' || rowContent.includes(searchValue);
+            // Partial match for the search input
+            const searchMatch = searchValue === '' || rowContent.includes(searchValue);
 
-    return methodMatch && areaMatch && searchMatch;
-});
+            return methodMatch && areaMatch && searchMatch;
+        });
 
         dataTable = $('#abstractTable').DataTable({
             paging: true,
@@ -214,23 +214,21 @@
         console.log("Table populated.");
     }
 
-
     function populateMethodFilter(rows) {
-    console.log("Populating method filter...");
-    const methodCounts = {};
-    rows.forEach(row => {
-        const mainMethod = row[1]?.trim().toLowerCase();
-        if (mainMethod) {
-            methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
-        }
-    });
+        console.log("Populating method filter...");
+        const methodCounts = {};
+        rows.forEach(row => {
+            const mainMethod = row[1]?.trim().toLowerCase();
+            if (mainMethod) {
+                methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
+            }
+        });
 
-    const methodFilter = document.getElementById("methodFilter");
-    methodFilter.innerHTML += Object.entries(methodCounts).map(([method, count]) => {
-        return `<option value="${method}">${method} [${count} matches]</option>`;
-    }).join('');
-    console.log("Method filter populated.");
-
+        const methodFilter = document.getElementById("methodFilter");
+        methodFilter.innerHTML += Object.entries(methodCounts).map(([method, count]) => {
+            return `<option value="${method}">${method} [${count} matches]</option>`;
+        }).join('');
+        console.log("Method filter populated.");
     }
 
     function populateAreaFilter(rows) {
