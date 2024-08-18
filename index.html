@@ -8,9 +8,10 @@
         body { font-family: Arial, sans-serif; font-size: 14px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         table, th, td { border: 1px solid black; padding: 10px; }
-        th { background-color: #f2f2f2; white-space: normal; text-align: center; vertical-align: middle; } /* Ensure headers are centered both horizontally and vertically */
-        th:nth-child(1), td:nth-child(1) { width: 20%; text-align: center; vertical-align: top; } /* Align right and top for Abstract Attributes column */
-        th:nth-child(2), td:nth-child(2) { width: auto; text-align: left; } /* Align left for Preliminary Title & Abstract column */
+        th { background-color: #f2f2f2; white-space: normal; text-align: left; vertical-align: middle; }
+        th:nth-child(1) { text-align: right; } /* Right align Abstract Details header */
+        td:nth-child(1) { width: 20%; text-align: right; vertical-align: top; } /* Right align text in Abstract Details column */
+        td:nth-child(2) { width: auto; text-align: left; } /* Align left for Preliminary Title and Abstract column */
         .search-container, .filter-container { margin-bottom: 10px; display: flex; align-items: center; }
         #searchInput { width: 100%; font-size: 14px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         .clear-filters { margin-left: 20px; cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
@@ -36,7 +37,7 @@
 
 <table id="abstractTable">
     <thead>
-        <tr><th>Attributes</th><th>Preliminary Title and Abstract</th></tr>
+        <tr><th>Abstract Details</th><th>Preliminary Title and Abstract</th></tr>
     </thead>
     <tbody></tbody>
 </table>
@@ -49,11 +50,9 @@
         fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
             .then(res => res.arrayBuffer())
             .then(data => {
-                console.log('Data fetched:', data); // Debugging line to check if data is fetched
                 const workbook = XLSX.read(data, {type: "array"});
                 const sheet = workbook.Sheets[workbook.SheetNames[0]];
                 allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
-                console.log('Parsed rows:', allRows); // Debugging line to check if rows are parsed correctly
                 populateTable(allRows);
                 populateFilterOptions(allRows);
             })
@@ -65,10 +64,10 @@
         tbody.innerHTML = "";
         rows.forEach(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const researchAreasCombined = researchAreas.filter(Boolean).join(', ');
             const methodText = mainMethod + (methodDetail ? `<br>(${methodDetail})` : '');
-            const abstractAttributes = `<strong>Abstract ID:</strong> ${abstractID || ''}<br><br><strong>Method:</strong> ${methodText}<br><br><strong>Research Areas:</strong> ${researchAreasCombined}`;
-            tbody.innerHTML += `<tr><td>${abstractAttributes}</td><td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td></tr>`;
+            const researchAreasCombined = researchAreas.filter(Boolean).join('<br>');
+            const abstractDetails = `<strong>Abstract ID:</strong> #${abstractID || ''}<br><br><strong>Method:</strong> ${methodText}<br><br><strong>Research Areas:</strong><br>${researchAreasCombined}`;
+            tbody.innerHTML += `<tr><td>${abstractDetails}</td><td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td></tr>`;
         });
     }
 
