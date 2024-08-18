@@ -110,11 +110,14 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         try {
+            console.log("Loading XLSX data...");
             const response = await fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
             const data = await response.arrayBuffer();
             const workbook = XLSX.read(data, { type: "array" });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+
+            console.log("Data loaded:", allRows);  // Log the loaded data
 
             populateTable(allRows);
             populateMethodFilter(allRows);
@@ -126,6 +129,7 @@
     });
 
     function initializeDataTable() {
+        console.log("Initializing DataTable...");
         dataTable = $('#abstractTable').DataTable({
             paging: true,
             searching: true,
@@ -139,31 +143,7 @@
             dom: '<"top"l>rt<"bottom"p><"clear">',
         });
 
-        // Update the table based on search and filter inputs
-        function updateTable() {
-            const searchValue = $('#customSearch').val().toLowerCase();
-            const methodValue = $('#methodFilter').val().toLowerCase();
-            const areaValue = $('#areaFilter').val().toLowerCase();
-
-            dataTable.search('').draw();  // Reset search
-
-            // Custom filtering logic
-            dataTable.rows().every(function () {
-                const row = this.data()[0].toLowerCase();
-                const methodMatch = methodValue === '' || row.includes(methodValue);
-                const areaMatch = areaValue === '' || row.includes(areaValue);
-                const searchMatch = searchValue === '' || row.includes(searchValue);
-
-                if (methodMatch && areaMatch && searchMatch) {
-                    this.nodes().to$().show();
-                } else {
-                    this.nodes().to$().hide();
-                }
-            });
-
-            updateFilterStatus();
-            updateFilterNotice();
-        }
+        updateTable(); // Apply the initial filters
 
         // Link the custom search input, method filter, and area filter to update the table
         $('#customSearch').on('input', updateTable);
@@ -180,10 +160,11 @@
             }
         });
 
-        updateFilterStatus();
+        console.log("DataTable initialized.");
     }
 
     function populateTable(rows) {
+        console.log("Populating table...");
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
@@ -191,9 +172,12 @@
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
         }).join('');
+
+        console.log("Table populated.");
     }
 
     function populateMethodFilter(rows) {
+        console.log("Populating method filter...");
         const methodCounts = {};
         rows.forEach(row => {
             const mainMethod = row[1]?.trim().toLowerCase();
@@ -206,9 +190,11 @@
         methodFilter.innerHTML += Object.entries(methodCounts).map(([method, count]) => {
             return `<option value="${method}">${method} [${count} matches]</option>`;
         }).join('');
+        console.log("Method filter populated.");
     }
 
     function populateAreaFilter(rows) {
+        console.log("Populating area filter...");
         const areaCounts = {};
         rows.forEach(row => {
             const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
@@ -223,6 +209,34 @@
         areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
             return `<option value="${area}">${area} [${count} matches]</option>`;
         }).join('');
+        console.log("Area filter populated.");
+    }
+
+    function updateTable() {
+        console.log("Updating table based on filters...");
+        const searchValue = $('#customSearch').val().toLowerCase();
+        const methodValue = $('#methodFilter').val().toLowerCase();
+        const areaValue = $('#areaFilter').val().toLowerCase();
+
+        dataTable.search('').draw();  // Reset search
+
+        // Custom filtering logic
+        dataTable.rows().every(function () {
+            const row = this.data()[0].toLowerCase();
+            const methodMatch = methodValue === '' || row.includes(methodValue);
+            const areaMatch = areaValue === '' || row.includes(areaValue);
+            const searchMatch = searchValue === '' || row.includes(searchValue);
+
+            if (methodMatch && areaMatch && searchMatch) {
+                this.nodes().to$().show();
+            } else {
+                this.nodes().to$().hide();
+            }
+        });
+
+        updateFilterStatus();
+        updateFilterNotice();
+        console.log("Table updated.");
     }
 
     function updateFilterStatus() {
@@ -236,9 +250,7 @@
         if (filterActive) {
             button.removeClass('green').addClass('red').text('Click to clear filters');
         } else {
-            button.removeClass('red
-
-').addClass('green').text('No filters active');
+            button.removeClass('red').addClass('green').text('No filters active');
         }
     }
 
