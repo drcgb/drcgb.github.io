@@ -6,20 +6,24 @@
     <title>Searchable and Filterable Table</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
     <style>
-        body { font-family: Arial, sans-serif; font-size: 14px; }
+        body { font-family: Arial, sans-serif; font-size: 14px; } /* Standardized font size */
         .dataTables_wrapper .dataTables_filter input { width: 100%; font-size: 14px; padding: 10px; border-radius: 4px; margin-left: 0; }
-        .dataTables_wrapper .dataTables_filter { width: 100%; text-align: left; margin-bottom: 10px; } /* Ensure the search bar takes full width */
-        .dataTables_wrapper .dataTables_length { float: right; }
-        table, th, td { border: 1px solid black; padding: 10px; border-collapse: collapse; }
+        .dataTables_wrapper .dataTables_filter { width: 100%; text-align: left; margin-bottom: 10px; }
+        .dataTables_wrapper .dataTables_length { float: right; font-size: 14px; }
+        table, th, td { padding: 10px; border-collapse: collapse; font-size: 14px; } /* Standardized font size */
         th { background-color: #f2f2f2; text-align: left; vertical-align: middle; }
         th:nth-child(1) { text-align: right; } /* Right align Abstract Details header */
         th { pointer-events: none; } /* Disable sorting */
         td:nth-child(1) { text-align: right; width: 20%; vertical-align: top; }
         td:nth-child(2) { text-align: left; vertical-align: top; }
         table.dataTable tbody tr:hover { background-color: #e0f7fa; } /* Light blue hover effect */
-        .clear-filters { cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
+        .clear-filters { cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; font-size: 14px; }
         .clear-filters.active { background-color: red; }
-        .filter-notice { margin: 10px 0; font-style: italic; color: #555; }
+        .filter-notice { margin: 10px 0; font-style: italic; color: #555; font-size: 14px; }
+        table.dataTable { border: none; } /* Remove outer border around the table */
+        .filter-container { display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px; } /* Allow wrapping of filter options */
+        .filter-container label, .filter-container select { font-size: 14px; } /* Standardized font size */
+        .filter-container label[for="areaFilter"] { flex-basis: 100%; margin-top: 10px; } /* Move "Filter by research area:" to a new line if it needs to wrap */
     </style>
 </head>
 <body>
@@ -65,7 +69,7 @@
                     info: false,
                     autoWidth: false,
                     ordering: false, // Disable column sorting
-                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]] // Add "Show All" option
+                    lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]] // Set custom options including "Show All"
                 });
             })
             .catch(err => console.error('Error loading XLSX data:', err));
@@ -75,7 +79,7 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const abstractDetails = `<strong>Abstract ID:</strong> #${abstractID || ''}<br><br><strong>Method:</strong> ${mainMethod}${methodDetail ? `<br>(${methodDetail})` : ''}<br><br><strong>Research Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+            const abstractDetails = `<strong>Abstract ID:</strong> #${abstractID || ''}<br><br><strong>Method:</strong> ${mainMethod}${methodDetail ? `<br>(${methodDetail})` : ''}<br><br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td>${abstractDetails}</td><td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td></tr>`;
         }).join('');
     }
@@ -132,7 +136,7 @@
             info: false,
             autoWidth: false,
             ordering: false,
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+            lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]]
         });
     }
 
@@ -145,4 +149,4 @@
 </script>
 
 </body>
-</html>
+</html
