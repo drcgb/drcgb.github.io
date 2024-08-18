@@ -13,13 +13,13 @@
         .dataTables_wrapper .dataTables_filter input {
             width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
         }
-        .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_length {
-            margin-bottom: 10px;
-        }
         .dataTables_wrapper .dataTables_filter {
-            float: left;
             text-align: left;
             width: 100%;
+            margin-bottom: 10px;
+        }
+        .filter-container {
+            display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;
         }
         .dataTables_wrapper .dataTables_length {
             float: right;
@@ -46,15 +46,19 @@
         .filter-notice {
             margin: 10px 0; font-style: italic; color: #555;
         }
-        .filter-container {
-            display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;
-        }
         .filter-container label, .filter-container select {
             font-size: 14px; margin-right: 10px; padding-right: 10px;
         }
     </style>
 </head>
 <body>
+
+<table id="abstractTable" class="display">
+    <thead>
+        <tr><th>Preliminary Title and Abstract</th></tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
 <div class="filter-container">
     <label for="areaFilter">Filter(Area):</label>
@@ -65,13 +69,6 @@
 </div>
 
 <div class="filter-notice" id="filterNotice" style="display: none;"></div>
-
-<table id="abstractTable" class="display">
-    <thead>
-        <tr><th>Preliminary Title and Abstract</th></tr>
-    </thead>
-    <tbody></tbody>
-</table>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
@@ -110,6 +107,9 @@
             },
             columns: [{ title: "Preliminary Title and Abstract" }]
         });
+
+        // Move the search bar above the filters
+        $('#abstractTable_filter').detach().prependTo('.dataTables_wrapper');
     }
 
     function populateTable(rows) {
