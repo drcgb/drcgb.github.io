@@ -14,14 +14,16 @@
                 display: none; /* Hide the automatically generated search bar */
             }
             .custom-search-container {
+                width: 100%; /* Set the container width to 100% */
                 text-align: left;
                 margin-bottom: 10px;
             }
             .custom-search-container input {
-                width: 98.5%;
+                width: 100%;
                 padding: 10px;
                 border-radius: 4px;
                 font-size: 16px;
+                box-sizing: border-box; /* Ensure padding doesn't affect the width */
             }
             .dataTables_wrapper .filter-container {
                 text-align: left;
