@@ -28,7 +28,7 @@
     <button class="clear-filters" id="clearFiltersBtn">No filters selected</button>
 </div>
 <div class="filter-notice" id="filterNotice" style="display: none;"></div>
-<table id="abstractTable" class="display" style="width:100%"><thead><tr><th>Abstract Details</th></tr></thead><tbody></tbody></table>
+<table id="abstractTable" class="display" style="width:100%"><thead><tr><th>Preliminary Title and Abstract</th></tr></thead><tbody></tbody></table>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
@@ -60,7 +60,8 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            return `<tr><td><strong>ID: </strong>${abstractID} <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}<br><br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}<br><br></td></tr>`;
+            const content = `<strong>ID: </strong>${abstractID} <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}<br><br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+            return `<tr><td>${content}</td></tr>`;
         }).join('');
         dataTable.clear().draw();
         dataTable.rows.add($(tbody).find('tr')).draw();
