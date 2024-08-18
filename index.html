@@ -139,10 +139,17 @@
     function populateFilterOptions(rows) {
         const methodCounts = {}, areaCounts = {};
         rows.forEach(row => {
-            const [_, mainMethod = '', , , , ...researchAreas] = row;
+            const mainMethod = row[1] || '';
+            const researchAreas = row.slice(5, 11);
+
             methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
-            researchAreas.forEach(area => area && (areaCounts[area] = (areaCounts[area] || 0) + 1));
+            researchAreas.forEach(area => {
+                if (area) {
+                    areaCounts[area] = (areaCounts[area] || 0) + 1;
+                }
+            });
         });
+
         document.getElementById("methodFilter").innerHTML += generateOptions(methodCounts, (a, b) => b[1] - a[1]);
         document.getElementById("areaFilter").innerHTML += generateOptions(areaCounts, ([a], [b]) => a.localeCompare(b));
     }
@@ -159,8 +166,10 @@
             const mainMethod = row[1]?.toLowerCase() || '';
             const researchAreas = row.slice(5, 11).map(area => area?.toLowerCase() || '');
 
-            return (!methodFilter || mainMethod.includes(methodFilter)) && 
-                   (!areaFilter || researchAreas.some(area => area.includes(areaFilter)));
+            const matchesMethod = !methodFilter || mainMethod.includes(methodFilter);
+            const matchesArea = !areaFilter || researchAreas.some(area => area.includes(areaFilter));
+
+            return matchesMethod && matchesArea;
         });
 
         populateTable(filteredRows);
