@@ -8,27 +8,24 @@
     <style>
         body, table, th, td, .clear-filters, .filter-notice, .dataTables_wrapper .dataTables_filter input, 
         .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info { 
-            font-family: Arial, sans-serif; 
-            font-size: 14px; 
-            line-height: 1.5; /* Ensure consistent text size and spacing */
-        }
+            font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; }
         .dataTables_wrapper .dataTables_filter input { width: 100%; padding: 10px; border-radius: 4px; margin-left: 0; }
         .dataTables_wrapper .dataTables_filter { width: 100%; text-align: left; margin-bottom: 10px; }
         .dataTables_wrapper .dataTables_length { float: right; font-size: 14px; }
-        table, th, td { padding: 10px; border-collapse: collapse; border: 1px solid black; } /* Re-added border */
+        table, th, td { padding: 10px; border-collapse: collapse; border: 1px solid black; }
         th { background-color: #f2f2f2; text-align: left; vertical-align: middle; }
-        th:nth-child(1) { text-align: right; } /* Right align Abstract Details header */
-        th { pointer-events: none; } /* Disable sorting */
+        th:nth-child(1) { text-align: right; }
+        th { pointer-events: none; }
         td:nth-child(1) { text-align: right; width: 20%; vertical-align: top; }
         td:nth-child(2) { text-align: left; vertical-align: top; }
-        table.dataTable tbody tr:hover { background-color: #e0f7fa; } /* Light blue hover effect */
+        table.dataTable tbody tr:hover { background-color: #e0f7fa; }
         .clear-filters { cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
         .clear-filters.active { background-color: red; }
         .filter-notice { margin: 10px 0; font-style: italic; color: #555; }
-        table.dataTable { border: 1px solid black; } /* Re-added border */
+        table.dataTable { border: 1px solid black; margin: 0; } /* Remove padding around the table */
         .filter-container { display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px; } 
         .filter-container label, .filter-container select { font-size: 14px; }
-        .filter-container label[for="areaFilter"] { flex-basis: 100%; margin-top: 10px; } 
+        .filter-container label[for="areaFilter"] { flex-basis: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -59,23 +56,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
     let allRows = [];
-
     document.addEventListener("DOMContentLoaded", () => {
         fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
             .then(res => res.arrayBuffer())
             .then(data => {
-                const sheet = XLSX.read(data, {type: "array"}).Sheets[XLSX.read(data, {type: "array"}).SheetNames[0]];
+                const workbook = XLSX.read(data, {type: "array"});
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
                 allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
                 populateTable(allRows);
                 populateFilterOptions(allRows);
                 $('#abstractTable').DataTable({
                     paging: true,
-                    searching: false, 
+                    searching: false,
                     info: false,
                     autoWidth: false,
-                    ordering: false, 
-                    lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]], 
-                    language: { lengthMenu: 'Show up to _MENU_ entries' } // Updated "Show entries" text
+                    ordering: false,
+                    lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
+                    language: { lengthMenu: 'Show up to _MENU_ entries' }
                 });
             })
             .catch(err => console.error('Error loading XLSX data:', err));
@@ -83,11 +80,12 @@
 
     function populateTable(rows) {
         const tbody = document.querySelector("#abstractTable tbody");
-        tbody.innerHTML = rows.map(row => {
+        tbody.innerHTML = "";
+        rows.forEach(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
             const abstractDetails = `<strong>ID:</strong> #${abstractID || ''}<br><br><strong>Method:</strong> ${mainMethod}${methodDetail ? `<br>(${methodDetail})` : ''}<br><br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td>${abstractDetails}</td><td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td></tr>`;
-        }).join('');
+            tbody.innerHTML += `<tr><td>${abstractDetails}</td><td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td></tr>`;
+        });
     }
 
     function populateFilterOptions(rows) {
@@ -116,7 +114,7 @@
             return abstractText.includes(searchInput) && (!methodFilter || mainMethod === methodFilter) && (!areaFilter || researchAreas.includes(areaFilter));
         });
 
-        let filterMessage = `You are currently filtering the results. ${filteredRows.length} record(s) found.`; // Updated filter message
+        let filterMessage = `You are currently filtering the results. ${filteredRows.length} record(s) found.`;
         const activeFilters = [];
 
         if (searchInput) activeFilters.push(`searching for "${searchInput}"`);
@@ -143,19 +141,16 @@
             autoWidth: false,
             ordering: false,
             lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
-            language: { lengthMenu: 'Show up to _MENU_ entries' } // Updated "Show entries" text
+            language: { lengthMenu: 'Show up to _MENU_ entries' }
         });
     }
 
-    function clear
-
-Filters() {
+    function clearFilters() {
         document.getElementById("searchInput").value = "";
         document.getElementById("methodFilter").selectedIndex = 0;
         document.getElementById("areaFilter").selectedIndex = 0;
         filterTable();
     }
 </script>
-
 </body>
 </html>
