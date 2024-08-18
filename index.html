@@ -8,15 +8,18 @@
     <style>
         body { font-family: Arial, sans-serif; font-size: 14px; }
         .dataTables_wrapper .dataTables_filter input { width: 100%; font-size: 14px; padding: 10px; border-radius: 4px; margin-left: 0; }
-        .dataTables_wrapper .dataTables_filter { float: left; text-align: left; display: none; } /* Hide DataTables default search */
+        .dataTables_wrapper .dataTables_filter { width: 100%; text-align: left; margin-bottom: 10px; } /* Ensure the search bar takes full width */
         .dataTables_wrapper .dataTables_length { float: right; }
+        table, th, td { border: 1px solid black; padding: 10px; border-collapse: collapse; }
+        th { background-color: #f2f2f2; text-align: left; vertical-align: middle; }
+        th:nth-child(1) { text-align: right; } /* Right align Abstract Details header */
+        th { pointer-events: none; } /* Disable sorting */
+        td:nth-child(1) { text-align: right; width: 20%; vertical-align: top; }
+        td:nth-child(2) { text-align: left; vertical-align: top; }
+        table.dataTable tbody tr:hover { background-color: #e0f7fa; } /* Light blue hover effect */
         .clear-filters { cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
         .clear-filters.active { background-color: red; }
         .filter-notice { margin: 10px 0; font-style: italic; color: #555; }
-        table, th, td { border: 1px solid black; padding: 10px; border-collapse: collapse; }
-        th { background-color: #f2f2f2; text-align: left; vertical-align: middle; }
-        th:nth-child(1), td:nth-child(1) { text-align: right; width: 20%; vertical-align: top; }
-        td:nth-child(2) { text-align: left; vertical-align: top; }
     </style>
 </head>
 <body>
@@ -56,11 +59,13 @@
                 allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
                 populateTable(allRows);
                 populateFilterOptions(allRows);
-                $('#abstractTable').DataTable({ 
+                $('#abstractTable').DataTable({
                     paging: true,
                     searching: false, // Keep custom search
                     info: false,
-                    autoWidth: false
+                    autoWidth: false,
+                    ordering: false, // Disable column sorting
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]] // Add "Show All" option
                 });
             })
             .catch(err => console.error('Error loading XLSX data:', err));
@@ -101,7 +106,21 @@
             return abstractText.includes(searchInput) && (!methodFilter || mainMethod === methodFilter) && (!areaFilter || researchAreas.includes(areaFilter));
         });
 
-        document.querySelector("#filterNotice").style.display = filteredRows.length < allRows.length ? "block" : "none";
+        let filterMessage = "You are currently filtering the results";
+        const activeFilters = [];
+
+        if (searchInput) activeFilters.push(`searching for "${searchInput}"`);
+        if (methodFilter) activeFilters.push(`Main Method: "${methodFilter}"`);
+        if (areaFilter) activeFilters.push(`Research Area: "${areaFilter}"`);
+
+        if (activeFilters.length > 0) {
+            filterMessage += ` by ${activeFilters.join(", ")}.`;
+            document.getElementById("filterNotice").style.display = "block";
+            document.getElementById("filterNotice").textContent = filterMessage;
+        } else {
+            document.getElementById("filterNotice").style.display = "none";
+        }
+
         document.querySelector(".clear-filters").classList.toggle("active", filteredRows.length < allRows.length);
         document.querySelector(".clear-filters").textContent = filteredRows.length < allRows.length ? "Clear filters" : "No filters selected";
 
@@ -111,7 +130,9 @@
             paging: true,
             searching: false,
             info: false,
-            autoWidth: false
+            autoWidth: false,
+            ordering: false,
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
         });
     }
 
