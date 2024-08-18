@@ -131,25 +131,35 @@
             dom: '<"top"l>rt<"bottom"p><"clear">',
         });
 
-        // Link the custom search input to the DataTable search functionality
-        $('#customSearch').on('input', function() {
-            dataTable.search(this.value).draw();
-            updateFilterStatus();
-        });
+        // Update the table based on search and filter inputs
+        function updateTable() {
+            const searchValue = $('#customSearch').val().toLowerCase();
+            const methodValue = $('#methodFilter').val().toLowerCase();
+            const areaValue = $('#areaFilter').val().toLowerCase();
 
-        // Attach filter method change event
-        $('#methodFilter').on('change', function() {
-            const selectedMethod = this.value.toLowerCase();
-            dataTable.column(0).search(selectedMethod).draw();
-            updateFilterStatus();
-        });
+            dataTable.search('').draw();  // Reset search
 
-        // Attach filter area change event
-        $('#areaFilter').on('change', function() {
-            const selectedArea = this.value.toLowerCase();
-            dataTable.search(selectedArea).draw();
+            // Custom filtering logic
+            dataTable.rows().every(function () {
+                const row = this.data()[0].toLowerCase();
+                const methodMatch = methodValue === '' || row.includes(methodValue);
+                const areaMatch = areaValue === '' || row.includes(areaValue);
+                const searchMatch = searchValue === '' || row.includes(searchValue);
+
+                if (methodMatch && areaMatch && searchMatch) {
+                    this.nodes().to$().show();
+                } else {
+                    this.nodes().to$().hide();
+                }
+            });
+
             updateFilterStatus();
-        });
+        }
+
+        // Link the custom search input, method filter, and area filter to update the table
+        $('#customSearch').on('input', updateTable);
+        $('#methodFilter').on('change', updateTable);
+        $('#areaFilter').on('change', updateTable);
 
         // Clear filters button
         $('#filterStatusBtn').on('click', function() {
@@ -157,8 +167,7 @@
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
-                dataTable.search('').columns().search('').draw();
-                updateFilterStatus();
+                updateTable();
             }
         });
 
@@ -218,7 +227,9 @@
         if (filterActive) {
             button.removeClass('green').addClass('red').text('Click to clear filters');
         } else {
-            button.removeClass('red').addClass('green').text('No filters active');
+            button.removeClass('red').addClass('green').text('No filters active
+
+');
         }
     }
 </script>
