@@ -42,7 +42,7 @@
             display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;
         }
         .filter-container label, .filter-container select {
-            font-size: 14px; margin-right: 10x;
+            font-size: 14px; margin-right: 10px; padding-right: 10px;
         }
         .search-container {
             width: 99%; margin-bottom: 10px; margin-right: 10px
@@ -112,9 +112,9 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `[ID: #${abstractID}] ${preliminaryTitle}`;
-            const methodAndAreas = `<br><br><strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td><strong>${titleWithID}</strong><br>${preliminaryAbstract}${methodAndAreas}</td></tr>`;
+            const titleWithID = `<strong>[ Abstract ID: #</strong>${abstractID}<strong> ]</strong> ${preliminaryTitle}`;
+            const methodAndAreas = `Method: ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}  |  Areas: ${researchAreas.filter(Boolean).join('; ')}`;
+            return `<tr><td><strong>${titleWithID}</strong><br>${preliminaryAbstract}<br><br>${methodAndAreas}</td></tr>`;
         }).join('');
     }
 
