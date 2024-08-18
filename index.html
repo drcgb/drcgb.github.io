@@ -93,6 +93,9 @@
             const workbook = XLSX.read(data, { type: "array" });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+
+            console.log("Loaded Data:", allRows);  // Debugging: Check data loaded correctly
+
             populateTable(allRows);
             populateFilterOptions(allRows);
             initializeDataTable();
@@ -129,7 +132,7 @@
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
         }).join('');
-        
+
         if (dataTable) {
             dataTable.clear().draw();
             dataTable.rows.add($(tbody).children()).draw();
@@ -175,7 +178,21 @@
             return matchesMethod && matchesArea;
         });
 
+        console.log("Filtered Rows:", filteredRows);  // Debugging: Check filtering results
+
         populateTable(filteredRows);
+        updateClearFiltersButton(methodFilter, areaFilter);
+    }
+
+    function updateClearFiltersButton(methodFilter, areaFilter) {
+        const button = document.getElementById("clearFiltersBtn");
+        if (methodFilter || areaFilter) {
+            button.classList.add("active");
+            button.textContent = "Clear filters";
+        } else {
+            button.classList.remove("active");
+            button.textContent = "No filters selected";
+        }
     }
 
     document.getElementById("methodFilter").addEventListener("change", function() {
@@ -197,3 +214,5 @@
 </script>
 </body>
 </html>
+
+   
