@@ -7,13 +7,15 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
     <style>
         body, table, th, td, .clear-filters, .filter-notice {font-family: Arial, sans-serif; font-size: 14px;}
-        .dataTables_wrapper .dataTables_filter input, .search-container input {width: 100%; padding: 10px; margin-bottom: 10px;}
-        .clear-filters {cursor: pointer; background-color: #28a745; color: white; padding: 8px 12px; border-radius: 5px;}
+        .dataTables_wrapper .dataTables_filter input, .search-container input {width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;}
+        .clear-filters {cursor: pointer; background-color: #28a745; color: white; padding: 8px 12px; border-radius: 5px; transition: background-color 0.3s, color 0.3s;}
         .clear-filters.active {background-color: red;}
-        table, th, td {padding: 0px; border: 1px solid black;}
-        th {background-color: #f2f2f2;}
+        table, th, td {padding: 0px; border-collapse: collapse; border: 1px solid black;}
+        th {background-color: #f2f2f2; text-align: left; vertical-align: middle; pointer-events: none;}
         table.dataTable tbody tr:hover {background-color: #e0f7fa;}
-        .filter-container, .search-container {margin-bottom: 10px;}
+        .filter-container, .search-container {margin-bottom: 10px; display: flex; align-items: center;}
+        .filter-container label, .filter-container select {margin-right: 10px;}
+        .search-container {width: 100%;}
     </style>
 </head>
 <body>
@@ -40,9 +42,9 @@
             const workbook = XLSX.read(data, { type: "array" });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-            populateTable(allRows);
             populateFilterOptions(allRows);
             initializeDataTable();
+            filterTable(); // Populate table initially
         } catch (err) { console.error('Error loading XLSX data:', err); }
     });
 
@@ -58,9 +60,7 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>ID: </strong>${abstractID} <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong>${preliminaryTitle}</strong>`;
-            const methodAndAreas = `<strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+            return `<tr><td><strong>ID: </strong>${abstractID} <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}<br><br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}<br><br></td></tr>`;
         }).join('');
         dataTable.clear().draw();
         dataTable.rows.add($(tbody).find('tr')).draw();
@@ -90,24 +90,12 @@
             return searchText.includes(searchInput) && (!methodFilter || row[1]?.toLowerCase().includes(methodFilter)) && (!areaFilter || row.slice(5).some(area => area?.toLowerCase().includes(areaFilter)));
         });
 
-        updateTable(filteredRows);  
+        populateTable(filteredRows);  
         const activeFilters = [];
         if (searchInput) activeFilters.push(`searching for "${searchInput}"`);
         if (methodFilter) activeFilters.push(`Main Method: "${methodFilter}"`);
         if (areaFilter) activeFilters.push(`Research Area: "${areaFilter}"`);
         updateNoticeAndButton(filteredRows.length < allRows.length, filteredRows.length, activeFilters);
-    }
-
-    function updateTable(filteredRows) {
-        const tbody = document.querySelector("#abstractTable tbody");
-        tbody.innerHTML = filteredRows.map(row => {
-            const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>ID: </strong>${abstractID} <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong>${preliminaryTitle}</strong>`;
-            const methodAndAreas = `<strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
-        }).join('');
-        dataTable.clear().draw();
-        dataTable.rows.add($(tbody).find('tr')).draw();
     }
 
     function updateNoticeAndButton(isFiltered, filteredLength, activeFilters) {
