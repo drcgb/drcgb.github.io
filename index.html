@@ -157,15 +157,22 @@
         populateTable(filteredRows);
     }
 
-    document.getElementById("methodFilter").addEventListener("change", filterTable);
-    document.getElementById("areaFilter").addEventListener("change", filterTable);
-    document.getElementById("clearFiltersBtn").addEventListener("click", clearFilters);
+    document.getElementById("methodFilter").addEventListener("change", function() {
+        filterTable();
+        dataTable.draw();
+    });
 
-    function clearFilters() {
+    document.getElementById("areaFilter").addEventListener("change", function() {
+        filterTable();
+        dataTable.draw();
+    });
+
+    document.getElementById("clearFiltersBtn").addEventListener("click", function() {
         document.getElementById("methodFilter").selectedIndex = 0;
         document.getElementById("areaFilter").selectedIndex = 0;
         filterTable();
-    }
+        dataTable.search('').draw(); // Clear the search as well
+    });
 </script>
 </body>
 </html>
