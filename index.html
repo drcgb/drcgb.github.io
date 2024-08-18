@@ -57,7 +57,7 @@
                 margin-bottom: 20px;
                 font-style: italic;
                 color: #555;
-                background-color: #f8d7da; /* Light red background */
+                background-color: #f5d8ffb1; /* Light purple background */
                 border: 1px solid #f5c6cb; /* Red border */
                 padding: 10px;
                 border-radius: 4px;
@@ -276,7 +276,7 @@ function populateTable(rows) {
 
         const button = $('#filterStatusBtn');
         if (filterActive) {
-            button.removeClass('green').addClass('red').text('Click to clear filters');
+            button.removeClass('green').addClass('red').text('Click to clear all filters');
         } else {
             button.removeClass('red').addClass('green').text('No filters active');
         }
@@ -297,8 +297,8 @@ function populateTable(rows) {
 
     if (filteredRowCount > 0) {
         notice.text(`Active Filters: ${activeFilters.join(', ')} | ${filteredRowCount} record(s) found.`).show();
-    } else {
-        // Check filters individually
+    } else if (activeFilters.length > 0) {
+        // Check filters individually if no results are found
         let methodResults = testFilterWithout('method');
         let areaResults = testFilterWithout('area');
 
@@ -311,6 +311,8 @@ function populateTable(rows) {
         }
 
         notice.text(alertMessage).show();
+    } else {
+        notice.hide(); // Hide the notice if no filters are active
     }
 }
 
