@@ -19,8 +19,8 @@
         .filter-notice {margin: 10px 0; font-style: italic; color: #555;}
         .filter-container {display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;}
         .filter-container label, .filter-container select {font-size: 14px; margin-right: 10px; padding-right: 10px;}
-        .search-container {width: 99%; margin-bottom: 10px; margin-right: 10px}
-        .search-container input {width: 97%; margin-right: 20px padding: 10px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc;}
+        .search-container {width: 99%; margin-bottom: 10px; margin-right: 10px;}
+        .search-container input {width: 97%; margin-right: 20px; padding: 10px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc;}
         .abstract-title {margin-top: 10px;}
         .method-section {margin-bottom: 10px;}
         .areas-section {margin-top: 5px; margin-bottom: 10px;}
@@ -126,20 +126,22 @@
         const filterNotice = document.getElementById("filterNotice");
         const clearFiltersBtn = document.querySelector(".clear-filters");
         filterNotice.style.display = isFiltered ? "block" : "none";
-        filterNotice.textContent = `You are currently filtering the results. ${filteredLength} record(s) found.`(activeFilters.length ?  by ${activeFilters.join(", ")}. : ‘’);
-clearFiltersBtn.classList.toggle(“active”, isFiltered);
-clearFiltersBtn.textContent = isFiltered ? “Clear filters” : “No filters selected”;
-}
-function clearFilters() {
-document.getElementById(“searchInput”).value = “”;
-document.getElementById(“methodFilter”).selectedIndex = 0;
-document.getElementById(“areaFilter”).selectedIndex = 0;
-filterTable();
-}
-document.getElementById(“searchInput”).addEventListener(“input”, filterTable);
-document.getElementById(“methodFilter”).addEventListener(“change”, filterTable);
-document.getElementById(“areaFilter”).addEventListener(“change”, filterTable);
-document.getElementById(“clearFiltersBtn”).addEventListener(“click”, clearFilters);
+        filterNotice.textContent = `You are currently filtering the results.         ${filteredLength} record(s) found.` + (activeFilters.length ? ` by ${activeFilters.join(", ")}.` : '');
+        clearFiltersBtn.classList.toggle("active", isFiltered);
+        clearFiltersBtn.textContent = isFiltered ? "Clear filters" : "No filters selected";
+    }
+
+    function clearFilters() {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("methodFilter").selectedIndex = 0;
+        document.getElementById("areaFilter").selectedIndex = 0;
+        filterTable();
+    }
+
+    document.getElementById("searchInput").addEventListener("input", filterTable);
+    document.getElementById("methodFilter").addEventListener("change", filterTable);
+    document.getElementById("areaFilter").addEventListener("change", filterTable);
+    document.getElementById("clearFiltersBtn").addEventListener("click", clearFilters);
 </script>
 </body>
 </html>
