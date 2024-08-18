@@ -47,29 +47,9 @@
         .filter-container label, .filter-container select {
             font-size: 14px; margin-right: 10px; padding-right: 10px;
         }
-        .search-container {
-            width: 98%; margin-bottom: 10px; margin-right: 10px
-        }
-        .search-container input {
-            width: 97%; ; margin-right: 20px padding: 10px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc;
-        }
-        .abstract-title {
-            margin-top: 10px;
-        }
-        .method-section {
-            margin-bottom: 10px;
-        }
-        .areas-section {
-            margin-top: 5px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
-
-<div class="search-container">
-    <input type="text" id="searchInput" placeholder="🔍 Search abstracts...">
-</div>
 
 <div class="filter-container">
     <label for="areaFilter">Filter(Area):</label>
@@ -154,36 +134,25 @@
     }
 
     function filterTable() {
-        const searchInput = document.getElementById("searchInput").value.toLowerCase();
         const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
         const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
 
         const filteredRows = allRows.filter(row => {
-            const abstractID = row[0]?.toLowerCase() || '';
             const mainMethod = row[1]?.toLowerCase() || '';
-            const methodDetail = row[2]?.toLowerCase() || '';
-            const preliminaryTitle = row[3]?.toLowerCase() || '';
-            const preliminaryAbstract = row[4]?.toLowerCase() || '';
             const researchAreas = row.slice(5, 11).map(area => area?.toLowerCase() || '');
 
-            const searchText = `${abstractID} ${mainMethod} ${methodDetail} ${preliminaryTitle} ${preliminaryAbstract} ${researchAreas.join(' ')}`;
-            return searchText.includes(searchInput) && 
-                   (!methodFilter || mainMethod.includes(methodFilter)) && 
+            return (!methodFilter || mainMethod.includes(methodFilter)) && 
                    (!areaFilter || researchAreas.some(area => area.includes(areaFilter)));
         });
 
         populateTable(filteredRows);
     }
 
-    document.getElementById("searchInput").addEventListener("input", function() {
-        dataTable.search(this.value).draw();
-    });
     document.getElementById("methodFilter").addEventListener("change", filterTable);
     document.getElementById("areaFilter").addEventListener("change", filterTable);
     document.getElementById("clearFiltersBtn").addEventListener("click", clearFilters);
 
     function clearFilters() {
-        document.getElementById("searchInput").value = "";
         document.getElementById("methodFilter").selectedIndex = 0;
         document.getElementById("areaFilter").selectedIndex = 0;
         filterTable();
