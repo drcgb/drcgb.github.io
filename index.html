@@ -72,7 +72,7 @@
     display: flex;
     flex-wrap: wrap; /* Allow items to wrap if necessary */
     justify-content: flex-start; /* Align items to the start */
-    align-items: center; /* Align items vertically */
+    align-items: left; /* Align items vertically */
     gap: 10px; /* Add space between filter groups */
     margin-bottom: 10px;
     width: 100%; /* Ensure the container takes up full width */
@@ -407,10 +407,10 @@ document.getElementById('downloadPDF').addEventListener('click', function() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
 
-    // Combine Main Method and Method Detail columns, and adjust data accordingly
+    // Combine Main Method and Method Detail columns, ensuring no "undefined"
     const rows = allRows.map(row => [
         row[0], // Abstract ID
-        `${row[1]} ${row[2]}`, // Combined Main Method and Method Detail
+        `${row[1]}${row[2] ? ' ' + row[2] : ''}`, // Combined Main Method and Method Detail, avoid "undefined"
         row[3], // Preliminary Title
         row[4], // Preliminary Abstract
         row.slice(5, 11).filter(Boolean).join('; ') // Research Areas
@@ -418,20 +418,30 @@ document.getElementById('downloadPDF').addEventListener('click', function() {
 
     // Add title
     doc.setFontSize(16);
-    doc.text("Psych Hons Prelim Abstracts 2024", 14, 22);
+    doc.text("Full Table Data", 14, 22);
 
-    // Generate the table with adjusted column widths
+    // Generate the table with adjusted settings
     doc.autoTable({
         head: [['Abstract ID', 'Method', 'Preliminary Title', 'Preliminary Abstract', 'Research Areas']],
         body: rows,
         startY: 30,
-        styles: { fontSize: 8 },
+        styles: { fontSize: 8, cellPadding: 2 }, // Ensure cell padding for better text alignment
         margin: { top: 10 },
         rowPageBreak: 'avoid', // Prevent rows from splitting across pages
         columnStyles: {
             0: { cellWidth: 30 }, // Make Abstract ID column slightly wider
             // Other columns retain their default widths
         },
+        didDrawCell: (data) => {
+            // Adjust text formatting within cells if needed
+            if (data.section === 'body') {
+                const text = data.cell.text[0];
+                if (text && text.length > 50) { // Arbitrary cutoff for long text
+                    doc.setFontSize(7); // Reduce font size for long text if needed
+                    data.cell.text[0] = doc.splitTextToSize(text, data.cell.width);
+                }
+            }
+        }
     });
 
     // Save the PDF
