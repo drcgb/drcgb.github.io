@@ -6,63 +6,22 @@
     <title>Searchable and Filterable Table</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
     <style>
-        body, table, th, td, .clear-filters, .filter-notice, .dataTables_wrapper .dataTables_filter input, 
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
+        body, table, th, td, .clear-filters, .filter-notice, .dataTables_wrapper input, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
             font-family: Arial, sans-serif; font-size: 14px; line-height: 1.2;
         }
-        .dataTables_wrapper .dataTables_filter input {
-            width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
-        }
-        .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_length {
-            margin-bottom: 10px;
-        }
-        .dataTables_wrapper .dataTables_length {
-            float: right;
-        }
-        .dataTables_wrapper .dataTables_paginate {
-            text-align: center;
-        }
-        table, th, td {
-            padding: 0px; border-collapse: collapse; border: 1px solid black;
-        }
-        th {
-            background-color: #f2f2f2; text-align: left; vertical-align: middle; pointer-events: none;
-        }
-        table.dataTable tbody tr:hover {
-            background-color: #e0f7fa;
-        }
-        .clear-filters {
-            cursor: pointer; background-color: #28a745; color: white; border: none; padding: 8px 12px;
-            border-radius: 5px; transition: background-color 0.3s, color 0.3s;
-        }
-        .clear-filters.active {
-            background-color: red;
-        }
-        .filter-notice {
-            margin: 10px 0; font-style: italic; color: #555;
-        }
-        .filter-container {
-            display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;
-        }
-        .filter-container label, .filter-container select {
-            font-size: 14px; margin-right: 10px; padding-right: 10px;
-        }
-        .search-container {
-            width: 97%; margin-bottom: 10px; margin-right: 10px
-        }
-        .search-container input {
-            width: 97%; ; margin-right: 20px padding: 10px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc;
-        }
-        .abstract-title {
-            margin-top: 10px;
-        }
-        .method-section {
-            margin-bottom: 10px;
-        }
-        .areas-section {
-            margin-top: 5px;
-            margin-bottom: 10px;
-        }
+        .dataTables_wrapper input { width: 100%; padding: 10px; border-radius: 4px; font-size: 16px; }
+        .dataTables_wrapper .dataTables_length { float: right; margin-bottom: 10px; }
+        table, th, td { padding: 0px; border-collapse: collapse; border: 1px solid black; }
+        th { background-color: #f2f2f2; text-align: left; pointer-events: none; }
+        table.dataTable tbody tr:hover { background-color: #e0f7fa; }
+        .clear-filters { cursor: pointer; background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
+        .clear-filters.active { background-color: red; }
+        .filter-container { display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+        .filter-container label, .filter-container select { font-size: 14px; margin-right: 10px; }
+        .search-container { width: 97%; margin-bottom: 10px; }
+        .abstract-title { margin-top: 10px; }
+        .method-section { margin-bottom: 10px; }
+        .areas-section { margin: 5px 0 10px; }
     </style>
 </head>
 <body>
@@ -90,29 +49,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
     let allRows = [];
-
     document.addEventListener("DOMContentLoaded", async () => {
         try {
-            const response = await fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-            const data = await response.arrayBuffer();
-            const workbook = XLSX.read(data, { type: "array" });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-            populateTable(allRows);
-            populateFilterOptions(allRows);
-            initializeDataTable();
-        } catch (err) {
-            console.error('Error loading XLSX data:', err);
-        }
+            const data = await (await fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")).arrayBuffer();
+            allRows = XLSX.utils.sheet_to_json(XLSX.read(data, { type: "array" }).Sheets[workbook.SheetNames[0]], { header: 1 }).slice(1);
+            populateTable(allRows); populateFilterOptions(allRows); initializeDataTable();
+        } catch (err) { console.error('Error loading XLSX data:', err); }
     });
 
     function initializeDataTable() {
         $('#abstractTable').DataTable({
-            paging: true,
-            searching: false,
-            info: false,
-            autoWidth: false,
-            ordering: false,
+            paging: true, searching: false, info: false, autoWidth: false, ordering: false,
             lengthMenu: [[25, 50, 75, -1], [25, 50, 75, `${allRows.length} (All)`]],
             language: { lengthMenu: 'Show up to _MENU_ records per page' },
             columns: [{ title: "Preliminary Title and Abstract" }]
@@ -123,9 +70,7 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong class="abstract-title">${preliminaryTitle}</strong>`;
-            const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+            return `<tr><td><strong>ID: </strong>${abstractID} <strong>|</strong> <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><strong class="abstract-title">${preliminaryTitle}</strong><br>${preliminaryAbstract}<br><strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}</td></tr>`;
         }).join('');
     }
 
@@ -149,17 +94,8 @@
         const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
         const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
         const filteredRows = allRows.filter(row => {
-            const abstractID = row[0]?.toLowerCase() || '';
-            const mainMethod = row[1]?.toLowerCase() || '';
-            const methodDetail = row[2]?.toLowerCase() || '';
-            const preliminaryTitle = row[3]?.toLowerCase() || '';
-            const preliminaryAbstract = row[4]?.toLowerCase() || '';
-            const researchAreas = row.slice(5, 11).map(area => area?.toLowerCase() || '');
-
-            const searchText = `${abstractID} ${mainMethod} ${methodDetail} ${preliminaryTitle} ${preliminaryAbstract} ${researchAreas.join(' ')}`;
-            return searchText.includes(searchInput) && 
-                   (!methodFilter || mainMethod.includes(methodFilter)) && 
-                   (!areaFilter || researchAreas.some(area => area.includes(areaFilter)));
+            const searchText = row.slice(0, 5).map(v => v?.toLowerCase() || '').concat(row.slice(5).map(area => area?.toLowerCase() || '')).join(' ');
+            return searchText.includes(searchInput) && (!methodFilter || row[1]?.toLowerCase().includes(methodFilter)) && (!areaFilter || row.slice(5).some(area => area?.toLowerCase().includes(areaFilter)));
         });
 
         const activeFilters = [];
@@ -167,10 +103,8 @@
         if (methodFilter) activeFilters.push(`Main Method: "${methodFilter}"`);
         if (areaFilter) activeFilters.push(`Research Area: "${areaFilter}"`);
 
-        const filterMessage = `You are currently filtering the results. ${filteredRows.length} record(s) found.` + (activeFilters.length ? ` by ${activeFilters.join(", ")}.` : '');
         document.getElementById("filterNotice").style.display = activeFilters.length ? "block" : "none";
-        document.getElementById("filterNotice").textContent = filterMessage;
-
+        document.getElementById("filterNotice").textContent = `You are currently filtering the results. ${filteredRows.length} record(s) found.` + (activeFilters.length ? ` by ${activeFilters.join(", ")}.` : '');
         document.querySelector(".clear-filters").classList.toggle("active", filteredRows.length < allRows.length);
         document.querySelector(".clear-filters").textContent = filteredRows.length < allRows.length ? "Clear filters" : "No filters selected";
 
@@ -179,8 +113,8 @@
         initializeDataTable();
     }
 
-    function clearFilters() {
-        document.getElementById("searchInput").value = "";
+    function clearFilters() { 
+        document.getElementById("searchInput").value = ""; 
         document.getElementById("methodFilter").selectedIndex = 0;
         document.getElementById("areaFilter").selectedIndex = 0;
         filterTable();
