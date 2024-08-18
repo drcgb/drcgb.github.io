@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,16 +11,13 @@
             font-family: Arial, sans-serif; font-size: 14px; line-height: 1.2;
         }
         .dataTables_wrapper .dataTables_filter input {
-            width: 100%; padding: 10px; border-radius: 4px; margin: 0 0 10px 0; font-size: 16px;
+            width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
         }
-        .dataTables_wrapper .dataTables_filter {
-            width: 100%; text-align: left; margin-bottom: 10px;
+        .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_length {
+            margin-bottom: 10px;
         }
         .dataTables_wrapper .dataTables_length {
-            float: right; font-size: 14px;
-        }
-        .dataTables_wrapper {
-            padding: 0;
+            float: right;
         }
         table, th, td {
             padding: 10px; border-collapse: collapse; border: 1px solid black;
@@ -29,10 +25,7 @@
         th {
             background-color: #f2f2f2; text-align: left; vertical-align: middle; pointer-events: none;
         }
-        th:nth-child(1) {
-            text-align: right;
-        }
-        td:nth-child(1) {
+        th:nth-child(1), td:nth-child(1) {
             text-align: right; width: 20%; vertical-align: top;
         }
         td:nth-child(2) {
@@ -73,7 +66,7 @@
     <select id="methodFilter"><option value="">All</option></select>
     <label for="areaFilter" style="margin-left: 20px;">Filter by Research Area:</label>
     <select id="areaFilter"><option value="">All</option></select>
-    <button class="clear-filters" onclick="clearFilters()">No filters selected</button>
+    <button class="clear-filters" id="clearFiltersBtn">No filters selected</button>
 </div>
 
 <div class="filter-notice" id="filterNotice" style="display: none;"></div>
@@ -91,27 +84,32 @@
 <script>
     let allRows = [];
 
-    document.addEventListener("DOMContentLoaded", () => {
-        fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
-            .then(res => res.arrayBuffer())
-            .then(data => {
-                const workbook = XLSX.read(data, {type: "array"});
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
-                populateTable(allRows);
-                populateFilterOptions(allRows);
-                $('#abstractTable').DataTable({
-                    paging: true,
-                    searching: false,
-                    info: false,
-                    autoWidth: false,
-                    ordering: false,
-                    lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
-                    language: { lengthMenu: 'Show up to _MENU_ records per page' }
-                });
-            })
-            .catch(err => console.error('Error loading XLSX data:', err));
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const response = await fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+            const data = await response.arrayBuffer();
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+            populateTable(allRows);
+            populateFilterOptions(allRows);
+            initializeDataTable();
+        } catch (err) {
+            console.error('Error loading XLSX data:', err);
+        }
     });
+
+    function initializeDataTable() {
+        $('#abstractTable').DataTable({
+            paging: true,
+            searching: false,
+            info: false,
+            autoWidth: false,
+            ordering: false,
+            lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
+            language: { lengthMenu: 'Show up to _MENU_ records per page' }
+        });
+    }
 
     function populateTable(rows) {
         const tbody = document.querySelector("#abstractTable tbody");
@@ -168,15 +166,7 @@
 
         $('#abstractTable').DataTable().clear().destroy();
         populateTable(filteredRows);
-        $('#abstractTable').DataTable({
-            paging: true,
-            searching: false,
-            info: false,
-            autoWidth: false,
-            ordering: false,
-            lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
-            language: { lengthMenu: 'Show up to _MENU_ records per page' }
-        });
+        initializeDataTable();
     }
 
     function clearFilters() {
@@ -185,6 +175,11 @@
         document.getElementById("areaFilter").selectedIndex = 0;
         filterTable();
     }
+
+    document.getElementById("searchInput").addEventListener("input", filterTable);
+    document.getElementById("methodFilter").addEventListener("change", filterTable);
+    document.getElementById("areaFilter").addEventListener("change", filterTable);
+    document.getElementById("clearFiltersBtn").addEventListener("click", clearFilters);
 </script>
 </body>
 </html>
