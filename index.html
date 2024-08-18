@@ -143,12 +143,40 @@
             dom: '<"top"l>rt<"bottom"p><"clear">',
         });
 
-        updateTable(); // Apply the initial filters
+        $.fn.dataTable.ext.search.push(function(settings, data) {
+            const searchValue = $('#customSearch').val().toLowerCase();
+            const methodValue = $('#methodFilter').val().toLowerCase();
+            const areaValue = $('#areaFilter').val().toLowerCase();
+            const row = data[0].toLowerCase(); // Data is stored in the first column
 
-        // Link the custom search input, method filter, and area filter to update the table
-        $('#customSearch').on('input', updateTable);
-        $('#methodFilter').on('change', updateTable);
-        $('#areaFilter').on('change', updateTable);
+            const methodMatch = methodValue === '' || row.includes(methodValue);
+            const areaMatch = areaValue === '' || row.includes(areaValue);
+            const searchMatch = searchValue === '' || row.includes(searchValue);
+
+            return methodMatch && areaMatch && searchMatch;
+        });
+
+        // Initial filtering
+        dataTable.draw();
+
+        // Attach events
+        $('#customSearch').on('input', function() {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+        });
+
+        $('#methodFilter').on('change', function() {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+        });
+
+        $('#areaFilter').on('change', function() {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+        });
 
         // Clear filters button
         $('#filterStatusBtn').on('click', function() {
@@ -156,7 +184,9 @@
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
-                updateTable();
+                dataTable.draw();
+                updateFilterStatus();
+                updateFilterNotice();
             }
         });
 
@@ -210,33 +240,6 @@
             return `<option value="${area}">${area} [${count} matches]</option>`;
         }).join('');
         console.log("Area filter populated.");
-    }
-
-    function updateTable() {
-        console.log("Updating table based on filters...");
-        const searchValue = $('#customSearch').val().toLowerCase();
-        const methodValue = $('#methodFilter').val().toLowerCase();
-        const areaValue = $('#areaFilter').val().toLowerCase();
-
-        dataTable.search('').draw();  // Reset search
-
-        // Custom filtering logic
-        dataTable.rows().every(function () {
-            const row = this.data()[0].toLowerCase();
-            const methodMatch = methodValue === '' || row.includes(methodValue);
-            const areaMatch = areaValue === '' || row.includes(areaValue);
-            const searchMatch = searchValue === '' || row.includes(searchValue);
-
-            if (methodMatch && areaMatch && searchMatch) {
-                this.nodes().to$().show();
-            } else {
-                this.nodes().to$().hide();
-            }
-        });
-
-        updateFilterStatus();
-        updateFilterNotice();
-        console.log("Table updated.");
     }
 
     function updateFilterStatus() {
