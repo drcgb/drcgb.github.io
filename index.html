@@ -25,12 +25,6 @@
         th {
             background-color: #f2f2f2; text-align: left; vertical-align: middle; pointer-events: none;
         }
-        th:nth-child(1), td:nth-child(1) {
-            text-align: right !important; width: 8%; vertical-align: top;
-        }
-        td:nth-child(2) {
-            text-align: left; vertical-align: top;
-        }
         table.dataTable tbody tr:hover {
             background-color: #e0f7fa;
         }
@@ -48,7 +42,7 @@
             display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;
         }
         .filter-container label, .filter-container select {
-            font-size: 14px; margin-right: 10px;
+            font-size: 14px; margin-right: 10x;
         }
         .search-container {
             width: 99%; margin-bottom: 10px; margin-right: 10px
@@ -76,7 +70,7 @@
 
 <table id="abstractTable" class="display">
     <thead>
-        <tr><th>Abstract Details</th><th>Preliminary Title and Abstract</th></tr>
+        <tr><th>Preliminary Title and Abstract</th></tr>
     </thead>
     <tbody></tbody>
 </table>
@@ -118,8 +112,9 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const abstractDetails = `<strong>ID:</strong> #${abstractID || ''}<br><br><strong>Method:</strong> ${mainMethod}${methodDetail ? `<br>(${methodDetail})` : ''}<br><br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td>${abstractDetails}</td><td><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}</td></tr>`;
+            const titleWithID = `[ID: #${abstractID}] ${preliminaryTitle}`;
+            const methodAndAreas = `<br><br><strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+            return `<tr><td><strong>${titleWithID}</strong><br>${preliminaryAbstract}${methodAndAreas}</td></tr>`;
         }).join('');
     }
 
