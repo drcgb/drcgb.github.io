@@ -1,124 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Searchable and Filterable Table</title>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
-    <style>
-        body, table, th, td, .clear-filters, .filter-notice {font-family: Arial, sans-serif; font-size: 14px;}
-        .dataTables_wrapper .dataTables_filter input, .search-container input {width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;}
-        .clear-filters {cursor: pointer; background-color: #28a745; color: white; padding: 8px 12px; border-radius: 5px; transition: background-color 0.3s, color 0.3s;}
-        .clear-filters.active {background-color: red;}
-        table, th, td {padding: 0px; border-collapse: collapse; border: 1px solid black;}
-        th {background-color: #f2f2f2; text-align: left; vertical-align: middle; pointer-events: none;}
-        table.dataTable tbody tr:hover {background-color: #e0f7fa;}
-        .filter-container, .search-container {margin-bottom: 10px; display: flex; align-items: center;}
-        .filter-container label, .filter-container select {margin-right: 10px;}
-        .search-container {width: 100%;}
-    </style>
-</head>
-<body>
-<div class="search-container"><input type="text" id="searchInput" placeholder="🔍 Search abstracts..."></div>
-<div class="filter-container">
-    <label for="areaFilter">Filter(Area):</label>
-    <select id="areaFilter"><option value="">All</option></select>
-    <label for="methodFilter">Filter(Method):</label>
-    <select id="methodFilter"><option value="">All</option></select>
-    <button class="clear-filters" id="clearFiltersBtn">No filters selected</button>
-</div>
+
+<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Searchable and Filterable Table</title> <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css"> <style> body, table, th, td, .clear-filters, .filter-notice, .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.2; } .dataTables_wrapper .dataTables_filter input { width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px; } .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_length { margin-bottom: 10px; } .dataTables_wrapper .dataTables_length { float: right; } table, th, td { padding: 0px; border-collapse: collapse; border: 1px solid black; } th { background-color: #f2f2f2; text-align: left; vertical-align: middle; pointer-events: none; } table.dataTable tbody tr:hover { background-color: #e0f7fa; } .clear-filters { cursor: pointer; background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; } .clear-filters.active { background-color: red; } .filter-notice { margin: 10px 0; font-style: italic; color: #555; } .filter-container { display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px; } .filter-container label, .filter-container select { font-size: 14px; margin-right: 10px; padding-right: 10px; } .search-container { width: 99%; margin-bottom: 10px; margin-right: 10px } .search-container input { width: 99%; ; margin-right: 20px padding: 10px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc; } .abstract-title { margin-top: 10px; } .method-section { margin-bottom: 10px; } .areas-section { margin-top: 5px; margin-bottom: 10px; } </style> </head> <body>
+
+<div class="search-container"> <input type="text" id="searchInput" placeholder="🔍 Search abstracts..."> </div>
+
+<div class="filter-container"> <label for="areaFilter">Filter(Area):</label> <select id="areaFilter"><option value="">All</option></select> <label for="methodFilter">Filter(Method):</label> <select id="methodFilter"><option value="">All</option></select> <button class="clear-filters" id="clearFiltersBtn">No filters selected</button> </div>
+
 <div class="filter-notice" id="filterNotice" style="display: none;"></div>
-<table id="abstractTable" class="display" style="width:100%"><thead><tr><th>Preliminary Title and Abstract</th></tr></thead><tbody></tbody></table>
+
+<table id="abstractTable" class="display"> <tbody></tbody> </table>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-<script>
-    let allRows = [], dataTable;
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        try {
-            const response = await fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-            const data = await response.arrayBuffer();
-            const workbook = XLSX.read(data, { type: "array" });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-            populateFilterOptions(allRows);
-            initializeDataTable();
-            filterTable(); // Populate table initially
-        } catch (err) { console.error('Error loading XLSX data:', err); }
-    });
+<script> let allRows = []; document.addEventListener("DOMContentLoaded", async () => { try { const response = await fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx"); const data = await response.arrayBuffer(); const workbook = XLSX.read(data, { type: "array" }); const sheet = workbook.Sheets[workbook.SheetNames[0]]; allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1); populateTable(allRows); populateFilterOptions(allRows); initializeDataTable(); } catch (err) { console.error('Error loading XLSX data:', err); } }); function initializeDataTable() { $('#abstractTable').DataTable({ paging: true, searching: false, info: false, autoWidth: false, ordering: false, lengthMenu: [[25, 50, 75, -1], [25, 50, 75, ${allRows.length} (All)]], language: { lengthMenu: 'Show up to MENU records per page' }, columns: [{ title: "Preliminary Title and Abstract" }] }); } function populateTable(rows) { const tbody = document.querySelector("#abstractTable tbody"); tbody.innerHTML = rows.map(row => { const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row; const titleWithID = &lt;strong&gt;ID: &lt;/strong&gt;${abstractID}&amp;nbsp&amp;nbsp &lt;strong&gt;|&lt;/strong&gt;&amp;nbsp&amp;nbsp &lt;strong class="method-section"&gt;Method:&lt;/strong&gt; ${mainMethod}${methodDetail ? (${methodDetail}) : ''}&lt;br&gt;&lt;br&gt;&lt;strong class="abstract-title"&gt;${preliminaryTitle}&lt;/strong&gt;; const methodAndAreas = &lt;strong class="areas-section"&gt;Areas:&lt;/strong&gt; ${researchAreas.filter(Boolean).join('; ')}; return &lt;tr&gt;&lt;td&gt;${titleWithID}&lt;br&gt;${preliminaryAbstract}&lt;br&gt;&lt;br&gt;${methodAndAreas}&lt;br&gt;&lt;br&gt;&lt;/td&gt;&lt;/tr&gt;; }).join(''); } function populateFilterOptions(rows) { const methodCounts = {}, areaCounts = {}; rows.forEach(row => { const [_, mainMethod = '', , , , ...researchAreas] = row; methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1; researchAreas.forEach(area => area && (areaCounts[area] = (areaCounts[area] || 0) + 1)); }); document.getElementById("methodFilter").innerHTML += generateOptions(methodCounts, (a, b) => b[1] - a[1]); document.getElementById("areaFilter").innerHTML += generateOptions(areaCounts, ([a], [b]) => a.localeCompare(b)); } function generateOptions(counts, sortFn) { return Object.entries(counts).sort(sortFn).map(([key, count]) => &lt;option value="${key}"&gt;${key} [${count} matches]&lt;/option&gt;).join(''); } function filterTable() { const searchInput = document.getElementById("searchInput").value.toLowerCase(); const methodFilter = document.getElementById("methodFilter").value.toLowerCase(); const areaFilter = document.getElementById("areaFilter").value.toLowerCase(); const filteredRows = allRows.filter(row => { const abstractText = row[4]?.toLowerCase() || ''; const mainMethod = row[1]?.toLowerCase() || ''; const researchAreas = row.slice(5, 11).map(area => area?.toLowerCase() || ''); return abstractText.includes(searchInput) && (!methodFilter || mainMethod === methodFilter) && (!areaFilter || researchAreas.includes(areaFilter)); }); const activeFilters = []; if (searchInput) activeFilters.push(searching for "${searchInput}"); if (methodFilter) activeFilters.push(Main Method: "${methodFilter}"); if (areaFilter) activeFilters.push(Research Area: "${areaFilter}"); const filterMessage = You are currently filtering the results. ${filteredRows.length} record(s) found. + (activeFilters.length ? by ${activeFilters.join(", ")}. : ''); document.getElementById("filterNotice").style.display = activeFilters.length ? "block" : "none"; document.getElementById("filterNotice").textContent = filterMessage; document.querySelector(".clear-filters").classList.toggle("active", filteredRows.length < allRows.length); document.querySelector(".clear-filters").textContent = filteredRows.length < allRows.length ? "Clear filters" : "No filters selected"; $('#abstractTable').DataTable().clear().destroy(); populateTable(filteredRows); initializeDataTable(); } function clearFilters() { document.getElementById("searchInput").value = ""; document.getElementById("methodFilter").selectedIndex = 0; document.getElementById("areaFilter").selectedIndex = 0; filterTable(); } document.getElementById("searchInput").addEventListener("input", filterTable); document.getElementById("methodFilter").addEventListener("change", filterTable); document.getElementById("areaFilter").addEventListener("change", filterTable); document.getElementById("clearFiltersBtn").addEventListener("click", clearFilters); </script>
 
-    function initializeDataTable() {
-        dataTable = $('#abstractTable').DataTable({
-            paging: true, searching: false, info: false, autoWidth: false, ordering: false,
-            lengthMenu: [[25, 50, 75, -1], [25, 50, 75, `${allRows.length} (All)`]],
-            language: { lengthMenu: 'Show up to _MENU_ records per page' }
-        });
-    }
-
-    function populateTable(rows) {
-        const tbody = document.querySelector("#abstractTable tbody");
-        tbody.innerHTML = rows.map(row => {
-            const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const content = `<strong>ID: </strong>${abstractID} <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong>${preliminaryTitle}</strong><br>${preliminaryAbstract}<br><br><strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td>${content}</td></tr>`;
-        }).join('');
-        dataTable.clear().draw();
-        dataTable.rows.add($(tbody).find('tr')).draw();
-    }
-
-    function populateFilterOptions(rows) {
-        const methodCounts = {}, areaCounts = {};
-        rows.forEach(row => {
-            const mainMethod = row[1] || '', researchAreas = row.slice(5);
-            methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
-            researchAreas.forEach(area => area && (areaCounts[area] = (areaCounts[area] || 0) + 1));
-        });
-        document.getElementById("methodFilter").innerHTML += generateOptions(methodCounts, (a, b) => b[1] - a[1]);
-        document.getElementById("areaFilter").innerHTML += generateOptions(areaCounts, ([a], [b]) => a.localeCompare(b));
-    }
-
-    function generateOptions(counts, sortFn) {
-        return Object.entries(counts).sort(sortFn).map(([key, count]) => `<option value="${key}">${key} [${count} matches]</option>`).join('');
-    }
-
-    function filterTable() {
-        const searchInput = document.getElementById("searchInput").value.toLowerCase();
-        const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
-        const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
-        const filteredRows = allRows.filter(row => {
-            const searchText = row.slice(0, 5).map(v => v?.toLowerCase() || '').concat(row.slice(5).map(area => area?.toLowerCase() || '')).join(' ');
-            return searchText.includes(searchInput) && (!methodFilter || row[1]?.toLowerCase().includes(methodFilter)) && (!areaFilter || row.slice(5).some(area => area?.toLowerCase().includes(areaFilter)));
-        });
-
-        populateTable(filteredRows);  
-        const activeFilters = [];
-        if (searchInput) activeFilters.push(`searching for "${searchInput}"`);
-        if (methodFilter) activeFilters.push(`Main Method: "${methodFilter}"`);
-        if (areaFilter) activeFilters.push(`Research Area: "${areaFilter}"`);
-        updateNoticeAndButton(filteredRows.length < allRows.length, filteredRows.length, activeFilters);
-    }
-
-    function updateNoticeAndButton(isFiltered, filteredLength, activeFilters) {
-        const filterNotice = document.getElementById("filterNotice");
-        const clearFiltersBtn = document.querySelector(".clear-filters");
-        filterNotice.style.display = isFiltered ? "block" : "none";
-        filterNotice.textContent = `You are currently filtering the results. ${filteredLength} record(s) found.` + (activeFilters.length ? ` by ${activeFilters.join(", ")}.` : '');
-        clearFiltersBtn.classList.toggle("active", isFiltered);
-        clearFiltersBtn.textContent = isFiltered ? "Clear filters" : "No filters selected";
-    }
-
-    function clearFilters() {
-        document.getElementById("searchInput").value = "";
-        document.getElementById("methodFilter").selectedIndex = 0;
-        document.getElementById("areaFilter").selectedIndex = 0;
-        filterTable();
-    }
-
-    document.getElementById("searchInput").addEventListener("input", filterTable);
-    document.getElementById("methodFilter").addEventListener("change", filterTable);
-    document.getElementById("areaFilter").addEventListener("change", filterTable);
-    document.getElementById("clearFiltersBtn").addEventListener("click", clearFilters);
-</script>
-</body>
-</html>
+</body> </html>
