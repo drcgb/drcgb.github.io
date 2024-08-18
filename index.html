@@ -140,7 +140,7 @@
             const rowContent = (data[0] || '').toLowerCase().trim(); // Assuming the areas and other searchable content are in the first column (index 0)
 
             // Exact match for the method filter
-            const methodMatch = methodValue === '' || mainMethod === methodValue;
+            const methodMatch = methodValue === '' || mainMethod.includes(methodValue);
 
             // Partial match for the area filter
             const areaMatch = areaValue === '' || rowContent.includes(areaValue);
