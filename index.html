@@ -5,6 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Searchable and Filterable Table</title>
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+            <!-- Other meta tags and links -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+        </head>        
         <style>
             body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
             .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
@@ -119,6 +123,11 @@
                 html {
                     font-size: 14px;
                 }
+                .download-pdf-container {
+    margin-top: 10px;
+    text-align: right; /* Align the button to the right */
+}
+
             }
         </style>
 </head>
@@ -142,8 +151,11 @@
         </div>
         <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
     </div>
-    <!-- Your table goes here -->
-</div>
+
+    <!-- Download PDF Button -->
+    <div class="download-pdf-container">
+        <button id="downloadPDF" class="filter-status-btn">Download full table as PDF</button>
+    </div>
 
 <!-- Filter Notice -->
 <div class="filter-notice" id="filterNotice" style="display: none;"></div>
@@ -383,6 +395,40 @@ function testFilterWithout(filterType) {
         return methodMatch && areaMatch && searchMatch;
     }).count();
 }
+
+document.getElementById('downloadPDF').addEventListener('click', function() {
+    // Import the jsPDF and autoTable plugins
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // Get the unfiltered table data
+    const rows = allRows.map(row => [
+        row[0], // Abstract ID
+        row[1], // Main Method
+        row[2], // Method Detail
+        row[3], // Preliminary Title
+        row[4], // Preliminary Abstract
+        row.slice(5, 11).filter(Boolean).join('; ') // Research Areas
+    ]);
+
+    // Add title
+    doc.setFontSize(16);
+    doc.text("Full Table Data", 14, 22);
+
+    // Generate the table
+    doc.autoTable({
+        head: [['Abstract ID', 'Main Method', 'Method Detail', 'Preliminary Title', 'Preliminary Abstract', 'Research Areas']],
+        body: rows,
+        startY: 30,
+        styles: { fontSize: 8 },
+        margin: { top: 10 }
+    });
+
+    // Save the PDF
+    doc.save('table_data.pdf');
+});
+
+
 </script>
 </body>
 </html>
