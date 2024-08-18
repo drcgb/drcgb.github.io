@@ -69,9 +69,6 @@
 <div class="filter-notice" id="filterNotice" style="display: none;"></div>
 
 <table id="abstractTable" class="display">
-    <thead>
-        <tr><th>Preliminary Title and Abstract</th></tr>
-    </thead>
     <tbody></tbody>
 </table>
 
@@ -113,7 +110,7 @@
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
             const titleWithID = `<strong>[ Abstract ID: #</strong>${abstractID}<strong> ]</strong> ${preliminaryTitle}`;
-            const methodAndAreas = `Method: ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}  |  Areas: ${researchAreas.filter(Boolean).join('; ')}`;
+            const methodAndAreas = `<strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}  <strong>|</strong>  <strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td><strong>${titleWithID}</strong><br>${preliminaryAbstract}<br><br>${methodAndAreas}</td></tr>`;
         }).join('');
     }
