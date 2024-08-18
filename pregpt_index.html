@@ -177,7 +177,7 @@
         document.querySelector(".clear-filters").classList.toggle("active", filteredRows.length < allRows.length);
         document.querySelector(".clear-filters").textContent = filteredRows.length < allRows.length ? "Clear filters" : "No filters selected";
 
-        dataTable.clear().destroy();
+        $('#abstractTable').DataTable().clear().destroy();
         populateTable(filteredRows);
         initializeDataTable();
     }
