@@ -149,10 +149,17 @@
         const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
         const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
         const filteredRows = allRows.filter(row => {
-            const abstractText = row[4]?.toLowerCase() || '';
+            const abstractID = row[0]?.toLowerCase() || '';
             const mainMethod = row[1]?.toLowerCase() || '';
+            const methodDetail = row[2]?.toLowerCase() || '';
+            const preliminaryTitle = row[3]?.toLowerCase() || '';
+            const preliminaryAbstract = row[4]?.toLowerCase() || '';
             const researchAreas = row.slice(5, 11).map(area => area?.toLowerCase() || '');
-            return abstractText.includes(searchInput) && (!methodFilter || mainMethod === methodFilter) && (!areaFilter || researchAreas.includes(areaFilter));
+
+            const searchText = `${abstractID} ${mainMethod} ${methodDetail} ${preliminaryTitle} ${preliminaryAbstract} ${researchAreas.join(' ')}`;
+            return searchText.includes(searchInput) && 
+                   (!methodFilter || mainMethod.includes(methodFilter)) && 
+                   (!areaFilter || researchAreas.some(area => area.includes(areaFilter)));
         });
 
         const activeFilters = [];
