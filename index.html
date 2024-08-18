@@ -20,13 +20,16 @@
             float: right;
         }
         table, th, td {
-            padding: 0px; border-collapse: collapse; border: 1px solid black;
+            padding: 10px; border-collapse: collapse; border: 1px solid black;
         }
         th {
             background-color: #f2f2f2; text-align: left; vertical-align: middle; pointer-events: none;
         }
         th:nth-child(1), td:nth-child(1) {
             text-align: right; width: 20%; vertical-align: top;
+        }
+        th:nth-child(1) {
+            text-align: right; /* Ensure the header is right-aligned */
         }
         td:nth-child(2) {
             text-align: left; vertical-align: top;
@@ -48,10 +51,16 @@
             display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;
         }
         .filter-container label, .filter-container select {
-            font-size: 14px;
+            font-size: 14px; margin-right: 10px;
         }
         .filter-container label[for="areaFilter"] {
-            flex-basis: 100%; margin-top: 10px;
+            margin-left: 20px;
+        }
+        .search-container {
+            width: 100%; margin-bottom: 10px;
+        }
+        .search-container input {
+            width: 100%; padding: 10px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc;
         }
     </style>
 </head>
@@ -62,9 +71,9 @@
 </div>
 
 <div class="filter-container">
-    <label for="methodFilter">Filter by Main Method:</label>
+    <label for="methodFilter">Filter by Method:</label>
     <select id="methodFilter"><option value="">All</option></select>
-    <label for="areaFilter" style="margin-left: 20px;">Filter by Research Area:</label>
+    <label for="areaFilter">Filter by Area:</label>
     <select id="areaFilter"><option value="">All</option></select>
     <button class="clear-filters" id="clearFiltersBtn">No filters selected</button>
 </div>
@@ -106,7 +115,7 @@
             info: false,
             autoWidth: false,
             ordering: false,
-            lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (all)`]],
+            lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
             language: { lengthMenu: 'Show up to _MENU_ records per page' }
         });
     }
