@@ -16,6 +16,11 @@
         .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_length {
             margin-bottom: 10px;
         }
+        .dataTables_wrapper .dataTables_filter {
+            float: left;
+            text-align: left;
+            width: 100%;
+        }
         .dataTables_wrapper .dataTables_length {
             float: right;
         }
@@ -98,7 +103,11 @@
             autoWidth: false,
             ordering: false,
             lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
-            language: { lengthMenu: 'Show up to _MENU_ records per page' },
+            language: {
+                lengthMenu: 'Show up to _MENU_ records per page',
+                search: '',
+                searchPlaceholder: '🔍Search abstracts...'
+            },
             columns: [{ title: "Preliminary Title and Abstract" }]
         });
     }
