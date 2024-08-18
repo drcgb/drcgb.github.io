@@ -18,7 +18,7 @@
                 margin-bottom: 10px;
             }
             .custom-search-container input {
-                width: 100%;
+                width: 98%;
                 padding: 10px;
                 border-radius: 4px;
                 font-size: 16px;
@@ -295,22 +295,24 @@ function populateTable(rows) {
     const notice = $('#filterNotice');
     const filteredRowCount = dataTable.rows({filter: 'applied'}).count();
 
-    if (filteredRowCount > 0) {
-        notice.text(`Active Filters: ${activeFilters.join(', ')} | ${filteredRowCount} record(s) found.`).show();
-    } else if (activeFilters.length > 0) {
-        // Check filters individually if no results are found
-        let methodResults = testFilterWithout('method');
-        let areaResults = testFilterWithout('area');
+    if (activeFilters.length > 0) {
+        if (filteredRowCount > 0) {
+            notice.text(`Active Filters: ${activeFilters.join(', ')} | ${filteredRowCount} record(s) found.`).show();
+        } else {
+            // Check filters individually if no results are found
+            let methodResults = testFilterWithout('method');
+            let areaResults = testFilterWithout('area');
 
-        let alertMessage = 'No results found with the current filter combination. ';
-        if (methodResults > 0) {
-            alertMessage += `Try adjusting the "Method" filter. `;
-        }
-        if (areaResults > 0) {
-            alertMessage += `Try adjusting the "Area" filter. `;
-        }
+            let alertMessage = 'No results found with the current filter combination. ';
+            if (methodResults > 0) {
+                alertMessage += `Try adjusting the "Method" filter. `;
+            }
+            if (areaResults > 0) {
+                alertMessage += `Try adjusting the "Area" filter. `;
+            }
 
-        notice.text(alertMessage).show();
+            notice.text(alertMessage).show();
+        }
     } else {
         notice.hide(); // Hide the notice if no filters are active
     }
