@@ -30,7 +30,7 @@
                 display: flex;
                 flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
                 justify-content: flex-start; /* Align items to the start */
-                align-items: center; /* Align items vertically in the center */
+                align-items: flex-start; /* Align items to the top */
                 gap: 10px; /* Add space between filter groups */
                 margin-bottom: 10px;
                 width: 100%; /* Ensure the container takes up full width */
@@ -59,7 +59,7 @@
             @media (max-width: 600px) {
                 .filter-container {
                     flex-direction: column; /* Stack elements vertically on small screens */
-                    align-items: stretch; /* Stretch elements to fill the width */
+                    align-items: flex-start; /* Align items to the start to keep them left-aligned */
                 }
             }
         
@@ -110,11 +110,18 @@
                 background-color: #e0f7fa;
             }
         
-            /* Ensure font size does not scale with orientation change */
-            @media (orientation: landscape) and (max-width: 800px) {
+            /* Prevent font size from scaling with orientation change */
+            @media (orientation: landscape), (orientation: portrait) {
                 body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
                 .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
                     font-size: 14px; /* Lock the font size at 14px */
+                }
+            }
+        
+            /* Lock the viewport scale to prevent zooming */
+            @media screen and (min-width: 1px) {
+                html {
+                    font-size: 14px;
                 }
             }
         </style>
@@ -129,16 +136,13 @@
 <!-- Filter Method and Areas with Status Button -->
 <div class="dataTables_wrapper">
     <div class="filter-container">
-        <div class="filter-group">
-            <label for="methodFilter">Filter(Method):</label>
-            <select id="methodFilter"><option value="">All</option></select>
-        </div>
-        <div class="filter-group" style="margin-left: 20px;">
-            <label for="areaFilter">Filter(Areas):</label>
-            <select id="areaFilter"><option value="">All</option></select>
-        </div>
+        <label for="methodFilter">Filter(Method):</label>
+        <select id="methodFilter"><option value="">All</option></select>
+        <label for="areaFilter" style="margin-left: 20px;">Filter(Areas):</label>
+        <select id="areaFilter"><option value="">All</option></select>
         <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
     </div>
+    <!-- Your table goes here -->
 </div>
 
 <!-- Filter Notice -->
