@@ -8,14 +8,22 @@
     <style>
         body { font-family: Arial, sans-serif; font-size: 14px; }
         .dataTables_wrapper .dataTables_filter input { width: 100%; font-size: 14px; padding: 10px; border-radius: 4px; margin-left: 0; }
-        .dataTables_wrapper .dataTables_filter { float: left; text-align: left; }
+        .dataTables_wrapper .dataTables_filter { float: left; text-align: left; display: none; } /* Hide DataTables default search */
         .dataTables_wrapper .dataTables_length { float: right; }
         .clear-filters { cursor: pointer; background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s, color 0.3s; }
         .clear-filters.active { background-color: red; }
         .filter-notice { margin: 10px 0; font-style: italic; color: #555; }
+        table, th, td { border: 1px solid black; padding: 10px; border-collapse: collapse; }
+        th { background-color: #f2f2f2; text-align: left; vertical-align: middle; }
+        th:nth-child(1), td:nth-child(1) { text-align: right; width: 20%; vertical-align: top; }
+        td:nth-child(2) { text-align: left; vertical-align: top; }
     </style>
 </head>
 <body>
+
+<div class="search-container">
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search abstracts...">
+</div>
 
 <div class="filter-container">
     <label for="methodFilter">Filter by Main Method:</label>
@@ -48,9 +56,9 @@
                 allRows = XLSX.utils.sheet_to_json(sheet, {header: 1}).slice(1);
                 populateTable(allRows);
                 populateFilterOptions(allRows);
-                $('#abstractTable').DataTable({ // Initialize DataTables
+                $('#abstractTable').DataTable({ 
                     paging: true,
-                    searching: false, // Disable default DataTables search
+                    searching: false, // Keep custom search
                     info: false,
                     autoWidth: false
                 });
@@ -97,10 +105,7 @@
         document.querySelector(".clear-filters").classList.toggle("active", filteredRows.length < allRows.length);
         document.querySelector(".clear-filters").textContent = filteredRows.length < allRows.length ? "Clear filters" : "No filters selected";
 
-        // Destroy the current DataTable before populating the new data
         $('#abstractTable').DataTable().clear().destroy();
-
-        // Populate the table with filtered rows and reinitialize DataTables
         populateTable(filteredRows);
         $('#abstractTable').DataTable({
             paging: true,
