@@ -131,29 +131,31 @@
     function initializeDataTable() {
     console.log("Initializing DataTable...");
 
-    $.fn.dataTable.ext.search.push(function(settings, data) {
-        const searchValue = $('#customSearch').val().toLowerCase().trim();
-        const methodValue = $('#methodFilter').val().toLowerCase().trim();
-        const areaValue = $('#areaFilter').val().toLowerCase().trim();
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    const searchValue = $('#customSearch').val().toLowerCase().trim();
+    const methodValue = $('#methodFilter').val().toLowerCase().trim();
+    const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-        // Safely get values and ensure they are not undefined
-        const mainMethod = (data[1] || '').toLowerCase().trim(); // Second column: "Main Method"
-        const rowContent = (data[0] || '').toLowerCase().trim(); // Assuming the areas and other searchable content are in the first column (index 0)
+    // Retrieve the Main Method from the stored array
+    const mainMethod = methodData[dataIndex]; // Use the methodData array to get the correct Main Method
 
-        console.log('Method Filter:', methodValue);
-        console.log('Main Method:', mainMethod);
+    // Partial match for the displayed content in the single column
+    const rowContent = (data[0] || '').toLowerCase().trim();
 
-        // Exact match for the method filter
-        const methodMatch = methodValue === '' || mainMethod === methodValue;
+    console.log('Method Filter:', methodValue);
+    console.log('Main Method:', mainMethod);
 
-        // Partial match for the area filter
-        const areaMatch = areaValue === '' || rowContent.includes(areaValue);
+    // Exact match for the method filter
+    const methodMatch = methodValue === '' || mainMethod === methodValue;
 
-        // Partial match for the search input
-        const searchMatch = searchValue === '' || rowContent.includes(searchValue);
+    // Partial match for the area filter
+    const areaMatch = areaValue === '' || rowContent.includes(areaValue);
 
-        return methodMatch && areaMatch && searchMatch;
-    });
+    // Partial match for the search input
+    const searchMatch = searchValue === '' || rowContent.includes(searchValue);
+
+    return methodMatch && areaMatch && searchMatch;
+});
 
     dataTable = $('#abstractTable').DataTable({
         paging: true,
@@ -205,18 +207,24 @@
     console.log("DataTable initialized.");
 }
 
-    function populateTable(rows) {
-        console.log("Populating table...");
-        const tbody = document.querySelector("#abstractTable tbody");
-        tbody.innerHTML = rows.map(row => {
-            const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
-            const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-            return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
-        }).join('');
+let methodData = []; // New array to store Main Method data
 
-        console.log("Table populated.");
-    }
+function populateTable(rows) {
+    console.log("Populating table...");
+    const tbody = document.querySelector("#abstractTable tbody");
+    tbody.innerHTML = rows.map(row => {
+        const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
+        const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
+        const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+        
+        // Store the Main Method for later filtering
+        methodData.push(mainMethod.toLowerCase().trim());
+        
+        return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+    }).join('');
+
+    console.log("Table populated.");
+}
 
     function populateMethodFilter(rows) {
         console.log("Populating method filter...");
