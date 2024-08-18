@@ -13,7 +13,7 @@
         .dataTables_wrapper .dataTables_filter {
             text-align: left;
             width: 100%;
-            margin-bottom: 0px;
+            margin-bottom: 10px;
         }
         .dataTables_wrapper .dataTables_filter input {
             width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
@@ -21,7 +21,10 @@
         .dataTables_wrapper .dataTables_length {
             text-align: right;
             margin-bottom: 10px;
-            margin-top: 0px;
+        }
+        .dataTables_wrapper .method-filter-container {
+            text-align: left;
+            margin-bottom: 10px;
         }
         table, th, td {
             padding: 0px; border-collapse: collapse; border: 1px solid black;
@@ -36,6 +39,15 @@
 </head>
 <body>
 
+<!-- Filter Method -->
+<div class="dataTables_wrapper">
+    <div class="dataTables_filter" id="abstractTable_filter"></div>
+    <div class="method-filter-container">
+        <label for="methodFilter">Filter(Method):</label>
+        <select id="methodFilter"><option value="">All</option></select>
+    </div>
+</div>
+
 <!-- Table -->
 <table id="abstractTable" class="display">
     <thead>
@@ -49,6 +61,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
     let allRows = [];
+    let dataTable;
 
     document.addEventListener("DOMContentLoaded", async () => {
         try {
@@ -58,9 +71,8 @@
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
 
-            console.log("Loaded Data:", allRows);  // Debugging: Check data loaded correctly
-
             populateTable(allRows);
+            populateMethodFilter(allRows);
             initializeDataTable();
         } catch (err) {
             console.error('Error loading XLSX data:', err);
@@ -68,7 +80,7 @@
     });
 
     function initializeDataTable() {
-        $('#abstractTable').DataTable({
+        dataTable = $('#abstractTable').DataTable({
             paging: true,
             searching: true,
             info: true,
@@ -82,6 +94,12 @@
             },
             dom: '<"top"f>rt<"bottom"l><"clear">',
         });
+
+        // Attach filter method change event
+        $('#methodFilter').on('change', function() {
+            const selectedMethod = this.value.toLowerCase();
+            dataTable.column(0).search(selectedMethod).draw();
+        });
     }
 
     function populateTable(rows) {
@@ -93,6 +111,6 @@
             return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
         }).join('');
     }
-</script>
-</body>
-</html>
+
+    function populateMethodFilter(rows) {
+       ​⬤
