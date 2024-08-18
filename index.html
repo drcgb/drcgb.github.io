@@ -21,7 +21,6 @@
         .filter-container {
             display: flex; flex-wrap: wrap; align-items: center;
             margin-bottom: 10px;
-            margin-top: 20px; /* Adds space between search bar and filters */
         }
         .filter-container label, .filter-container select {
             font-size: 14px; margin-right: 10px; padding-right: 10px;
@@ -55,19 +54,23 @@
 </head>
 <body>
 
-<table id="abstractTable" class="display">
-    <thead>
-        <tr><th>Preliminary Title and Abstract</th></tr>
-    </thead>
-    <tbody></tbody>
-</table>
+<div class="dataTables_wrapper">
+    <div id="abstractTable_filter" class="dataTables_filter"></div>
 
-<div class="filter-container">
-    <label for="areaFilter">Filter(Area):</label>
-    <select id="areaFilter"><option value="">All</option></select>
-    <label for="methodFilter">Filter(Method):</label>
-    <select id="methodFilter"><option value="">All</option></select>
-    <button class="clear-filters" id="clearFiltersBtn">No filters selected</button>
+    <div class="filter-container">
+        <label for="areaFilter">Filter(Area):</label>
+        <select id="areaFilter"><option value="">All</option></select>
+        <label for="methodFilter">Filter(Method):</label>
+        <select id="methodFilter"><option value="">All</option></select>
+        <button class="clear-filters" id="clearFiltersBtn">No filters selected</button>
+    </div>
+
+    <table id="abstractTable" class="display">
+        <thead>
+            <tr><th>Preliminary Title and Abstract</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 
 <div class="filter-notice" id="filterNotice" style="display: none;"></div>
@@ -110,7 +113,7 @@
             columns: [{ title: "Preliminary Title and Abstract" }]
         });
 
-        // Move the search bar above the filters
+        // Ensure the search bar is at the top
         $('#abstractTable_filter').detach().prependTo('.dataTables_wrapper');
     }
 
