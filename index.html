@@ -131,25 +131,25 @@
     function initializeDataTable() {
         console.log("Initializing DataTable...");
         $.fn.dataTable.ext.search.push(function(settings, data) {
-            const searchValue = $('#customSearch').val().toLowerCase().trim();
-            const methodValue = $('#methodFilter').val().toLowerCase().trim();
-            const areaValue = $('#areaFilter').val().toLowerCase().trim();
+    const searchValue = $('#customSearch').val().toLowerCase().trim();
+    const methodValue = $('#methodFilter').val().toLowerCase().trim();
+    const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-            // Safely get values and ensure they are not undefined
-            const mainMethod = (data[1] || '').toLowerCase().trim(); // Second column: "Main Method"
-            const rowContent = (data[0] || '').toLowerCase().trim(); // Assuming the areas and other searchable content are in the first column (index 0)
+    // Safely get values and ensure they are not undefined
+    const mainMethod = (data[1] || '').toLowerCase().trim(); // Second column: "Main Method"
+    const rowContent = (data[0] || '').toLowerCase().trim(); // Assuming the areas and other searchable content are in the first column (index 0)
 
-            // Exact match for the method filter
-            const methodMatch = methodValue === '' || mainMethod.includes(methodValue);
+    // Exact match for the method filter
+    const methodMatch = methodValue === '' || mainMethod === methodValue; // Updated comparison here
 
-            // Partial match for the area filter
-            const areaMatch = areaValue === '' || rowContent.includes(areaValue);
+    // Partial match for the area filter
+    const areaMatch = areaValue === '' || rowContent.includes(areaValue);
 
-            // Partial match for the search input
-            const searchMatch = searchValue === '' || rowContent.includes(searchValue);
+    // Partial match for the search input
+    const searchMatch = searchValue === '' || rowContent.includes(searchValue);
 
-            return methodMatch && areaMatch && searchMatch;
-        });
+    return methodMatch && areaMatch && searchMatch;
+});
 
         dataTable = $('#abstractTable').DataTable({
             paging: true,
@@ -287,3 +287,7 @@
 </script>
 </body>
 </html>
+
+
+
+
