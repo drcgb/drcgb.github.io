@@ -6,24 +6,14 @@
     <title>Searchable and Filterable Table</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
     <style>
-        body, table, th, td, .clear-filters, .filter-notice, .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {font-family: Arial, sans-serif; font-size: 14px; line-height: 1.2;}
-        .dataTables_wrapper .dataTables_filter input {width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;}
-        .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_length {margin-bottom: 10px;}
-        .dataTables_wrapper .dataTables_length {float: right;}
-        .dataTables_wrapper .dataTables_paginate {text-align: center;}
-        table, th, td {padding: 0px; border-collapse: collapse; border: 1px solid black;}
-        th {background-color: #f2f2f2; text-align: left; vertical-align: middle; pointer-events: none;}
-        table.dataTable tbody tr:hover {background-color: #e0f7fa;}
-        .clear-filters {cursor: pointer; background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; transition: background-color 0.3s, color 0.3s;}
+        body, table, th, td, .clear-filters, .filter-notice {font-family: Arial, sans-serif; font-size: 14px;}
+        .dataTables_wrapper .dataTables_filter input, .search-container input {width: 100%; padding: 10px; margin-bottom: 10px;}
+        .clear-filters {cursor: pointer; background-color: #28a745; color: white; padding: 8px 12px; border-radius: 5px;}
         .clear-filters.active {background-color: red;}
-        .filter-notice {margin: 10px 0; font-style: italic; color: #555;}
-        .filter-container {display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 10px;}
-        .filter-container label, .filter-container select {font-size: 14px; margin-right: 10px; padding-right: 10px;}
-        .search-container {width: 99%; margin-bottom: 10px; margin-right: 10px;}
-        .search-container input {width: 97%; margin-right: 20px; padding: 10px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc;}
-        .abstract-title {margin-top: 10px;}
-        .method-section {margin-bottom: 10px;}
-        .areas-section {margin-top: 5px; margin-bottom: 10px;}
+        table, th, td {padding: 0px; border: 1px solid black;}
+        th {background-color: #f2f2f2;}
+        table.dataTable tbody tr:hover {background-color: #e0f7fa;}
+        .filter-container, .search-container {margin-bottom: 10px;}
     </style>
 </head>
 <body>
@@ -41,8 +31,7 @@
 <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
-    let allRows = [];
-    let dataTable;
+    let allRows = [], dataTable;
 
     document.addEventListener("DOMContentLoaded", async () => {
         try {
@@ -54,21 +43,14 @@
             populateTable(allRows);
             populateFilterOptions(allRows);
             initializeDataTable();
-        } catch (err) {
-            console.error('Error loading XLSX data:', err);
-        }
+        } catch (err) { console.error('Error loading XLSX data:', err); }
     });
 
     function initializeDataTable() {
         dataTable = $('#abstractTable').DataTable({
-            paging: true,
-            searching: false,
-            info: false,
-            autoWidth: false,
-            ordering: false,
+            paging: true, searching: false, info: false, autoWidth: false, ordering: false,
             lengthMenu: [[25, 50, 75, -1], [25, 50, 75, `${allRows.length} (All)`]],
-            language: { lengthMenu: 'Show up to _MENU_ records per page' },
-            columns: [{ title: "Preliminary Title and Abstract" }]
+            language: { lengthMenu: 'Show up to _MENU_ records per page' }
         });
     }
 
@@ -76,18 +58,18 @@
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong class="abstract-title">${preliminaryTitle}</strong>`;
-            const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+            const titleWithID = `<strong>ID: </strong>${abstractID} <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong>${preliminaryTitle}</strong>`;
+            const methodAndAreas = `<strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
             return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
         }).join('');
-        if (dataTable) dataTable.destroy(); 
-        initializeDataTable();
+        dataTable.clear().draw();
+        dataTable.rows.add($(tbody).find('tr')).draw();
     }
 
     function populateFilterOptions(rows) {
         const methodCounts = {}, areaCounts = {};
         rows.forEach(row => {
-            const [_, mainMethod = '', , , , ...researchAreas] = row;
+            const mainMethod = row[1] || '', researchAreas = row.slice(5);
             methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
             researchAreas.forEach(area => area && (areaCounts[area] = (areaCounts[area] || 0) + 1));
         });
@@ -117,16 +99,22 @@
     }
 
     function updateTable(filteredRows) {
-        dataTable.clear().rows.add(filteredRows.map(row => [
-            `<tr><td><strong>ID: </strong>${row[0]} <strong>|</strong> <strong class="method-section">Method:</strong> ${row[1] || ''}${row[2] ? ` (${row[2]})` : ''}<br><br><strong class="abstract-title">${row[3]}</strong><br>${row[4]}<br><br><strong class="areas-section">Areas:</strong> ${row.slice(5).filter(Boolean).join('; ')}</td></tr>`
-        ])).draw();
+        const tbody = document.querySelector("#abstractTable tbody");
+        tbody.innerHTML = filteredRows.map(row => {
+            const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
+            const titleWithID = `<strong>ID: </strong>${abstractID} <strong>|</strong> <strong>Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong>${preliminaryTitle}</strong>`;
+            const methodAndAreas = `<strong>Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+            return `<tr><td>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+        }).join('');
+        dataTable.clear().draw();
+        dataTable.rows.add($(tbody).find('tr')).draw();
     }
 
     function updateNoticeAndButton(isFiltered, filteredLength, activeFilters) {
         const filterNotice = document.getElementById("filterNotice");
         const clearFiltersBtn = document.querySelector(".clear-filters");
         filterNotice.style.display = isFiltered ? "block" : "none";
-        filterNotice.textContent = `You are currently filtering the results.         ${filteredLength} record(s) found.` + (activeFilters.length ? ` by ${activeFilters.join(", ")}.` : '');
+        filterNotice.textContent = `You are currently filtering the results. ${filteredLength} record(s) found.` + (activeFilters.length ? ` by ${activeFilters.join(", ")}.` : '');
         clearFiltersBtn.classList.toggle("active", isFiltered);
         clearFiltersBtn.textContent = isFiltered ? "Clear filters" : "No filters selected";
     }
