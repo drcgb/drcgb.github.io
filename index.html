@@ -19,10 +19,6 @@
         .dataTables_wrapper .dataTables_length {
             float: right;
         }
-        .dataTables_wrapper {
-            padding: 0;
-            margin: 0;
-        }
         table, th, td {
             padding: 10px; border-collapse: collapse; border: 1px solid black;
         }
@@ -150,20 +146,14 @@
             return abstractText.includes(searchInput) && (!methodFilter || mainMethod === methodFilter) && (!areaFilter || researchAreas.includes(areaFilter));
         });
 
-        let filterMessage = `You are currently filtering the results. ${filteredRows.length} record(s) found.`;
         const activeFilters = [];
-
         if (searchInput) activeFilters.push(`searching for "${searchInput}"`);
         if (methodFilter) activeFilters.push(`Main Method: "${methodFilter}"`);
         if (areaFilter) activeFilters.push(`Research Area: "${areaFilter}"`);
 
-        if (activeFilters.length > 0) {
-            filterMessage += ` by ${activeFilters.join(", ")}.`;
-            document.getElementById("filterNotice").style.display = "block";
-            document.getElementById("filterNotice").textContent = filterMessage;
-        } else {
-            document.getElementById("filterNotice").style.display = "none";
-        }
+        const filterMessage = `You are currently filtering the results. ${filteredRows.length} record(s) found.` + (activeFilters.length ? ` by ${activeFilters.join(", ")}.` : '');
+        document.getElementById("filterNotice").style.display = activeFilters.length ? "block" : "none";
+        document.getElementById("filterNotice").textContent = filterMessage;
 
         document.querySelector(".clear-filters").classList.toggle("active", filteredRows.length < allRows.length);
         document.querySelector(".clear-filters").textContent = filteredRows.length < allRows.length ? "Clear filters" : "No filters selected";
