@@ -147,13 +147,16 @@
     const searchValue = $('#customSearch').val().toLowerCase();
     const methodValue = $('#methodFilter').val().toLowerCase();
     const areaValue = $('#areaFilter').val().toLowerCase();
+    
+    // Assuming the "Main Method" data is in the second column of the table (index 1)
+    const mainMethod = data[1].toLowerCase(); // Main Method is stored in the second column
     const row = data[0].toLowerCase(); // Data is stored in the first column
 
     const methodRegex = new RegExp(`\\b${methodValue}\\b`, 'i');
     const areaRegex = new RegExp(`\\b${areaValue}\\b`, 'i');
 
-    const methodMatch = methodValue === '' || methodRegex.test(row);
-    const areaMatch = areaValue === '' || areaRegex.test(row);
+    const methodMatch = methodValue === '' || methodRegex.test(mainMethod); // Filter only on Main Method
+    const areaMatch = areaValue === '' || areaRegex.test(row); // Filter on entire row for areas
     const searchMatch = searchValue === '' || row.includes(searchValue);
 
     return methodMatch && areaMatch && searchMatch;
