@@ -245,7 +245,7 @@
 
         const areaFilter = document.getElementById("areaFilter");
         areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
-            return `<option value="${area}">${area} [${count} matches]</option>`;
+            return `<option value="${area}">${area} [~${count} matches]</option>`;
         }).join('');
         console.log("Area filter populated.");
     }
