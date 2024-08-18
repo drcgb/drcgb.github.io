@@ -144,17 +144,20 @@
         });
 
         $.fn.dataTable.ext.search.push(function(settings, data) {
-            const searchValue = $('#customSearch').val().toLowerCase();
-            const methodValue = $('#methodFilter').val().toLowerCase();
-            const areaValue = $('#areaFilter').val().toLowerCase();
-            const row = data[0].toLowerCase(); // Data is stored in the first column
+    const searchValue = $('#customSearch').val().toLowerCase();
+    const methodValue = $('#methodFilter').val().toLowerCase();
+    const areaValue = $('#areaFilter').val().toLowerCase();
+    const row = data[0].toLowerCase(); // Data is stored in the first column
 
-            const methodMatch = methodValue === '' || row.includes(methodValue);
-            const areaMatch = areaValue === '' || row.includes(areaValue);
-            const searchMatch = searchValue === '' || row.includes(searchValue);
+    const methodRegex = new RegExp(`\\b${methodValue}\\b`, 'i');
+    const areaRegex = new RegExp(`\\b${areaValue}\\b`, 'i');
 
-            return methodMatch && areaMatch && searchMatch;
-        });
+    const methodMatch = methodValue === '' || methodRegex.test(row);
+    const areaMatch = areaValue === '' || areaRegex.test(row);
+    const searchMatch = searchValue === '' || row.includes(searchValue);
+
+    return methodMatch && areaMatch && searchMatch;
+});
 
         // Initial filtering
         dataTable.draw();
