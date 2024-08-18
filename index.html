@@ -18,7 +18,7 @@
             margin-bottom: 10px;
         }
         .custom-search-container input {
-            width: 98%;
+            width: 98.5%;
             padding: 10px;
             border-radius: 4px;
             font-size: 16px;
@@ -279,24 +279,52 @@ function populateTable(rows) {
     }
 
     function updateFilterNotice() {
-        const searchValue = $('#customSearch').val().trim();
-        const methodValue = $('#methodFilter').val();
-        const areaValue = $('#areaFilter').val();
+    const searchValue = $('#customSearch').val().trim();
+    const methodValue = $('#methodFilter').val();
+    const areaValue = $('#areaFilter').val();
 
-        let activeFilters = [];
-        if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
-        if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
-        if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
+    let activeFilters = [];
+    if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
+    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
+    if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
 
-        const notice = $('#filterNotice');
-        const filteredRowCount = dataTable.rows({filter: 'applied'}).count();
+    const notice = $('#filterNotice');
+    const filteredRowCount = dataTable.rows({filter: 'applied'}).count();
 
-        if (activeFilters.length > 0) {
-            notice.text(`Active Filters: ${activeFilters.join(', ')} | ${filteredRowCount} record(s) found.`).show();
-        } else {
-            notice.hide();
+    if (filteredRowCount > 0) {
+        notice.text(`Active Filters: ${activeFilters.join(', ')} | ${filteredRowCount} record(s) found.`).show();
+    } else {
+        // Check filters individually
+        let methodResults = testFilterWithout('method');
+        let areaResults = testFilterWithout('area');
+
+        let alertMessage = 'No results found with the current filter combination. ';
+        if (methodResults > 0) {
+            alertMessage += `Try adjusting the "Method" filter. `;
         }
+        if (areaResults > 0) {
+            alertMessage += `Try adjusting the "Area" filter. `;
+        }
+
+        notice.text(alertMessage).show();
     }
+}
+
+function testFilterWithout(filterType) {
+    let tempSearchValue = $('#customSearch').val().toLowerCase().trim();
+    let tempMethodValue = filterType === 'method' ? '' : $('#methodFilter').val().toLowerCase().trim();
+    let tempAreaValue = filterType === 'area' ? '' : $('#areaFilter').val().toLowerCase().trim();
+
+    return dataTable.rows(function(idx, data, node) {
+        const mainMethod = methodData[idx]; // Access the stored Main Method
+
+        const methodMatch = tempMethodValue === '' || mainMethod === tempMethodValue;
+        const areaMatch = tempAreaValue === '' || data[0].toLowerCase().includes(tempAreaValue);
+        const searchMatch = tempSearchValue === '' || data[0].toLowerCase().includes(tempSearchValue);
+
+        return methodMatch && areaMatch && searchMatch;
+    }).count();
+}
 </script>
 </body>
 </html>
