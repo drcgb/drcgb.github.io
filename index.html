@@ -448,49 +448,6 @@ document.getElementById('downloadPDF').addEventListener('click', function() {
     // Save the PDF
     doc.save('table_data.pdf');
 });
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-
-    // Combine Main Method and Method Detail columns, ensuring no "undefined"
-    const rows = allRows.map(row => [
-        row[0], // Abstract ID
-        `${row[1]}${row[2] ? ' ' + row[2] : ''}`, // Combined Main Method and Method Detail, avoid "undefined"
-        row[3], // Preliminary Title
-        row[4], // Preliminary Abstract
-        row.slice(5, 11).filter(Boolean).join('; ') // Research Areas
-    ]);
-
-    // Add title
-    doc.setFontSize(16);
-    doc.text("Full Table Data", 14, 22);
-
-    // Generate the table with adjusted settings
-    doc.autoTable({
-        head: [['Abstract ID', 'Method', 'Preliminary Title', 'Preliminary Abstract', 'Research Areas']],
-        body: rows,
-        startY: 30,
-        styles: { fontSize: 8, cellPadding: 2 }, // Ensure cell padding for better text alignment
-        margin: { top: 10 },
-        rowPageBreak: 'avoid', // Prevent rows from splitting across pages
-        columnStyles: {
-            0: { cellWidth: 30 }, // Make Abstract ID column slightly wider
-            // Other columns retain their default widths
-        },
-        didDrawCell: (data) => {
-            // Adjust text formatting within cells if needed
-            if (data.section === 'body') {
-                const text = data.cell.text[0];
-                if (text && text.length > 50) { // Arbitrary cutoff for long text
-                    doc.setFontSize(7); // Reduce font size for long text if needed
-                    data.cell.text[0] = doc.splitTextToSize(text, data.cell.width);
-                }
-            }
-        }
-    });
-
-    // Save the PDF
-    doc.save('table_data.pdf');
-});
 
 </script>
 </body>
