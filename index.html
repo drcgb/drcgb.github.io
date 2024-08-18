@@ -129,10 +129,14 @@
 <!-- Filter Method and Areas with Status Button -->
 <div class="dataTables_wrapper">
     <div class="filter-container">
-        <label for="methodFilter">Filter(Method):</label>
-        <select id="methodFilter"><option value="">All</option></select>
-        <label for="areaFilter" style="margin-left: 20px;">Filter(Areas):</label>
-        <select id="areaFilter"><option value="">All</option></select>
+        <div class="filter-group">
+            <label for="methodFilter">Filter(Method):</label>
+            <select id="methodFilter"><option value="">All</option></select>
+        </div>
+        <div class="filter-group" style="margin-left: 20px;">
+            <label for="areaFilter">Filter(Areas):</label>
+            <select id="areaFilter"><option value="">All</option></select>
+        </div>
         <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
     </div>
 </div>
