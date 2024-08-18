@@ -9,8 +9,8 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         table, th, td { border: 1px solid black; padding: 10px; }
         th { background-color: #f2f2f2; white-space: normal; text-align: center; }
-        th:nth-child(1), td:nth-child(1) { text-align: center; width: 10%; }
-        th:nth-child(3), td:nth-child(3) { width: auto; }
+        th:nth-child(1), td:nth-child(1), th:nth-child(2), td:nth-child(2) { width: 8%; text-align: center; } /* Narrow and center Abstract ID and Main Method columns */
+        th:nth-child(3), td:nth-child(3) { width: auto; } /* Preliminary Title & Abstract takes the remaining space */
         th:not(:nth-child(3)), td:not(:nth-child(3)) { width: 15%; }
         .search-container, .filter-container { margin-bottom: 10px; display: flex; align-items: center; }
         #searchInput { width: 100%; font-size: 14px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
@@ -83,13 +83,21 @@
     }
 
     function filterTable() {
-        const searchInput = document.getElementById("searchInput").value.toLowerCase(), methodFilter = document.getElementById("methodFilter").value, areaFilter = document.getElementById("areaFilter").value;
-        const filterNotice = document.getElementById("filterNotice"), clearFiltersButton = document.querySelector(".clear-filters");
+        const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        const methodFilter = document.getElementById("methodFilter").value.toLowerCase();
+        const areaFilter = document.getElementById("areaFilter").value.toLowerCase();
+        const filterNotice = document.getElementById("filterNotice");
+        const clearFiltersButton = document.querySelector(".clear-filters");
 
         const filteredRows = allRows.filter(row => {
             const [ , mainMethod = '', , , abstractText = '', ...researchAreas] = row;
-            const researchAreasCombined = researchAreas.map(area => area.toLowerCase());
-            return abstractText.toLowerCase().includes(searchInput) && (!methodFilter || mainMethod.toLowerCase() === methodFilter.toLowerCase()) && (!areaFilter || researchAreasCombined.includes(areaFilter.toLowerCase()));
+            const researchAreasLower = researchAreas.map(area => area.toLowerCase());
+
+            const matchesSearch = abstractText.toLowerCase().includes(searchInput);
+            const matchesMethod = !methodFilter || mainMethod.toLowerCase() === methodFilter;
+            const matchesArea = !areaFilter || researchAreasLower.some(area => area === areaFilter);
+
+            return matchesSearch && matchesMethod && matchesArea;
         });
 
         let filterMessage = "You are currently filtering the results";
@@ -107,9 +115,10 @@
             filterNotice.style.display = "none";
         }
 
-        clearFiltersButton.textContent = (searchInput || methodFilter || areaFilter) ? "Clear filters" : "No filters selected";
-        clearFiltersButton.classList.toggle("active", !!(searchInput || methodFilter || areaFilter));
-        clearFiltersButton.style.backgroundColor = clearFiltersButton.classList.contains("active") ? "red" : "#28a745";
+        clearFiltersButton.textContent = activeFilters.length > 0 ? "Clear filters" : "No filters selected";
+        clearFiltersButton.classList.toggle("active", activeFilters.length > 0);
+        clearFiltersButton.style.backgroundColor = activeFilters.length > 0 ? "red" : "#28a745";
+
         populateTable(filteredRows);
     }
 
