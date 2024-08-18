@@ -19,12 +19,17 @@
             width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
         }
         .filter-container {
-            display: flex; flex-wrap: wrap; align-items: center;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
             margin-bottom: 10px;
-            margin-top: 10px;
+            flex-wrap: wrap;
         }
         .filter-container label, .filter-container select {
             font-size: 14px; margin-right: 10px; padding-right: 10px;
+        }
+        .filter-container select {
+            min-width: 200px;
         }
         .dataTables_wrapper .dataTables_length {
             float: right;
@@ -93,8 +98,6 @@
             const workbook = XLSX.read(data, { type: "array" });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-
-            console.log("Loaded Data:", allRows);  // Debugging: Check data loaded correctly
 
             populateTable(allRows);
             populateFilterOptions(allRows);
@@ -178,7 +181,9 @@
             return matchesMethod && matchesArea;
         });
 
-        console.log("Filtered Rows:", filteredRows);  // Debugging: Check filtering results
+        if (filteredRows.length === 0) {
+            console.warn("No matching records found. Check the filter logic or data structure.");
+        }
 
         populateTable(filteredRows);
         updateClearFiltersButton(methodFilter, areaFilter);
@@ -206,6 +211,17 @@
     });
 
     document.getElementById("clearFiltersBtn").addEventListener("click", function() {
+        document.getElementById("methodFilter").addEventListener("change", function() {
+        filterTable();
+        dataTable.draw();
+    });
+
+    document.getElementById("areaFilter").addEventListener("change", function() {
+        filterTable();
+        dataTable.draw();
+    });
+
+    document.getElementById("clearFiltersBtn").addEventListener("click", function() {
         document.getElementById("methodFilter").selectedIndex = 0;
         document.getElementById("areaFilter").selectedIndex = 0;
         filterTable();
@@ -214,5 +230,3 @@
 </script>
 </body>
 </html>
-
-   
