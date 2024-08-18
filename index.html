@@ -18,12 +18,12 @@
         .dataTables_wrapper .dataTables_filter input {
             width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 16px;
         }
-        .dataTables_wrapper .dataTables_length {
-            text-align: right;
-            margin-bottom: 10px;
-        }
         .dataTables_wrapper .method-filter-container {
             text-align: left;
+            margin-bottom: 10px;
+        }
+        .dataTables_wrapper .dataTables_length {
+            text-align: right;
             margin-bottom: 10px;
         }
         table, th, td {
@@ -39,9 +39,11 @@
 </head>
 <body>
 
-<!-- Filter Method -->
+<!-- Filter Method and Search Bar -->
 <div class="dataTables_wrapper">
-    <div class="dataTables_filter" id="abstractTable_filter"></div>
+    <div class="dataTables_filter" id="abstractTable_filter">
+        <input type="search" placeholder="🔍Search abstracts..." aria-controls="abstractTable">
+    </div>
     <div class="method-filter-container">
         <label for="methodFilter">Filter(Method):</label>
         <select id="methodFilter"><option value="">All</option></select>
@@ -89,10 +91,8 @@
             lengthMenu: [[15, 30, 60, -1], [15, 30, 60, `${allRows.length} (All)`]],
             language: {
                 lengthMenu: 'Show up to _MENU_ records per page',
-                search: '',
-                searchPlaceholder: '🔍Search abstracts...'
             },
-            dom: '<"top"f>rt<"bottom"l><"clear">',
+            dom: '<"top"fl>rt<"bottom"p><"clear">',
         });
 
         // Attach filter method change event
@@ -113,4 +113,19 @@
     }
 
     function populateMethodFilter(rows) {
-       ​⬤
+        const methodCounts = {};
+        rows.forEach(row => {
+            const mainMethod = row[1]?.trim().toLowerCase();
+            if (mainMethod) {
+                methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
+            }
+        });
+
+        const methodFilter = document.getElementById("methodFilter");
+        methodFilter.innerHTML += Object.entries(methodCounts).map(([method, count]) => {
+            return `<option value="${method}">${method} [${count} matches]</option>`;
+        }).join('');
+    }
+</script>
+</body>
+</html>
