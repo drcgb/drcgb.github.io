@@ -45,13 +45,13 @@
             width: 100%;
             text-align: left; /* Align the search bar container to the left */
             margin-bottom: 5px;
-            padding: 2px 2px; /* Match padding with the filters */
+            padding: 10px; /* Match padding with the filters */
         }
 
         .custom-search-container input {
             width: 100%;
             text-align: left; /* Keep input text left-aligned */
-            padding: 2px 2px;
+            padding: 0px 10px;
             border-radius: 4px;
             font-size: 16px;
             box-sizing: border-box;
@@ -92,7 +92,7 @@
 
         .filter-status-btn {
             margin-left: 5px;
-            padding: 5px 12px;
+            padding: 5px 10px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -396,10 +396,14 @@ dom: '<"top"l>rt<"bottom"p><"clear">',
     }
 
     function adjustContentMargin() {
-        const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-        const headerHeight = $('.fixed-header').outerHeight(true);
-        $('.content').css('margin-top', headerHeight + filterNoticeHeight -20);
-    }
+    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const headerHeight = $('.fixed-header').outerHeight(true);
+    
+    // Calculate the desired margin, adjusting for the filter notice when it's visible
+    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
+    
+    $('.content').css('margin-top', totalMargin);
+}
 
     // Call adjustContentMargin initially to set the correct margin when the page loads
     $(document).ready(function() {
