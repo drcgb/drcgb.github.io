@@ -22,15 +22,32 @@
         }
 
         .fixed-header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background-color: white;
-            z-index: 1000;
-            padding: 10px 0;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 1000;
+    padding: 10px 0;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
 
+.table-container {
+    margin-top: 80px; /* Adjust this margin if needed to create space for the fixed header */
+}
+
+@media (max-width: 600px) {
+    .filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .filter-group {
+        width: 100%;
+    }
+    .fixed-header, .filter-notice, #abstractTable {
+        font-size: 12px; /* Adjust the font size for mobile view */
+    }
+}
         .content {
             flex: 1;
             display: flex;
@@ -45,7 +62,7 @@
             width: 99%;
             text-align: left;
             margin-bottom: 5px;
-            padding: 10px;
+            padding: 5px;
         }
 
         .custom-search-container input {
@@ -428,45 +445,64 @@ adjustContentMargin();
 // Add event listeners only once, at the end of your script
 
 $(document).ready(function() {
+    adjustHeaderWidth();
+
+    $(window).on('resize', function() {
+        adjustHeaderWidth();
+    });
+
+    function adjustHeaderWidth() {
+        let tableWidth = $('#abstractTable').outerWidth();
+        $('.fixed-header').css('width', tableWidth + 'px');
+    }
+
     adjustContentMargin();
 
     $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw(); // Use native DataTables search
+        dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a search is performed
     });
 
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a filter is applied
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 0);
     });
 
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a filter is applied
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 0);
     });
 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             // Clear all filter inputs
-            $('#methodFilter').val('');      // Clear the method filter dropdown
-            $('#areaFilter').val('');        // Clear the area filter dropdown
-            $('#customSearch').val('');      // Clear the custom search input field
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
 
             // Clear DataTables native search and redraw
-            dataTable.search('').draw();     // Clear native DataTables search
+            dataTable.search('').draw();
+
+            // Trigger input event to ensure custom search logic is cleared
+            $('#customSearch').trigger('input'); 
 
             // Update filter status and notice
             updateFilterStatus();
             updateFilterNotice();
 
             // Scroll the window to the top instantly
-            window.scrollTo(0, 0);
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+            }, 0);
         }
     });
 });
