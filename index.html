@@ -45,13 +45,13 @@
             width: 100%;
             text-align: left; /* Align the search bar container to the left */
             margin-bottom: 5px;
-            padding: 10px; /* Match padding with the filters */
+            padding: 10px 20px; /* Match padding with the filters */
         }
 
         .custom-search-container input {
             width: 100%;
             text-align: left; /* Keep input text left-aligned */
-            padding: 10px;
+            padding: 10px 20px;
             border-radius: 4px;
             font-size: 16px;
             box-sizing: border-box;
@@ -114,7 +114,7 @@
             color: #000000;
             background-color: #ebb6fcd8;
             border: 1px solid #c953ff;
-            padding: 10px;
+            padding: 10px 20px;
             border-radius: 4px;
             display: none; /* Default to hidden */
         }
@@ -250,15 +250,14 @@
                 lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
                 language: {
                     lengthMenu: 'Show up to _MENU_ records per page',
-                },
-                dom: '<"top"l>rt<"bottom"p><"clear">',
-            });
+},
+dom: '<"top"l>rt<"bottom"p><"clear">',
+});
+        // Initial filtering
+        dataTable.draw();
 
-            // Initial filtering
-            dataTable.draw();
-
-            // Attach events
-            $('#customSearch').on('input', function() {
+        // Attach events
+        $('#customSearch').on('input', function() {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
@@ -276,7 +275,6 @@
             updateFilterNotice();
         });
 
-        // Clear filters button
         $('#filterStatusBtn').on('click', function() {
             if ($(this).hasClass('red')) {
                 $('#methodFilter').val('');
@@ -377,9 +375,7 @@
         if (activeFilters.length > 0) {
             if (filteredRowCount > 0) {
                 notice.text(`Active Filters: ${activeFilters.join(', ')} | ${filteredRowCount} record(s) found.`).show();
-                adjustContentMargin(); // Adjust content margin
             } else {
-                // Check filters individually if no results are found
                 let methodResults = testFilterWithout('method');
                 let areaResults = testFilterWithout('area');
 
@@ -392,12 +388,11 @@
                 }
 
                 notice.text(alertMessage).show();
-                adjustContentMargin(); // Adjust content margin
             }
         } else {
             notice.hide();
-            adjustContentMargin(); // Adjust content margin
         }
+        adjustContentMargin(); // Always adjust content margin after updating the filter notice
     }
 
     function adjustContentMargin() {
@@ -406,21 +401,40 @@
         $('.content').css('margin-top', headerHeight + filterNoticeHeight);
     }
 
-    function testFilterWithout(filterType) {
-        let tempSearchValue = $('#customSearch').val().toLowerCase().trim();
-        let tempMethodValue = filterType === 'method' ? '' : $('#methodFilter').val().toLowerCase().trim();
-        let tempAreaValue = filterType === 'area' ? '' : $('#areaFilter').val().toLowerCase().trim();
+    // Call adjustContentMargin initially to set the correct margin when the page loads
+    $(document).ready(function() {
+        adjustContentMargin(); // Set the correct margin when the page loads
 
-        return dataTable.rows(function(idx, data, node) {
-            const mainMethod = methodData[idx]; // Access the stored Main Method
+        // Attach events
+        $('#customSearch').on('input', function() {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+        });
 
-            const methodMatch = tempMethodValue === '' || mainMethod === tempMethodValue;
-            const areaMatch = tempAreaValue === '' || data[0].toLowerCase().includes(tempAreaValue);
-            const searchMatch = tempSearchValue === '' || data[0].toLowerCase().includes(tempSearchValue);
+        $('#methodFilter').on('change', function() {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+        });
 
-            return methodMatch && areaMatch && searchMatch;
-        }).count();
-    }
+        $('#areaFilter').on('change', function() {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+        });
+
+        $('#filterStatusBtn').on('click', function() {
+            if ($(this).hasClass('red')) {
+                $('#methodFilter').val('');
+                $('#areaFilter').val('');
+                $('#customSearch').val('');
+                dataTable.draw();
+                updateFilterStatus();
+                updateFilterNotice();
+            }
+        });
+    });
 </script>
 </body>
 </html>
