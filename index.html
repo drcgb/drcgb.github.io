@@ -243,13 +243,21 @@
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
         drawCallback: function(settings) {
-            const api = this.api();
-            const rows = api.rows({ search: 'applied' }).data().length;
+    const api = this.api();
 
-            if (!api.row('.end-of-records').any()) {
-                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
-            }
+    // Introduce a slight delay to ensure rendering is complete
+    setTimeout(function() {
+        const rows = api.rows({ search: 'applied' }).data().length;
+
+        // Remove any existing "End of records" row to prevent duplication
+        $('#abstractTable tbody .end-of-records').remove();
+
+        // Ensure the "End of records" row is always the last row
+        if (rows > 0) {
+            $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
         }
+    }, 100); // 100ms delay to ensure proper rendering
+}
     });
 
     // Initial filtering
