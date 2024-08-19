@@ -395,7 +395,7 @@
 
     if (activeFilters.length > 0) {
         if (filteredRowCount > 0) {
-             notice.html(`Active Filters: ${activeFilters.join(', ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+             notice.html(`Active Filters: ${activeFilters.join(' <strong>&</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
             let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
             alertMessage += 'Try adjusting the filters.';
@@ -441,17 +441,25 @@ $(document).ready(function() {
 
     $('#filterStatusBtn').on('click', function() {
     if ($(this).hasClass('red')) {
-        $('#methodFilter').val('');
-        $('#areaFilter').val('');
-        $('#customSearch').val('');
-        dataTable.draw();
+        // Clear all filter inputs
+        $('#methodFilter').val('');      // Clear the method filter dropdown
+        $('#areaFilter').val('');        // Clear the area filter dropdown
+        $('#customSearch').val('');      // Clear the custom search input field
+
+        // Clear DataTables native search and redraw
+        dataTable.search('').draw();     // Clear native DataTables search
+
+        // Trigger input event to ensure custom search logic is cleared
+        $('#customSearch').trigger('input'); 
+
+        // Update filter status and notice
         updateFilterStatus();
         updateFilterNotice();
 
         // Scroll the window to the top instantly
         setTimeout(function() {
             window.scrollTo(0, 0);
-        }, 100);
+        }, 0);
     }
 });
 });
