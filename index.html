@@ -31,6 +31,17 @@
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
         }
 
+        .fixed-footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: white;
+            z-index: 1000;
+            padding: 10px 0;
+            box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
         .content {
             flex: 1;
             display: flex;
@@ -38,6 +49,8 @@
             padding: 20px;
             box-sizing: border-box;
             margin-top: 140px; /* Adjust to the height of the fixed header */
+            margin-bottom: 60px; /* Adjust to the height of the fixed footer */
+            overflow-y: auto; /* Allows the content to scroll */
         }
 
         .custom-search-container {
@@ -45,6 +58,7 @@
             text-align: left;
             margin-bottom: 10px;
         }
+
         .custom-search-container input {
             width: 100%;
             padding: 10px;
@@ -133,15 +147,6 @@
             overflow-y: auto;
             margin-bottom: 20px; /* Space for pagination */
         }
-
-        .dataTables_wrapper .dataTables_paginate {
-            position: static;
-            margin-top: auto;
-            background-color: white;
-            padding: 10px 0;
-            text-align: center;
-            box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
-        }
     </style>
 </head>
 <body>
@@ -181,9 +186,46 @@
         </div>
     </div>
 
+    <!-- Fixed footer for pagination -->
+    <div class="fixed-footer">
+        <!-- Pagination controls will be injected here by DataTables -->
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var table = $('#abstractTable').DataTable({
+                paging: true,
+                searching: true,
+                info: true,
+                autoWidth: false,
+                ordering: false,
+                lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "All"]],
+                language: {
+                    lengthMenu: 'Show up to _MENU_ records per page',
+                },
+                dom: '<"top"l>rt<"bottom"p><"clear">',
+                drawCallback: function () {
+                    // Move the pagination to the fixed footer
+                    var pagination = $(this).closest('.dataTables_wrapper').find('.dataTables_paginate');
+                    $('.fixed-footer').html(pagination.clone(true));
+                }
+            });
+
+            // Event handlers for custom search and filters
+            $('#customSearch').on('input', function() {
+                table.search(this.value).draw();
+            });
+
+            $('#methodFilter, #areaFilter').on('change', function() {
+                table.draw();
+            });
+        });
+    </script>
+</body>
+</html>
     <!-- Your JavaScript code for populating and handling DataTables goes here -->
 </body>
 </html>
