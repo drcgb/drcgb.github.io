@@ -62,8 +62,8 @@
         }
 
         .custom-search-container input {
-            width: 98vw;
-            max-width: 98vw; /* Ensure it doesn't overshoot the screen */
+            width: 100%;
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
             padding: 8px; /* Reduced padding */
             border-radius: 4px;
             font-size: 16px;
@@ -75,8 +75,8 @@
             flex-wrap: wrap;
             justify-content: flex-start;
             gap: 5px;
-            width: 98vw;
-            max-width: 98vw; /* Ensure it doesn't overshoot the screen */
+            width: 100%;
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
             padding: 5px; /* Reduced padding */
             box-sizing: border-box; /* Include padding in width calculation */
         }
@@ -84,7 +84,7 @@
         .filter-group {
             display: flex;
             align-items: center;
-            max-width: 99vw; /* Ensure it doesn't overshoot the screen */
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
         }
 
         .filter-group label {
@@ -95,7 +95,7 @@
 
         .filter-group select {
             min-width: 150px;
-            max-width: 100vw; /* Ensure it doesn't overshoot the screen */
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
         }
 
         @media (max-width: 600px) {
@@ -104,13 +104,13 @@
                 align-items: flex-start;
             }
             .filter-group {
-                width: 97vw
+                width: 98vw
             }
             .filter-group select {
-                width: 97vw; /* Ensures select boxes take full width on mobile */
+                width: 98vw; /* Ensures select boxes take full width on mobile */
             }
             .custom-search-container input, .filter-status-btn {
-             width: 97vw; /* Ensures search box and buttons take full width on mobile */
+             width: 98vw; /* Ensures search box and buttons take full width on mobile */
              font-size: 14px; /* Adjust this value to increase the text size */
             font-weight: bold; /* Makes the font bold */
             }
