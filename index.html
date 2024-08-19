@@ -233,10 +233,11 @@
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
-            // Ensure the "End of records" row is always present and at the end
+            // Remove existing "End of records" row
             $('#abstractTable tbody .end-of-records').remove();
 
-            if (rows > 0) {
+            // If there are any rows or no rows, add "End of records"
+            if (rows === 0 || rows > 0) {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
         }
