@@ -219,16 +219,18 @@
     console.log("Initializing DataTable...");
 
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const searchValue = $('#customSearch').val().toLowerCase().trim();
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
-        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
+        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
         const methodMatch = methodValue === '' || mainMethod === methodValue;
         const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+        const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
 
-        return methodMatch && areaMatch;
+        return methodMatch && areaMatch && searchMatch;
     });
 
     dataTable = $('#abstractTable').DataTable({
@@ -243,21 +245,17 @@
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
         drawCallback: function(settings) {
-    const api = this.api();
+            const api = this.api();
+            const rows = api.rows({ search: 'applied' }).data().length;
 
-    // Introduce a slight delay to ensure rendering is complete
-    setTimeout(function() {
-        const rows = api.rows({ search: 'applied' }).data().length;
+            // Remove any existing "End of records" row
+            $('#abstractTable tbody .end-of-records').remove();
 
-        // Remove any existing "End of records" row to prevent duplication
-        $('#abstractTable tbody .end-of-records').remove();
-
-        // Ensure the "End of records" row is always the last row
-        if (rows > 0) {
-            $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+            // Ensure the "End of records" row is always the last row if there are rows displayed
+            if (rows > 0 && !api.row('.end-of-records').any()) {
+                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+            }
         }
-    }, 100); // 100ms delay to ensure proper rendering
-}
     });
 
     // Initial filtering
@@ -265,8 +263,7 @@
 
     // Attach events
     $('#customSearch').on('input', function() {
-        const searchTerm = $(this).val().toLowerCase().trim();
-        dataTable.search(searchTerm).draw(); // Use DataTables native search
+        dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
     });
@@ -283,9 +280,24 @@
         updateFilterNotice();
     });
 
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+
+            // Scroll to the top of the window
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+            }, 100);
+        }
+    });
+
     console.log("DataTable initialized.");
 }
-
         let methodData = []; // New array to store Main Method data
         let researchAreasData = []; // New array to store Research Areas data
 
