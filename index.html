@@ -1,202 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Searchable and Filterable Table</title>
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
-        <style>
-            body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
-            .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
-                font-family: Arial, sans-serif;
-                font-size: 14px; /* Set a base font size */
-                line-height: 1.2;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searchable and Filterable Table</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
 
-            body {
-                margin: 0;
-                padding: 0;
-            }
+        body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
+        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.2;
+        }
 
-            .fixed-header {
-                position: fixed;
-                top: 0;
-                width: 100%;
-                background-color: white;
-                z-index: 1000;
-                padding: 10px 0;
-                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-            }
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: white;
+            z-index: 1000;
+            padding: 10px 0;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
-            .content {
-                margin-top: 140px; /* Adjust to the height of the fixed header */
-                padding: 20px;
-            }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-top: 140px; /* Adjust to the height of the fixed header */
+        }
 
-            .custom-search-container {
-                width: 100%; /* Set the container width to 100% */
-                text-align: left;
-                margin-bottom: 10px;
-            }
-            .custom-search-container input {
-                width: 100%;
-                padding: 10px;
-                border-radius: 4px;
-                font-size: 16px;
-                box-sizing: border-box; /* Ensure padding doesn't affect the width */
-            }
+        .custom-search-container {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 10px;
+        }
+        .custom-search-container input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
 
-            .dataTables_wrapper .filter-container {
-                display: flex;
-                flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
-                justify-content: flex-start; /* Align items to the start */
-                gap: 5px; /* Add space between filter groups */
-                margin-bottom: 10px;
-                width: 100%; /* Ensure the container takes up full width */
+        .dataTables_wrapper .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 5px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-group label {
+            margin-right: 2px;
+        }
+
+        .filter-group select {
+            min-width: 150px;
+            max-width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            .filter-container {
+                flex-direction: column;
+                align-items: flex-start;
             }
-            
             .filter-group {
-                display: flex;
-                align-items: center;
-            }
-
-            .filter-group label {
-                margin-right: 2px; /* Small space between label and dropdown */
-            }
-            
-            .filter-group select {
-                min-width: 150px; /* Set a minimum width for the dropdowns */
-                max-width: 100%; /* Ensure the dropdown fits within the container */
-            }
-
-            @media (max-width: 600px) {
-                .filter-container {
-                    flex-direction: column; /* Stack elements vertically on small screens */
-                    align-items: flex-start; /* Align items to the start to keep them left-aligned */
-                }
-                .filter-group {
-                    width: 100%; /* Ensure filter groups take full width on small screens */
-                }
-            }
-
-            .filter-status-btn {
-                margin-left: 10px;
-                padding: 8px 12px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: background-color 0.3s, color 0.3s;
-            }
-            .filter-status-btn.green {
-                background-color: #28a745;
-                color: white;
-            }
-            .filter-status-btn.red {
-                background-color: red;
-                color: white;
-            }
-
-            .filter-notice {
-                margin-top: 10px;
-                margin-bottom: 20px;
-                font-style: italic;
-                color: #000000;
-                background-color: #ebb6fcd8; /* Light purple background */
-                border: 1px solid #c953ff; /* Red border */
-                padding: 10px;
-                border-radius: 4px;
-            }
-
-            table, th, td {
-                padding: 0px;
-                border-collapse: collapse;
-                border: 1px solid black;
-            }
-            th {
-                background-color: #f2f2f2;
-                text-align: left;
-                vertical-align: middle;
-            }
-            table.dataTable tbody tr:hover {
-                background-color: #e0f7fa;
-            }
-
-            .table-container {
-                max-height: 400px; /* Adjust height as needed */
-                overflow-y: auto; /* Enable vertical scrolling */
-                margin-bottom: 50px; /* Space for the pagination to be visible */
-            }
-
-            /* Prevent font size from scaling with orientation change */
-            @media (orientation: landscape), (orientation: portrait) {
-                body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
-                .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
-                    font-size: 14px; /* Lock the font size at 14px */
-                }
-            }
-
-            /* Lock the viewport scale to prevent zooming */
-            @media screen and (min-width: 1px) {
-                html {
-                    font-size: 14px;
-                }
-            }
-
-            .dataTables_wrapper .dataTables_paginate {
-                position: fixed;
-                bottom: 0;
                 width: 100%;
-                background-color: white;
-                padding: 10px 0;
-                text-align: center;
-                box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
             }
+        }
 
-            .dataTables_wrapper .dataTables_paginate a {
-                margin: 0 5px;
-            }
-        </style>
-    </head>
-    <body>
-        <!-- Fixed header with search and filters -->
-        <div class="fixed-header">
-            <div class="custom-search-container">
-                <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
-            </div>
-            <div class="dataTables_wrapper">
-                <div class="filter-container">
-                    <div class="filter-group">
-                        <label for="methodFilter">Filter(Method):</label>
-                        <select id="methodFilter"><option value="">All</option></select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="areaFilter">Filter(Areas):</label>
-                        <select id="areaFilter"><option value="">All</option></select>
-                    </div>
-                    <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
+        .filter-status-btn {
+            margin-left: 10px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .filter-status-btn.green {
+            background-color: #28a745;
+            color: white;
+        }
+        .filter-status-btn.red {
+            background-color: red;
+            color: white;
+        }
+
+        .filter-notice {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #000000;
+            background-color: #ebb6fcd8;
+            border: 1px solid #c953ff;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        table, th, td {
+            padding: 0px;
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+            vertical-align: middle;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: #e0f7fa;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 50px;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            position: static;
+            margin-top: auto;
+            background-color: white;
+            padding: 10px 0;
+            text-align: center;
+            box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed header with search and filters -->
+    <div class="fixed-header">
+        <div class="custom-search-container">
+            <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
+        </div>
+        <div class="dataTables_wrapper">
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="methodFilter">Filter(Method):</label>
+                    <select id="methodFilter"><option value="">All</option></select>
                 </div>
+                <div class="filter-group">
+                    <label for="areaFilter">Filter(Areas):</label>
+                    <select id="areaFilter"><option value="">All</option></select>
+                </div>
+                <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
             </div>
         </div>
+    </div>
 
-        <!-- Content area for the table -->
-        <div class="content">
-            <!-- Filter Notice -->
-            <div class="filter-notice" id="filterNotice" style="display: none;"></div>
+    <!-- Content area for the table -->
+    <div class="content">
+        <!-- Filter Notice -->
+        <div class="filter-notice" id="filterNotice" style="display: none;"></div>
 
-            <!-- Scrollable table -->
-            <div class="table-container">
-                <table id="abstractTable" class="display">
-                    <thead>
-                        <tr><th>Preliminary Title and Abstract</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+        <!-- Scrollable table -->
+        <div class="table-container">
+            <table id="abstractTable" class="display">
+                <thead>
+                    <tr><th>Preliminary Title and Abstract</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
+    </div>
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <!-- Your JavaScript code for populating and handling DataTables goes here -->
+</body>
+</html>
         <script>
             let allRows = [];
             let dataTable;
