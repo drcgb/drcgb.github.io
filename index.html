@@ -330,83 +330,102 @@
             $('.content').css('margin-top', totalMargin);
         }
         $(document).ready(function() {
-            // Flag to ensure DataTable is initialized only once
-            let isDataTableInitialized = false;
+    // Flag to ensure DataTable is initialized only once
+    let isDataTableInitialized = false;
 
-            // Function to adjust header width
-            function adjustHeaderWidth() {
-                let tableWidth = $('#abstractTable').outerWidth();
-                $('.fixed-header').css('width', tableWidth + 'px');
-            }
+    // Function to adjust header width
+    function adjustHeaderWidth() {
+        let tableWidth = $('#abstractTable').outerWidth();
+        $('.fixed-header').css('width', tableWidth + 'px');
+    }
 
-            // Adjust the header width on page load and window resize
-            adjustHeaderWidth();
-            $(window).on('resize', function() {
-                adjustHeaderWidth();
-            });
+    // Adjust the header width on page load and window resize
+    adjustHeaderWidth();
+    $(window).on('resize', function() {
+        adjustHeaderWidth();
+    });
 
-            // Delay to ensure the table has fully rendered before adjusting the header width
-            setTimeout(function() {
-                adjustHeaderWidth();
-            }, 100);
+    // Delay to ensure the table has fully rendered before adjusting the header width
+    setTimeout(function() {
+        adjustHeaderWidth();
+    }, 100);
 
-            // Initialize DataTable only if it hasn't been initialized already
-            if (!isDataTableInitialized) {
-                initializeDataTable();
-                isDataTableInitialized = true; // Set the flag to true after initialization
-            }
+    // Function to load data and initialize the DataTable
+    function loadDataAndInitialize() {
+        console.log("Loading XLSX data...");
+        fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, { type: "array" });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+                console.log("Data loaded:", allRows);
 
-            // Attach events
-            $('#customSearch').on('input', function() {
-                dataTable.search($(this).val()).draw(); // Use DataTables native search
-                updateFilterStatus();
-                updateFilterNotice();
-            });
+                populateTable(allRows);
+                populateMethodFilter(allRows);
+                populateAreaFilter(allRows);
 
-            $('#methodFilter').on('change', function() {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                }, 0);
-            });
-
-            $('#areaFilter').on('change', function() {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                }, 0);
-            });
-
-            $('#filterStatusBtn').on('click', function() {
-                if ($(this).hasClass('red')) {
-                    // Clear all filter inputs
-                    $('#methodFilter').val('');
-                    $('#areaFilter').val('');
-                    $('#customSearch').val('');
-
-                    // Clear DataTables native search and redraw
-                    dataTable.search('').draw();
-
-                    // Trigger input event to ensure custom search logic is cleared
-                    $('#customSearch').trigger('input'); 
-
-                    // Update filter status and notice
-                    updateFilterStatus();
-                    updateFilterNotice();
-
-                    // Scroll the window to the top instantly
-                    setTimeout(function() {
-                        window.scrollTo(0, 0);
-                    }, 0);
+                if (!isDataTableInitialized) {
+                    initializeDataTable();
+                    isDataTableInitialized = true;
                 }
-            });
+            })
+            .catch(err => console.error('Error loading XLSX data:', err));
+    }
 
-            console.log("DataTable initialized.");
-        });
+    loadDataAndInitialize();
+
+    // Attach events
+    $('#customSearch').on('input', function() {
+        dataTable.search($(this).val()).draw(); // Use DataTables native search
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 0);
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 0);
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            // Clear all filter inputs
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+
+            // Clear DataTables native search and redraw
+            dataTable.search('').draw();
+
+            // Trigger input event to ensure custom search logic is cleared
+            $('#customSearch').trigger('input'); 
+
+            // Update filter status and notice
+            updateFilterStatus();
+            updateFilterNotice();
+
+            // Scroll the window to the top instantly
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+            }, 0);
+        }
+    });
+
+    console.log("DataTable initialized.");
+});
     </script>
 </body>
 </html>
