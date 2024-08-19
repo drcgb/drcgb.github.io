@@ -280,19 +280,25 @@
     });
 
     $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            // Clear the filters and search
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val(''); // Clear the custom search input field
-            dataTable.search('').draw(); // Clear the DataTables search and redraw
-            updateFilterStatus();
-            updateFilterNotice();
+    if ($(this).hasClass('red')) {
+        // Clear all filter inputs
+        $('#methodFilter').val('');
+        $('#areaFilter').val('');
+        $('#customSearch').val('');
 
-            // Scroll the window to the top instantly
+        // Clear DataTables native search and redraw
+        dataTable.search('').draw(); 
+
+        // Update filter status and notice
+        updateFilterStatus();
+        updateFilterNotice();
+
+        // Scroll the window to the top instantly
+        setTimeout(function() {
             window.scrollTo(0, 0);
-        }
-    });
+        }, 0);
+    }
+});
 
     console.log("DataTable initialized.");
 }
