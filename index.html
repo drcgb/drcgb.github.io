@@ -238,6 +238,20 @@
             } catch (err) {
                 console.error('Error loading XLSX data:', err);
             }
+
+            const searchInput = document.querySelector('.custom-search-container input');
+    const filterNotice = document.querySelector('.filter-notice');
+
+    function matchNoticeWidth() {
+        const searchWidth = searchInput.offsetWidth;
+        filterNotice.style.width = `${searchWidth}px`;
+    }
+
+    matchNoticeWidth();
+    window.addEventListener('resize', matchNoticeWidth);
+
+    console.log("DataTable initialized.");
+
         });
 
         function initializeDataTable() {
