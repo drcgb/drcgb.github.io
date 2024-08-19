@@ -216,59 +216,54 @@
         });
 
         function initializeDataTable() {
-            console.log("Initializing DataTable...");
+    console.log("Initializing DataTable...");
 
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                const searchValue = $('#customSearch').val().toLowerCase().trim();
-                const methodValue = $('#methodFilter').val().toLowerCase().trim();
-                const areaValue = $('#areaFilter').val().toLowerCase().trim();
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const searchValue = $('#customSearch').val().toLowerCase().trim();
+        const methodValue = $('#methodFilter').val().toLowerCase().trim();
+        const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-                const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
-                const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
 
-                // Ensure the method filter matches exactly the mainMethod value
-                const methodMatch = methodValue === '' || mainMethod === methodValue;
-                
-                // Ensure the area filter matches exactly the researchAreas value
-                const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+        const methodMatch = methodValue === '' || mainMethod === methodValue;
+        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+        const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
 
-                // Search input checks for partial matches within the mainMethod and research areas
-                const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
+        return methodMatch && areaMatch && searchMatch;
+    });
 
-                return methodMatch && areaMatch && searchMatch;
-            });
+    dataTable = $('#abstractTable').DataTable({
+        paging: false,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        ordering: false,
+        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+        language: {
+            lengthMenu: 'Show up to _MENU_ records per page',
+        },
+        dom: '<"top"l>rt<"bottom"p><"clear">',
+        drawCallback: function(settings) {
+            const api = this.api();
+            const rows = api.rows({ search: 'applied' }).data().length;
 
-            dataTable = $('#abstractTable').DataTable({
-                paging: false,
-                searching: true,
-                info: true,
-                autoWidth: false,
-                ordering: false,
-                lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-                language: {
-                    lengthMenu: 'Show up to _MENU_ records per page',
-                },
-                dom: '<"top"l>rt<"bottom"p><"clear">',
-                drawCallback: function(settings) {
-                    const api = this.api();
-                    const rows = api.rows({ search: 'applied' }).data().length;
-
-                    // Ensure the "End of records" row is always the last row
-                    if (!api.row('.end-of-records').any()) {
-                        $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
-                    }
-                }
-            });
+            if (!api.row('.end-of-records').any()) {
+                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+            }
+        }
+    });
 
             // Initial filtering
             dataTable.draw();
                         // Attach events
                         $('#customSearch').on('input', function() {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            });
-
+                        console.log("Search input:", $(this).val()); // Debugging line
+                        dataTable.draw();
+                        updateFilterStatus();
+                        updateFilterNotice();
+});
+            
             $('#methodFilter').on('change', function() {
                 dataTable.draw();
                 updateFilterStatus();
@@ -289,33 +284,25 @@
 
         function populateTable(rows) {
             console.log("Populating table...");
+            methodData = []; // Reset arrays before populating
+            researchAreasData = [];
+
             const tbody = document.querySelector("#abstractTable tbody");
             tbody.innerHTML = rows.map(row => {
                 const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
                 const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
                 const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
 
-                // Ensure data exists before pushing to arrays
-                if (mainMethod) {
-                    methodData.push(mainMethod.toLowerCase().trim());
-                } else {
-                    methodData.push(''); // Push an empty string if no method is available
-                }
-
-                if (researchAreas.length > 0) {
-                    researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
-                } else {
-                    researchAreasData.push(''); // Push an empty string if no areas are available
-                }
+                methodData.push(mainMethod.toLowerCase().trim()); // Ensure lowercase and trim before pushing
+                researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
 
                 return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
-             }).join('');
+            }).join('');
 
-             // Add the "End of records" row
             tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
-
             console.log("Table populated.");
-          }
+        }
+          
         function populateMethodFilter(rows) {
             console.log("Populating method filter...");
             const methodCounts = {};
