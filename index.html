@@ -196,6 +196,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Check if DataTable is already initialized and destroy it
+            if ($.fn.DataTable.isDataTable('#abstractTable')) {
+                $('#abstractTable').DataTable().destroy();
+            }
+
             var table = $('#abstractTable').DataTable({
                 paging: true,
                 searching: true,
