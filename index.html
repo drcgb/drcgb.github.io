@@ -218,26 +218,26 @@
         function initializeDataTable() {
             console.log("Initializing DataTable...");
 
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-    const searchValue = $('#customSearch').val().toLowerCase().trim();
-    const methodValue = $('#methodFilter').val().toLowerCase().trim();
-    const areaValue = $('#areaFilter').val().toLowerCase().trim();
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                const searchValue = $('#customSearch').val().toLowerCase().trim();
+                const methodValue = $('#methodFilter').val().toLowerCase().trim();
+                const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-    const mainMethod = methodData[dataIndex]; // Get the Main Method from the stored array
-    const researchAreasContent = researchAreasData[dataIndex].toLowerCase().trim();
+                const mainMethod = methodData[dataIndex]; // Get the Main Method from the stored array
+                const researchAreasContent = researchAreasData[dataIndex].toLowerCase().trim();
 
-    // Ensure the method filter matches exactly the mainMethod value
-    const methodMatch = methodValue === '' || mainMethod === methodValue;
+                 // Ensure the method filter matches exactly the mainMethod value
+                const methodMatch = methodValue === '' || mainMethod === methodValue;
     
-    // Ensure the area filter matches exactly the researchAreas value
-    const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+                // Ensure the area filter matches exactly the researchAreas value
+                const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
-    // Search input checks for partial matches within the mainMethod and research areas
-    const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
+                // Search input checks for partial matches within the mainMethod and research areas
+                 const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
 
-    // Return true only if all conditions match
-    return methodMatch && areaMatch && searchMatch;
-});
+                 // Return true only if all conditions match
+                return methodMatch && areaMatch && searchMatch;
+            });
 
             dataTable = $('#abstractTable').DataTable({
                 paging: false,
