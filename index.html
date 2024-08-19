@@ -329,10 +329,9 @@
 
             $('.content').css('margin-top', totalMargin);
         }
-        $(document).ready(function() {
-    // Flag to ensure DataTable is initialized only once
-    let isDataTableInitialized = false;
+        let isDataTableInitialized = false;
 
+$(document).ready(function() {
     // Function to adjust header width
     function adjustHeaderWidth() {
         let tableWidth = $('#abstractTable').outerWidth();
@@ -352,25 +351,25 @@
 
     // Function to load data and initialize the DataTable
     function loadDataAndInitialize() {
-        console.log("Loading XLSX data...");
-        fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
-            .then(response => response.arrayBuffer())
-            .then(data => {
-                const workbook = XLSX.read(data, { type: "array" });
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-                console.log("Data loaded:", allRows);
+        if (!isDataTableInitialized) {  // Ensure this block only runs once
+            console.log("Loading XLSX data...");
+            fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx")
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+                    console.log("Data loaded:", allRows);
 
-                populateTable(allRows);
-                populateMethodFilter(allRows);
-                populateAreaFilter(allRows);
+                    populateTable(allRows);
+                    populateMethodFilter(allRows);
+                    populateAreaFilter(allRows);
 
-                if (!isDataTableInitialized) {
                     initializeDataTable();
-                    isDataTableInitialized = true;
-                }
-            })
-            .catch(err => console.error('Error loading XLSX data:', err));
+                    isDataTableInitialized = true;  // Set flag to true after initialization
+                })
+                .catch(err => console.error('Error loading XLSX data:', err));
+        }
     }
 
     loadDataAndInitialize();
