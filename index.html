@@ -424,9 +424,9 @@ $(document).ready(function() {
         updateFilterStatus();
         updateFilterNotice();
 
-        // Scroll the window to the top
+        // Scroll the window to the top instantly
         setTimeout(function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo(0, 0);
         }, 100);
     }
 });
