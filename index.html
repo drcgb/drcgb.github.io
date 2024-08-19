@@ -52,14 +52,17 @@
         }
 
         .custom-search-container {
-            width: 99%;
+            width: 100%;
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
             text-align: left;
             margin-bottom: 5px;
             padding: 10px;
+            box-sizing: border-box; /* Include padding in width calculation */
         }
 
         .custom-search-container input {
             width: 100%;
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
             padding: 10px;
             border-radius: 4px;
             font-size: 16px;
@@ -72,12 +75,15 @@
             justify-content: flex-start;
             gap: 5px;
             width: 100%;
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
             padding: 10px;
+            box-sizing: border-box; /* Include padding in width calculation */
         }
 
         .filter-group {
             display: flex;
             align-items: center;
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
         }
 
         .filter-group label {
@@ -86,7 +92,7 @@
 
         .filter-group select {
             min-width: 150px;
-            max-width: 100%;
+            max-width: 100%; /* Ensure it doesn't overshoot the screen */
         }
 
         @media (max-width: 600px) {
