@@ -45,13 +45,13 @@
             width: 100%;
             text-align: left; /* Align the search bar container to the left */
             margin-bottom: 5px;
-            padding: 10px 20px; /* Match padding with the filters */
+            padding: 2px 2px; /* Match padding with the filters */
         }
 
         .custom-search-container input {
             width: 100%;
             text-align: left; /* Keep input text left-aligned */
-            padding: 10px 20px;
+            padding: 2px 2px;
             border-radius: 4px;
             font-size: 16px;
             box-sizing: border-box;
@@ -398,7 +398,7 @@ dom: '<"top"l>rt<"bottom"p><"clear">',
     function adjustContentMargin() {
         const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
         const headerHeight = $('.fixed-header').outerHeight(true);
-        $('.content').css('margin-top', headerHeight + filterNoticeHeight);
+        $('.content').css('margin-top', headerHeight + filterNoticeHeight -20);
     }
 
     // Call adjustContentMargin initially to set the correct margin when the page loads
