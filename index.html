@@ -49,7 +49,7 @@
         }
 
         .custom-search-container input {
-            width: 98%;
+            width: 99%;
             text-align: left; /* Keep input text left-aligned */
             padding: 10px;
             border-radius: 4px;
@@ -407,38 +407,41 @@ dom: '<"top"l>rt<"bottom"p><"clear">',
 
     // Call adjustContentMargin initially to set the correct margin when the page loads
     $(document).ready(function() {
-        adjustContentMargin(); // Set the correct margin when the page loads
+    adjustContentMargin(); // Set the correct margin when the page loads
 
-        // Attach events
-        $('#customSearch').on('input', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
-
-        $('#methodFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
-
-        $('#areaFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
-
-        $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red')) {
-                $('#methodFilter').val('');
-                $('#areaFilter').val('');
-                $('#customSearch').val('');
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            }
-        });
+    // Attach events
+    $('#customSearch').on('input', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
     });
+
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+
+            // Scroll the table back to the top
+            $('.table-container').scrollTop(0);
+        }
+    });
+});
 </script>
 </body>
 </html>
