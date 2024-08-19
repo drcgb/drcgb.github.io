@@ -219,7 +219,6 @@
     console.log("Initializing DataTable...");
 
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const searchValue = $('#customSearch').val().toLowerCase().trim();
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
@@ -228,9 +227,8 @@
 
         const methodMatch = methodValue === '' || mainMethod === methodValue;
         const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
-        const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
 
-        return methodMatch && areaMatch && searchMatch;
+        return methodMatch && areaMatch;
     });
 
     dataTable = $('#abstractTable').DataTable({
@@ -254,30 +252,31 @@
         }
     });
 
-            // Initial filtering
-            dataTable.draw();
-                        // Attach events
-                        $('#customSearch').on('input', function() {
-                        console.log("Search input:", $(this).val()); // Debugging line
-                        dataTable.draw();
-                        updateFilterStatus();
-                        updateFilterNotice();
-});
-            
-            $('#methodFilter').on('change', function() {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            });
+    // Initial filtering
+    dataTable.draw();
 
-            $('#areaFilter').on('change', function() {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            });
-            
-            console.log("DataTable initialized.");
-        }
+    // Attach events
+    $('#customSearch').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase().trim();
+        dataTable.search(searchTerm).draw(); // Use DataTables native search
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    console.log("DataTable initialized.");
+}
 
         let methodData = []; // New array to store Main Method data
         let researchAreasData = []; // New array to store Research Areas data
