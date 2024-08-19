@@ -404,6 +404,9 @@ $('#areaFilter').on('change', function() {
     }
 
     $(document).ready(function() {
+    // Flag to ensure DataTable is initialized only once
+    let isDataTableInitialized = false;
+
     // Function to adjust header width
     function adjustHeaderWidth() {
         let tableWidth = $('#abstractTable').outerWidth();
@@ -421,36 +424,35 @@ $('#areaFilter').on('change', function() {
         adjustHeaderWidth();
     }, 100);
 
-    // Check if DataTable is already initialized and destroy it if necessary
-    if ($.fn.DataTable.isDataTable('#abstractTable')) {
-        $('#abstractTable').DataTable().destroy();
-    }
+    // Initialize DataTable only if it hasn't been initialized already
+    if (!isDataTableInitialized) {
+        dataTable = $('#abstractTable').DataTable({
+            paging: false,
+            searching: true,
+            info: true,
+            autoWidth: false,
+            ordering: false,
+            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+            language: {
+                lengthMenu: 'Show up to _MENU_ records per page',
+            },
+            dom: '<"top"l>rt<"bottom"p><"clear">',
+            drawCallback: function(settings) {
+                const api = this.api();
+                const rows = api.rows({ search: 'applied' }).data().length;
 
-    // Initialize DataTable
-    dataTable = $('#abstractTable').DataTable({
-        paging: false,
-        searching: true,
-        info: true,
-        autoWidth: false,
-        ordering: false,
-        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-        language: {
-            lengthMenu: 'Show up to _MENU_ records per page',
-        },
-        dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function(settings) {
-            const api = this.api();
-            const rows = api.rows({ search: 'applied' }).data().length;
+                // Remove existing "End of records" row
+                $('#abstractTable tbody .end-of-records').remove();
 
-            // Remove existing "End of records" row
-            $('#abstractTable tbody .end-of-records').remove();
-
-            // Add "End of records" row at the end
-            if (rows === 0 || rows > 0) {
-                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+                // Add "End of records" row at the end
+                if (rows === 0 || rows > 0) {
+                    $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+                }
             }
-        }
-    });
+        });
+
+        isDataTableInitialized = true; // Set the flag to true after initialization
+    }
 
     // Attach events
     $('#customSearch').on('input', function() {
