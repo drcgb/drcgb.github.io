@@ -395,7 +395,7 @@
 
     if (activeFilters.length > 0) {
         if (filteredRowCount > 0) {
-             notice.html(`Active Filters: ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+             notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
             let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
             alertMessage += 'Try adjusting the filters.';
