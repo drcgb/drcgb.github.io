@@ -139,6 +139,15 @@
             margin-bottom: 20px;
         }
 
+        .end-of-records td {
+            text-align: center;
+            padding: 10px;
+            font-size: 16px;
+            color: #333;
+            background-color: #f2f2f2;
+            border-top: 2px solid #ccc;
+        }
+
         .dataTables_wrapper .dataTables_paginate {
             position: static;
             margin-top: auto;
@@ -200,213 +209,219 @@
                 const workbook = XLSX.read(data, { type: "array" });
                 const sheet = workbook.Sheets[workbook.SheetNames[0]];
                 allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-
                 console.log("Data loaded:", allRows);  // Log the loaded data
 
-                populateTable(allRows);
-                populateMethodFilter(allRows);
-                populateAreaFilter(allRows);
-                initializeDataTable();
-            } catch (err) {
-                console.error('Error loading XLSX data:', err);
-            }
-        });
+populateTable(allRows);
+populateMethodFilter(allRows);
+populateAreaFilter(allRows);
+initializeDataTable();
+} catch (err) {
+console.error('Error loading XLSX data:', err);
+}
+});
 
-        function initializeDataTable() {
-            console.log("Initializing DataTable...");
+function initializeDataTable() {
+console.log("Initializing DataTable...");
 
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                const searchValue = $('#customSearch').val().toLowerCase().trim();
-                const methodValue = $('#methodFilter').val().toLowerCase().trim();
-                const areaValue = $('#areaFilter').val().toLowerCase().trim();
+$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+const searchValue = $('#customSearch').val().toLowerCase().trim();
+const methodValue = $('#methodFilter').val().toLowerCase().trim();
+const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-                // Retrieve the Main Method from the stored array
-                const mainMethod = methodData[dataIndex]; // Use the methodData array to get the correct Main Method
+// Retrieve the Main Method from the stored array
+const mainMethod = methodData[dataIndex]; // Use the methodData array to get the correct Main Method
 
-                // Partial match for the displayed content in the single column
-                const rowContent = (data[0] || '').toLowerCase().trim();
+// Partial match for the displayed content in the single column
+const rowContent = (data[0] || '').toLowerCase().trim();
 
-                console.log('Method Filter:', methodValue);
-                console.log('Main Method:', mainMethod);
+console.log('Method Filter:', methodValue);
+console.log('Main Method:', mainMethod);
 
-                // Exact match for the method filter
-                const methodMatch = methodValue === '' || mainMethod === methodValue;
+// Exact match for the method filter
+const methodMatch = methodValue === '' || mainMethod === methodValue;
 
-                // Partial match for the area filter
-                const areaMatch = areaValue === '' || rowContent.includes(areaValue);
+// Partial match for the area filter
+const areaMatch = areaValue === '' || rowContent.includes(areaValue);
 
-                // Partial match for the search input
-                const searchMatch = searchValue === '' || rowContent.includes(searchValue);
+// Partial match for the search input
+const searchMatch = searchValue === '' || rowContent.includes(searchValue);
 
-                return methodMatch && areaMatch && searchMatch;
-            });
+return methodMatch && areaMatch && searchMatch;
+});
 
-            dataTable = $('#abstractTable').DataTable({
-                paging: false, // Disable pagination
-                searching: true,
-                info: true,
-                autoWidth: false,
-                ordering: false,
-                lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-                language: {
-                    lengthMenu: 'Show up to _MENU_ records per page',
+dataTable = $('#abstractTable').DataTable({
+paging: false, // Disable pagination
+searching: true,
+info: true,
+autoWidth: false,
+ordering: false,
+lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+language: {
+    lengthMenu: 'Show up to _MENU_ records per page',
 },
 dom: '<"top"l>rt<"bottom"p><"clear">',
 });
-        // Initial filtering
-        dataTable.draw();
 
-        // Attach events
-        $('#customSearch').on('input', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
+// Initial filtering
+dataTable.draw();
 
-        $('#methodFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
+// Attach events
+$('#customSearch').on('input', function() {
+dataTable.draw();
+updateFilterStatus();
+updateFilterNotice();
+});
 
-        $('#areaFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
+$('#methodFilter').on('change', function() {
+dataTable.draw();
+updateFilterStatus();
+updateFilterNotice();
+});
 
-        $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red')) {
-                $('#methodFilter').val('');
-                $('#areaFilter').val('');
-                $('#customSearch').val('');
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            }
-        });
+$('#areaFilter').on('change', function() {
+dataTable.draw();
+updateFilterStatus();
+updateFilterNotice();
+});
 
-        console.log("DataTable initialized.");
-    }
+$('#filterStatusBtn').on('click', function() {
+if ($(this).hasClass('red')) {
+    $('#methodFilter').val('');
+    $('#areaFilter').val('');
+    $('#customSearch').val('');
+    dataTable.draw();
+    updateFilterStatus();
+    updateFilterNotice();
 
-    let methodData = []; // New array to store Main Method data
+    // Scroll the table back to the top
+    $('.table-container').scrollTop(0);
+}
+});
 
-    function populateTable(rows) {
-        console.log("Populating table...");
-        const tbody = document.querySelector("#abstractTable tbody");
-        tbody.innerHTML = rows.map(row => {
-            const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-            const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
-            const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-
-            // Store the Main Method for later filtering
-            methodData.push(mainMethod.toLowerCase().trim());
-
-            return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
-        }).join('');
-
-        console.log("Table populated.");
-    }
-
-    function populateMethodFilter(rows) {
-        console.log("Populating method filter...");
-        const methodCounts = {};
-        rows.forEach(row => {
-            const mainMethod = row[1]?.trim().toLowerCase();
-            if (mainMethod) {
-                methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
-            }
-        });
-
-        const methodFilter = document.getElementById("methodFilter");
-        methodFilter.innerHTML += Object.entries(methodCounts).map(([method, count]) => {
-            return `<option value="${method}">${method} [~${count} matches]</option>`;
-        }).join('');
-        console.log("Method filter populated.");
-    }
-
-    function populateAreaFilter(rows) {
-        console.log("Populating area filter...");
-        const areaCounts = {};
-        rows.forEach(row => {
-            const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-            researchAreas.forEach(area => {
-                if (area) {
-                    areaCounts[area] = (areaCounts[area] || 0) + 1;
-                }
-            });
-        });
-
-        const areaFilter = document.getElementById("areaFilter");
-        areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
-            return `<option value="${area}">${area} [~${count} matches]</option>`;
-        }).join('');
-        console.log("Area filter populated.");
-    }
-
-    function updateFilterStatus() {
-        const searchValue = $('#customSearch').val().trim();
-        const methodValue = $('#methodFilter').val();
-        const areaValue = $('#areaFilter').val();
-
-        const filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
-
-        const button = $('#filterStatusBtn');
-        if (filterActive) {
-            button.removeClass('green').addClass('red').text('Click to clear all filters');
-        } else {
-            button.removeClass('red').addClass('green').text('No filters active');
-        }
-    }
-
-    function updateFilterNotice() {
-    const searchValue = $('#customSearch').val().trim();
-    const methodValue = $('#methodFilter').val();
-    const areaValue = $('#areaFilter').val();
-
-    let activeFilters = [];
-    if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
-    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
-    if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
-
-    const notice = $('#filterNotice');
-    const filteredRowCount = dataTable.rows({ filter: 'applied' }).count();
-
-    if (activeFilters.length > 0) {
-        if (filteredRowCount > 0) {
-            notice.html(`Active Filters: ${activeFilters.join(', ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
-        } else {
-            let methodResults = testFilterWithout('method');
-            let areaResults = testFilterWithout('area');
-
-            let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
-            if (methodResults > 0) {
-                alertMessage += `Try adjusting the "Method" filter. `;
-            }
-            if (areaResults > 0) {
-                alertMessage += `Try adjusting the "Area" filter. `;
-            }
-
-            notice.html(alertMessage).show();
-        }
-    } else {
-        notice.hide();
-    }
-    adjustContentMargin(); // Always adjust content margin after updating the filter notice
+console.log("DataTable initialized.");
 }
 
-    function adjustContentMargin() {
-    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true);
-    
-    // Calculate the desired margin, adjusting for the filter notice when it's visible
-    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
-    
-    $('.content').css('margin-top', totalMargin);
+let methodData = []; // New array to store Main Method data
+
+function populateTable(rows) {
+console.log("Populating table...");
+const tbody = document.querySelector("#abstractTable tbody");
+tbody.innerHTML = rows.map(row => {
+const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
+const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
+const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+
+// Store the Main Method for later filtering
+methodData.push(mainMethod.toLowerCase().trim());
+
+return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+}).join('');
+
+// Add the "End of records" row
+tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
+
+console.log("Table populated.");
 }
 
-    // Call adjustContentMargin initially to set the correct margin when the page loads
-    $(document).ready(function() {
+function populateMethodFilter(rows) {
+console.log("Populating method filter...");
+const methodCounts = {};
+rows.forEach(row => {
+const mainMethod = row[1]?.trim().toLowerCase();
+if (mainMethod) {
+    methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
+}
+});
+
+const methodFilter = document.getElementById("methodFilter");
+methodFilter.innerHTML += Object.entries(methodCounts).map(([method, count]) => {
+return `<option value="${method}">${method} [~${count} matches]</option>`;
+}).join('');
+console.log("Method filter populated.");
+}
+
+function populateAreaFilter(rows) {
+console.log("Populating area filter...");
+const areaCounts = {};
+rows.forEach(row => {
+const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+researchAreas.forEach(area => {
+    if (area) {
+        areaCounts[area] = (areaCounts[area] || 0) + 1;
+    }
+});
+});
+
+const areaFilter = document.getElementById("areaFilter");
+areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
+return `<option value="${area}">${area} [~${count} matches]</option>`;
+}).join('');
+console.log("Area filter populated.");
+}
+
+function updateFilterStatus() {
+const searchValue = $('#customSearch').val().trim();
+const methodValue = $('#methodFilter').val();
+const areaValue = $('#areaFilter').val();
+
+const filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
+
+const button = $('#filterStatusBtn');
+if (filterActive) {
+button.removeClass('green').addClass('red').text('Click to clear all filters');
+} else {
+button.removeClass('red').addClass('green').text('No filters active');
+}
+}
+
+function updateFilterNotice() {
+const searchValue = $('#customSearch').val().trim();
+const methodValue = $('#methodFilter').val();
+const areaValue = $('#areaFilter').val();
+
+let activeFilters = [];
+if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
+if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
+if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
+
+const notice = $('#filterNotice');
+const filteredRowCount = dataTable.rows({ filter: 'applied' }).count();
+
+if (activeFilters.length > 0) {
+if (filteredRowCount > 0) {
+    notice.html(`Active Filters: ${activeFilters.join(', ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+} else {
+    let methodResults = testFilterWithout('method');
+    let areaResults = testFilterWithout('area');
+
+    let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
+    if (methodResults > 0) {
+        alertMessage += `Try adjusting the "Method" filter. `;
+    }
+    if (areaResults > 0) {
+        alertMessage += `Try adjusting the "Area" filter. `;
+    }
+
+    notice.html(alertMessage).show();
+}
+} else {
+notice.hide();
+}
+adjustContentMargin(); // Always adjust content margin after updating the filter notice
+}
+
+function adjustContentMargin() {
+const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+const headerHeight = $('.fixed-header').outerHeight(true);
+
+// Calculate the desired margin, adjusting for the filter notice when it's visible
+const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
+
+$('.content').css('margin-top', totalMargin);
+}
+
+// Call adjustContentMargin initially to set the correct margin when the page loads
+$(document).ready(function() {
     adjustContentMargin(); // Set the correct margin when the page loads
 
     // Attach events
@@ -438,7 +453,9 @@ dom: '<"top"l>rt<"bottom"p><"clear">',
             updateFilterNotice();
 
             // Scroll the table back to the top
-            $('.table-container').scrollTop(0);
+            setTimeout(function() {
+                $('.table-container').scrollTop(0);
+            }, 0);
         }
     });
 });
