@@ -37,16 +37,19 @@
             flex-direction: column;
             padding: 10px;
             box-sizing: border-box;
-            margin-top: 90px; /* Adjusted to the height of the fixed header */
+            margin-top: 100px; /* Adjusted to the height of the fixed header */
         }
 
         .custom-search-container {
             width: 99%;
-            text-align: left;
-            margin-bottom: 8px; /* Reduced space below search bar */
+            text-align: center; /* Center the search bar container */
+            margin-bottom: 5px;
         }
+
         .custom-search-container input {
-            width: 99%;
+            width: 99%; /* Adjust the width as needed */
+            max-width: 600px; /* Set a maximum width */
+            text-align: left; /* Keep input text left-aligned */
             padding: 10px;
             border-radius: 4px;
             font-size: 16px;
@@ -68,6 +71,8 @@
 
         .filter-group label {
             margin-right: 2px;
+            padding: 10px;
+
         }
 
         .filter-group select {
