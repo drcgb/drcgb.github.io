@@ -236,7 +236,7 @@
             // Remove existing "End of records" row
             $('#abstractTable tbody .end-of-records').remove();
 
-            // If there are any rows or no rows, add "End of records"
+            // Add "End of records" row at the end
             if (rows === 0 || rows > 0) {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
@@ -281,14 +281,15 @@
 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
+            // Clear the filters and search
             $('#methodFilter').val('');
             $('#areaFilter').val('');
-            $('#customSearch').val('');
-            dataTable.search('').draw(); // Clear the search input and redraw
+            $('#customSearch').val(''); // Clear the custom search input field
+            dataTable.search('').draw(); // Clear the DataTables search and redraw
             updateFilterStatus();
             updateFilterNotice();
 
-            // Scroll the window back to the top
+            // Scroll the window to the top instantly
             window.scrollTo(0, 0);
         }
     });
