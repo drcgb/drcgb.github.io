@@ -416,25 +416,20 @@ $(document).ready(function() {
     });
 
     $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
+    if ($(this).hasClass('red')) {
+        $('#methodFilter').val('');
+        $('#areaFilter').val('');
+        $('#customSearch').val('');
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
 
-            // Scroll the table back to the top
-            setTimeout(function() {
-                $('.table-container').scrollTop(0);
-            }, 0);
-
-            // Reload the page to completely reset everything
-            setTimeout(function() {
-                location.reload();
-            }, 100);
-        }
-    });
+        // Add a slight delay before scrolling to the top
+        setTimeout(function() {
+            $('.table-container').scrollTop(0);
+        }, 100);
+    }
+});
 });
 
 // Continue with the rest of your script
