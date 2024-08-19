@@ -33,7 +33,7 @@
         .fixed-header {
             position: fixed;
             top: 0;
-            width: 100%;
+            width: calc(100% - 10px); /* Adjust to accommodate scrollbar width */
             background-color: white;
             z-index: 1000;
             padding: 8px 0; /* Reduced padding */
@@ -52,7 +52,7 @@
 
         .custom-search-container {
             margin-left: 3px;
-            width: 98vw;
+            width: calc(100% - 10px); /* Adjust to accommodate scrollbar width */
             max-width: 98vw; /* Ensure it doesn't overshoot the screen */
             text-align: center;
             margin-bottom: 2px; /* Reduced margin */
@@ -61,13 +61,13 @@
         }
 
         .custom-search-container input {
-            width: 100%;
             max-width: 100%; /* Ensure it doesn't overshoot the screen */
             padding: 8px; /* Reduced padding */
             border-radius: 4px;
             font-size: 16px;
-            box-sizing: border-box;
-        }
+            box-sizing: border-box; /* Ensure padding is included in width calculation */
+            width: calc(100% - 10px); /* Adjust width considering potential scrollbar adjustments */
+}
         .dataTables_wrapper .filter-container {
             display: flex;
             flex-wrap: wrap;
@@ -245,13 +245,21 @@
         }
 
         function adjustHeaderForScrollbar() {
-            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-            const headerWrapper = document.getElementById('header-wrapper');
-            headerWrapper.style.paddingRight = `${scrollbarWidth}px`;
-        }
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const headerWrapper = document.getElementById('header-wrapper');
+    
+    // Apply padding to account for the scrollbar
+    headerWrapper.style.paddingRight = `${scrollbarWidth}px`;
 
-        adjustHeaderForScrollbar();
-        window.addEventListener('resize', adjustHeaderForScrollbar);
+    // Ensure that the width of elements inside the header is adjusted accordingly
+    const customSearchInput = document.querySelector('.custom-search-container input');
+    customSearchInput.style.width = `calc(100% - ${scrollbarWidth}px)`;
+}
+
+adjustHeaderForScrollbar(); // Initial adjustment
+
+// Adjust when window is resized
+window.addEventListener('resize', adjustHeaderForScrollbar);
 
         const searchInput = document.querySelector('.custom-search-container input');
         const filterNotice = document.querySelector('.filter-notice');
