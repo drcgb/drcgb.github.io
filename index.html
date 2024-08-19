@@ -81,15 +81,24 @@
         }
 
         @media (max-width: 600px) {
-            .filter-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .filter-group {
-                width: 100%;
-            }
-        }
+    .filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .filter-group {
+        width: 100%;
+    }
+}
 
+@media (max-width: 600px) and (orientation: landscape) {
+    .filter-notice,
+    table, th, td,
+    .filter-group label, 
+    .filter-group select, 
+    .filter-status-btn {
+        font-size: 12px; /* Adjust the font size as needed */
+    }
+}
         .filter-status-btn {
             margin-left: 5px;
             padding: 5px 10px;
@@ -114,7 +123,7 @@
             color: #000000;
             background-color: #ebb6fcd8;
             border: 1px solid #c953ff;
-            padding: 10px 20px;
+            padding: 10px;
             border-radius: 4px;
             display: none;
         }
@@ -136,7 +145,7 @@
         .table-container {
             flex: 1;
             overflow-y: auto;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .end-of-records td {
