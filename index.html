@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -251,16 +252,16 @@ return methodMatch && areaMatch && searchMatch;
 });
 
 dataTable = $('#abstractTable').DataTable({
-paging: true,
-searching: true,
-info: true,
-autoWidth: false,
-ordering: false,
-lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-language: {
-    lengthMenu: 'Show up to _MENU_ records per page',
-},
-dom: '<"top"l>rt<"bottom"p><"clear">',
+    paging: false, // Disable pagination
+    searching: true,
+    info: true,
+    autoWidth: false,
+    ordering: false,
+    lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+    language: {
+        lengthMenu: 'Show up to _MENU_ records per page',
+    },
+    dom: '<"top"l>rt<"bottom"p><"clear">',
 });
 
 // Initial filtering
