@@ -6,208 +6,56 @@
     <title>Searchable and Filterable Table</title>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
-        .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.2;
-        }
-
-        .fixed-header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background-color: white;
-            z-index: 1000;
-            padding: 10px 0;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .fixed-footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: white;
-            z-index: 1000;
-            padding: 10px 0;
-            box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
-            margin-top: 140px; /* Adjust to the height of the fixed header */
-            margin-bottom: 60px; /* Adjust to the height of the fixed footer */
-            overflow-y: auto; /* Allows the content to scroll */
-        }
-
-        .custom-search-container {
-            width: 100%;
-            text-align: left;
-            margin-bottom: 10px;
-        }
-
-        .custom-search-container input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        .dataTables_wrapper .filter-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            gap: 5px;
-            margin-bottom: 10px;
-            width: 100%;
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-        }
-
-        .filter-group label {
-            margin-right: 2px;
-        }
-
-        .filter-group select {
-            min-width: 150px;
-            max-width: 100%;
-        }
-
-        @media (max-width: 600px) {
-            .filter-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .filter-group {
-                width: 100%;
-            }
-        }
-
-        .filter-status-btn {
-            margin-left: 10px;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .filter-status-btn.green {
-            background-color: #28a745;
-            color: white;
-        }
-        .filter-status-btn.red {
-            background-color: red;
-            color: white;
-        }
-
-        .filter-notice {
-            margin-top: 10px;
-            margin-bottom: 20px;
-            font-style: italic;
-            color: #000000;
-            background-color: #ebb6fcd8;
-            border: 1px solid #c953ff;
-            padding: 10px;
-            border-radius: 4px;
-        }
-
-        table, th, td {
-            padding: 0px;
-            border-collapse: collapse;
-            border: 1px solid black;
-        }
-        th {
-            background-color: #f2f2f2;
-            text-align: left;
-            vertical-align: middle;
-        }
-        table.dataTable tbody tr:hover {
-            background-color: #e0f7fa;
-        }
-
-        .table-container {
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 20px; /* Space for pagination */
-        }
-
-        .dataTables_wrapper .dataTables_paginate {
-            margin-top: auto;
-            background-color: white;
-            padding: 10px 0;
-            text-align: center;
-            box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
-        }
+        html, body { height: 100%; margin: 0; padding: 0; display: flex; flex-direction: column; }
+        body, table, th, td, .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.2; }
+        .fixed-header { position: fixed; top: 0; width: 100%; background-color: white; z-index: 1000; padding: 10px 0; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); }
+        .fixed-footer { position: fixed; bottom: 0; width: 100%; background-color: white; z-index: 1000; padding: 10px 0; box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); text-align: center; }
+        .content { flex: 1; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; margin-top: 140px; margin-bottom: 60px; overflow-y: auto; }
+        .custom-search-container { width: 100%; text-align: left; margin-bottom: 10px; }
+        .custom-search-container input { width: 100%; padding: 10px; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+        .dataTables_wrapper .filter-container { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 5px; margin-bottom: 10px; width: 100%; }
+        .filter-group { display: flex; align-items: center; }
+        .filter-group label { margin-right: 2px; }
+        .filter-group select { min-width: 150px; max-width: 100%; }
+        @media (max-width: 600px) { .filter-container { flex-direction: column; align-items: flex-start; } .filter-group { width: 100%; } }
+        .filter-status-btn { margin-left: 10px; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
+        .filter-status-btn.green { background-color: #28a745; color: white; }
+        .filter-status-btn.red { background-color: red; color: white; }
+        .filter-notice { margin-top: 10px; margin-bottom: 20px; font-style: italic; color: #000000; background-color: #ebb6fcd8; border: 1px solid #c953ff; padding: 10px; border-radius: 4px; }
+        table, th, td { padding: 0px; border-collapse: collapse; border: 1px solid black; }
+        th { background-color: #f2f2f2; text-align: left; vertical-align: middle; }
+        table.dataTable tbody tr:hover { background-color: #e0f7fa; }
+        .table-container { flex: 1; overflow-y: auto; margin-bottom: 20px; }
+        .dataTables_wrapper .dataTables_paginate { margin-top: auto; background-color: white; padding: 10px 0; text-align: center; box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body>
-    <!-- Fixed header with search and filters -->
     <div class="fixed-header">
-        <div class="custom-search-container">
-            <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
-        </div>
+        <div class="custom-search-container"><input type="text" id="customSearch" placeholder="🔍 Search abstracts..."></div>
         <div class="dataTables_wrapper">
             <div class="filter-container">
-                <div class="filter-group">
-                    <label for="methodFilter">Filter(Method):</label>
-                    <select id="methodFilter"><option value="">All</option></select>
-                </div>
-                <div class="filter-group">
-                    <label for="areaFilter">Filter(Areas):</label>
-                    <select id="areaFilter"><option value="">All</option></select>
-                </div>
+                <div class="filter-group"><label for="methodFilter">Filter(Method):</label><select id="methodFilter"><option value="">All</option></select></div>
+                <div class="filter-group"><label for="areaFilter">Filter(Areas):</label><select id="areaFilter"><option value="">All</option></select></div>
                 <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
             </div>
         </div>
     </div>
-
-    <!-- Content area for the table -->
     <div class="content">
-        <!-- Filter Notice -->
         <div class="filter-notice" id="filterNotice" style="display: none;"></div>
-
-        <!-- Scrollable table -->
         <div class="table-container">
             <table id="abstractTable" class="display">
-                <thead>
-                    <tr><th>Preliminary Title and Abstract</th></tr>
-                </thead>
+                <thead><tr><th>Preliminary Title and Abstract</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
     </div>
-
-    <!-- Fixed footer for pagination -->
-    <div class="fixed-footer">
-        <div id="paginationControls"></div>
-    </div>
-
+    <div class="fixed-footer"><div id="paginationControls"></div></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
         $(document).ready(function() {
-            var allRows = [];
-            var methodData = []; // New array to store Main Method data
-
-            // Load and process XLSX data
+            var allRows = [], methodData = [];
             $.ajax({
                 url: "Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx",
                 dataType: "binary",
@@ -215,162 +63,60 @@
                     var workbook = XLSX.read(data, { type: "binary" });
                     var sheet = workbook.Sheets[workbook.SheetNames[0]];
                     allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-
                     populateTable(allRows);
                     populateMethodFilter(allRows);
                     populateAreaFilter(allRows);
                     initializeDataTable();
                 },
-                error: function() {
-                    console.error("Error loading XLSX data");
-                }
+                error: function() { console.error("Error loading XLSX data"); }
             });
 
             function initializeDataTable() {
                 var table = $('#abstractTable').DataTable({
-                    paging: true,
-                    searching: true,
-                    info: true,
-                    autoWidth: false,
-                    ordering: false,
+                    paging: true, searching: true, info: true, autoWidth: false, ordering: false,
                     lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "All"]],
-                    language: {
-                        lengthMenu: 'Show up to _MENU_ records per page',
-                    },
+                    language: { lengthMenu: 'Show up to _MENU_ records per page' },
                     drawCallback: function () {
                         var paginationHtml = $(this).closest('.dataTables_wrapper').find('.dataTables_paginate').html();
                         $('#paginationControls').html(paginationHtml);
                     }
                 });
-
-                // Attach events
                 $('#customSearch').on('input', function() {
                     table.search(this.value).draw();
                     updateFilterStatus();
                     updateFilterNotice();
                 });
-
-                $('#methodFilter, #areaFilter').on('change', function() {
-                    table.draw();
-                    updateFilterStatus();
-                    updateFilterNotice();
-                });
-
+                $('#methodFilter, #areaFilter').on('change', function() { table.draw(); updateFilterStatus(); updateFilterNotice(); });
                 $('#filterStatusBtn').on('click', function() {
                     if ($(this).hasClass('red')) {
-                        $('#methodFilter').val('');
-                        $('#areaFilter').val('');
-                        $('#customSearch').val('');
-                        table.search('').draw();
-                        updateFilterStatus();
-                        updateFilterNotice();
+                        $('#methodFilter').val(''); $('#areaFilter').val(''); $('#customSearch').val(''); table.search('').draw();
+                        updateFilterStatus(); updateFilterNotice();
                     }
                 });
-
                 console.log("DataTable initialized.");
             }
 
             function populateTable(rows) {
                 var tbody = document.querySelector("#abstractTable tbody");
                 tbody.innerHTML = rows.map(function(row) {
-                    var [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '',preliminaryAbstract = '', ...researchAreas] = row;
-var titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
-var methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-methodData.push(mainMethod.toLowerCase().trim());
-
-return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
-}).join('');
-}
-
-function populateMethodFilter(rows) {
-var methodCounts = {};
-rows.forEach(function(row) {
-var mainMethod = row[1]?.trim().toLowerCase();
-if (mainMethod) {
-    methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
-}
-});
-
-var methodFilter = document.getElementById("methodFilter");
-methodFilter.innerHTML += Object.entries(methodCounts).map(function([method, count]) {
-return `<option value="${method}">${method} [~${count} matches]</option>`;
-}).join('');
-}
-
-function populateAreaFilter(rows) {
-var areaCounts = {};
-rows.forEach(function(row) {
-var researchAreas = row.slice(5, 11).map(function(area) { return area?.trim().toLowerCase() || ''; });
-researchAreas.forEach(function(area) {
-    if (area) {
-        areaCounts[area] = (areaCounts[area] || 0) + 1;
-    }
-});
-});
-
-var areaFilter = document.getElementById("areaFilter");
-areaFilter.innerHTML += Object.entries(areaCounts).map(function([area, count]) {
-return `<option value="${area}">${area} [~${count} matches]</option>`;
-}).join('');
-}
-
-function updateFilterStatus() {
-var searchValue = $('#customSearch').val().trim();
-var methodValue = $('#methodFilter').val();
-var areaValue = $('#areaFilter').val();
-
-var filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
-
-var button = $('#filterStatusBtn');
-if (filterActive) {
-button.removeClass('green').addClass('red').text('Click to clear all filters');
-} else {
-button.removeClass('red').addClass('green').text('No filters active');
-}
-}
-
-function updateFilterNotice() {
-var searchValue = $('#customSearch').val().trim();
-var methodValue = $('#methodFilter').val();
-var areaValue = $('#areaFilter').val();
-
-var activeFilters = [];
-if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
-if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
-if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
-
-var notice = $('#filterNotice');
-var filteredRowCount = $('#abstractTable').DataTable().rows({filter: 'applied'}).count();
-
-if (activeFilters.length > 0) {
-if (filteredRowCount > 0) {
-    notice.text(`Active Filters: ${activeFilters.join                    var [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
+                    var [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
                     var titleWithID = `<strong>ID: </strong>${abstractID}&nbsp;&nbsp;<strong>|</strong>&nbsp;&nbsp;<strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''}<br><br><strong class="abstract-title">${preliminaryTitle}</strong>`;
                     var methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-
-                    // Store the Main Method for later filtering
                     methodData.push(mainMethod.toLowerCase().trim());
-
                     return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
                 }).join('');
-
-                console.log("Table populated.");
             }
 
             function populateMethodFilter(rows) {
                 var methodCounts = {};
                 rows.forEach(function(row) {
                     var mainMethod = row[1]?.trim().toLowerCase();
-                    if (mainMethod) {
-                        methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
-                    }
+                    if (mainMethod) { methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1; }
                 });
-
                 var methodFilter = document.getElementById("methodFilter");
                 methodFilter.innerHTML += Object.entries(methodCounts).map(function([method, count]) {
                     return `<option value="${method}">${method} [~${count} matches]</option>`;
                 }).join('');
-                console.log("Method filter populated.");
             }
 
             function populateAreaFilter(rows) {
@@ -383,21 +129,17 @@ if (filteredRowCount > 0) {
                         }
                     });
                 });
-
                 var areaFilter = document.getElementById("areaFilter");
                 areaFilter.innerHTML += Object.entries(areaCounts).map(function([area, count]) {
                     return `<option value="${area}">${area} [~${count} matches]</option>`;
                 }).join('');
-                console.log("Area filter populated.");
             }
 
             function updateFilterStatus() {
                 var searchValue = $('#customSearch').val().trim();
                 var methodValue = $('#methodFilter').val();
                 var areaValue = $('#areaFilter').val();
-
                 var filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
-
                 var button = $('#filterStatusBtn');
                 if (filterActive) {
                     button.removeClass('green').addClass('red').text('Click to clear all filters');
@@ -410,26 +152,19 @@ if (filteredRowCount > 0) {
                 var searchValue = $('#customSearch').val().trim();
                 var methodValue = $('#methodFilter').val();
                 var areaValue = $('#areaFilter').val();
-
                 var activeFilters = [];
                 if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
                 if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
                 if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
-
                 var notice = $('#filterNotice');
-                var filteredRowCount = $('#abstractTable').DataTable().rows({ filter: 'applied' }).count();
-
+                var filteredRowCount = $('#abstractTable').DataTable().rows({filter: 'applied'}).count();
                 if (activeFilters.length > 0) {
                     if (filteredRowCount > 0) {
                         notice.text(`Active Filters: ${activeFilters.join(', ')} | ${filteredRowCount} record(s) found.`).show();
                     } else {
                         var alertMessage = 'No results found with the current filter combination. ';
-                        if (testFilterWithout('method') > 0) {
-                            alertMessage += `Try adjusting the "Method" filter. `;
-                        }
-                        if (testFilterWithout('area') > 0) {
-                            alertMessage += `Try adjusting the "Area" filter. `;
-                        }
+                        if (testFilterWithout('method') > 0) { alertMessage += `Try adjusting the "Method" filter. `; }
+                        if (testFilterWithout('area') > 0) { alertMessage += `Try adjusting the "Area" filter. `; }
                         notice.text(alertMessage).show();
                     }
                 } else {
@@ -441,14 +176,11 @@ if (filteredRowCount > 0) {
                 var tempSearchValue = $('#customSearch').val().toLowerCase().trim();
                 var tempMethodValue = filterType === 'method' ? '' : $('#methodFilter').val().toLowerCase().trim();
                 var tempAreaValue = filterType === 'area' ? '' : $('#areaFilter').val().toLowerCase().trim();
-
                 return $('#abstractTable').DataTable().rows(function(idx, data, node) {
                     var mainMethod = methodData[idx]; // Access the stored Main Method
-
                     var methodMatch = tempMethodValue === '' || mainMethod === tempMethodValue;
                     var areaMatch = tempAreaValue === '' || data[0].toLowerCase().includes(tempAreaValue);
                     var searchMatch = tempSearchValue === '' || data[0].toLowerCase().includes(tempSearchValue);
-
                     return methodMatch && areaMatch && searchMatch;
                 }).count();
             }
