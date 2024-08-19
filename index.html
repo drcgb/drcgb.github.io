@@ -269,7 +269,8 @@
 
     // Attach events
     $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw(); // Use DataTables' native search
+        const searchTerm = $(this).val().toLowerCase().trim();
+        dataTable.search(searchTerm).draw(); // Use DataTables native search
         updateFilterStatus();
         updateFilterNotice();
     });
