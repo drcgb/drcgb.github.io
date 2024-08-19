@@ -404,100 +404,106 @@ $('#areaFilter').on('change', function() {
     }
 
     $(document).ready(function() {
-        // Function to adjust header width
-        function adjustHeaderWidth() {
-            let tableWidth = $('#abstractTable').outerWidth();
-            $('.fixed-header').css('width', tableWidth + 'px');
-        }
+    // Function to adjust header width
+    function adjustHeaderWidth() {
+        let tableWidth = $('#abstractTable').outerWidth();
+        $('.fixed-header').css('width', tableWidth + 'px');
+    }
 
-        // Adjust the header width on page load and window resize
+    // Adjust the header width on page load and window resize
+    adjustHeaderWidth();
+    $(window).on('resize', function() {
         adjustHeaderWidth();
-        $(window).on('resize', function() {
-            adjustHeaderWidth();
-        });
-
-        // Delay to ensure the table has fully rendered before adjusting the header width
-        setTimeout(function() {
-            adjustHeaderWidth();
-        }, 100);
-
-        // Initialize DataTable
-        dataTable = $('#abstractTable').DataTable({
-            paging: false,
-            searching: true,
-            info: true,
-            autoWidth: false,
-            ordering: false,
-            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-            language: {
-                lengthMenu: 'Show up to _MENU_ records per page',
-            },
-            dom: '<"top"l>rt<"bottom"p><"clear">',
-            drawCallback: function(settings) {
-                const api = this.api();
-                const rows = api.rows({ search: 'applied' }).data().length;
-
-                // Remove existing "End of records" row
-                $('#abstractTable tbody .end-of-records').remove();
-
-                // Add "End of records" row at the end
-                if (rows === 0 || rows > 0) {
-                    $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
-                }
-            }
-        });
-
-        // Attach events
-        $('#customSearch').on('input', function() {
-            dataTable.search($(this).val()).draw(); // Use DataTables native search
-            updateFilterStatus();
-            updateFilterNotice();
-        });
-
-        $('#methodFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 0);
-        });
-
-        $('#areaFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 0);
-        });
-
-        $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red')) {
-                // Clear all filter inputs
-                $('#methodFilter').val('');
-                $('#areaFilter').val('');
-                $('#customSearch').val('');
-
-                // Clear DataTables native search and redraw
-                dataTable.search('').draw();
-
-                // Trigger input event to ensure custom search logic is cleared
-                $('#customSearch').trigger('input'); 
-
-                // Update filter status and notice
-                updateFilterStatus();
-                updateFilterNotice();
-
-                // Scroll the window to the top instantly
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                }, 0);
-            }
-        });
-
-        console.log("DataTable initialized.");
     });
+
+    // Delay to ensure the table has fully rendered before adjusting the header width
+    setTimeout(function() {
+        adjustHeaderWidth();
+    }, 100);
+
+    // Check if DataTable is already initialized and destroy it if necessary
+    if ($.fn.DataTable.isDataTable('#abstractTable')) {
+        $('#abstractTable').DataTable().destroy();
+    }
+
+    // Initialize DataTable
+    dataTable = $('#abstractTable').DataTable({
+        paging: false,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        ordering: false,
+        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+        language: {
+            lengthMenu: 'Show up to _MENU_ records per page',
+        },
+        dom: '<"top"l>rt<"bottom"p><"clear">',
+        drawCallback: function(settings) {
+            const api = this.api();
+            const rows = api.rows({ search: 'applied' }).data().length;
+
+            // Remove existing "End of records" row
+            $('#abstractTable tbody .end-of-records').remove();
+
+            // Add "End of records" row at the end
+            if (rows === 0 || rows > 0) {
+                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+            }
+        }
+    });
+
+    // Attach events
+    $('#customSearch').on('input', function() {
+        dataTable.search($(this).val()).draw(); // Use DataTables native search
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 0);
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 0);
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            // Clear all filter inputs
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+
+            // Clear DataTables native search and redraw
+            dataTable.search('').draw();
+
+            // Trigger input event to ensure custom search logic is cleared
+            $('#customSearch').trigger('input'); 
+
+            // Update filter status and notice
+            updateFilterStatus();
+            updateFilterNotice();
+
+            // Scroll the window to the top instantly
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+            }, 0);
+        }
+    });
+
+    console.log("DataTable initialized.");
+});
+
 </script>
 </body>
 </html>
