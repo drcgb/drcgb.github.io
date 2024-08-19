@@ -219,11 +219,6 @@
             console.log("Initializing DataTable...");
 
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-    const row = $('#abstractTable tbody tr').eq(dataIndex);
-    if (row.hasClass('end-of-records')) {
-        return true; // Always include the "End of records" row
-    }
-
     const searchValue = $('#customSearch').val().toLowerCase().trim();
     const methodValue = $('#methodFilter').val().toLowerCase().trim();
     const areaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -240,6 +235,7 @@
     // Search input checks for partial matches within the mainMethod and research areas
     const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
 
+    // Return true only if all conditions match
     return methodMatch && areaMatch && searchMatch;
 });
 
@@ -285,28 +281,7 @@
                 updateFilterStatus();
                 updateFilterNotice();
             });
-
-            $('#filterStatusBtn').on('click', function() {
-                if ($(this).hasClass('red')) {
-                    $('#methodFilter').val('');
-                    $('#areaFilter').val('');
-                    $('#customSearch').val('');
-                    dataTable.draw();
-                    updateFilterStatus();
-                    updateFilterNotice();
-
-                    // Scroll the table back to the top
-                    setTimeout(function() {
-                        $('.table-container').scrollTop(0);
-                    }, 0);
-
-                    // Reload the page to completely reset everything
-                    setTimeout(function() {
-                        location.reload();
-                    }, 100);
-                }
-            });
-
+            
             console.log("DataTable initialized.");
         }
 
@@ -431,48 +406,55 @@
             $('.content').css('margin-top', totalMargin);
         }
 
-        $(document).ready(function() {
-            adjustContentMargin();
+      // (Include your script setup, variable declarations, etc. here)
 
-            $('#customSearch').on('input', function() {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            });
+// Add event listeners only once, at the end of your script
 
-            $('#methodFilter').on('change', function() {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            });
+$(document).ready(function() {
+    adjustContentMargin();
 
-            $('#areaFilter').on('change', function() {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            });
+    $('#customSearch').on('input', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
 
-            $('#filterStatusBtn').on('click', function() {
-                if ($(this).hasClass('red')) {
-                    $('#methodFilter').val('');
-                    $('#areaFilter').val('');
-                    $('#customSearch').val('');
-                    dataTable.draw();
-                    updateFilterStatus();
-                    updateFilterNotice();
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
 
-                    // Scroll the table back to the top
-                    setTimeout(function() {
-                        $('.table-container').scrollTop(0);
-                    }, 0);
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
 
-                    // Reload the page to completely reset everything
-                    setTimeout(function() {
-                        location.reload();
-                    }, 100);
-                }
-            });
-        });
-    </script>
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+
+            // Scroll the table back to the top
+            setTimeout(function() {
+                $('.table-container').scrollTop(0);
+            }, 0);
+
+            // Reload the page to completely reset everything
+            setTimeout(function() {
+                location.reload();
+            }, 100);
+        }
+    });
+});
+
+// Continue with the rest of your script
+
+</script>
 </body>
 </html>
