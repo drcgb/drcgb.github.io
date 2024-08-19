@@ -37,13 +37,13 @@
             flex-direction: column;
             padding: 8px;
             box-sizing: border-box;
-            margin-top: 140px; /* Adjust to the height of the fixed header */
+            margin-top: 80px; /* Adjusted to the height of the fixed header */
         }
 
         .custom-search-container {
             width: 100%;
             text-align: left;
-            margin-bottom: 10px;
+            margin-bottom: 5px; /* Reduced space below search bar */
         }
         .custom-search-container input {
             width: 100%;
@@ -58,7 +58,6 @@
             flex-wrap: wrap;
             justify-content: flex-start;
             gap: 5px;
-            margin-bottom: 10px;
             width: 100%;
         }
 
@@ -104,8 +103,8 @@
         }
 
         .filter-notice {
-            margin-top: 10px;
-            margin-bottom: 20px;
+            margin-top: 5px;
+            margin-bottom: 0px; /* Removed bottom margin */
             font-style: italic;
             color: #000000;
             background-color: #ebb6fcd8;
@@ -131,7 +130,7 @@
         .table-container {
             flex: 1;
             overflow-y: auto;
-            margin-bottom: 20px; /* Space for pagination */
+            margin-bottom: 10px; /* Space for pagination */
         }
 
         .dataTables_wrapper .dataTables_paginate {
@@ -145,7 +144,7 @@
     </style>
 </head>
 <body>
-    <!-- Fixed header with search and filters -->
+    <!-- Fixed header with search, filters, and filter notice -->
     <div class="fixed-header">
         <div class="custom-search-container">
             <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
@@ -162,14 +161,13 @@
                 </div>
                 <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
             </div>
+            <!-- Moved Filter Notice into Fixed Header -->
+            <div class="filter-notice" id="filterNotice" style="display: none;"></div>
         </div>
     </div>
 
     <!-- Content area for the table -->
     <div class="content">
-        <!-- Filter Notice -->
-        <div class="filter-notice" id="filterNotice" style="display: none;"></div>
-
         <!-- Scrollable table -->
         <div class="table-container">
             <table id="abstractTable" class="display">
