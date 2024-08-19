@@ -218,7 +218,6 @@
         function initializeDataTable() {
     console.log("Initializing DataTable...");
 
-    // Use DataTables' native search functionality
     dataTable = $('#abstractTable').DataTable({
         paging: false,
         searching: true,
@@ -234,10 +233,9 @@
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
-            // Remove any existing "End of records" row
+            // Ensure the "End of records" row is always present and at the end
             $('#abstractTable tbody .end-of-records').remove();
 
-            // Add the "End of records" row if there are rows displayed
             if (rows > 0) {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
@@ -246,22 +244,16 @@
 
     // Custom filter logic
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const searchValue = $('#customSearch').val().toLowerCase().trim();
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
-        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
 
         const methodMatch = methodValue === '' || mainMethod === methodValue;
         const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
-        // Combine the custom filter with DataTables' native search
-        const searchMatch = dataTable.search().toLowerCase().trim() === '' ||
-                            mainMethod.includes(dataTable.search().toLowerCase().trim()) ||
-                            researchAreasContent.includes(dataTable.search().toLowerCase().trim());
-
-        return methodMatch && areaMatch && searchMatch;
+        return methodMatch && areaMatch;
     });
 
     // Initial filtering
@@ -269,8 +261,7 @@
 
     // Attach events
     $('#customSearch').on('input', function() {
-        const searchTerm = $(this).val().toLowerCase().trim();
-        dataTable.search(searchTerm).draw(); // Use DataTables native search
+        dataTable.search($(this).val()).draw(); // Use DataTables native search
         updateFilterStatus();
         updateFilterNotice();
     });
@@ -292,11 +283,11 @@
             $('#methodFilter').val('');
             $('#areaFilter').val('');
             $('#customSearch').val('');
-            dataTable.search('').draw();
+            dataTable.search('').draw(); // Clear the search input and redraw
             updateFilterStatus();
             updateFilterNotice();
 
-            // Scroll to the top of the window
+            // Scroll the window back to the top
             window.scrollTo(0, 0);
         }
     });
