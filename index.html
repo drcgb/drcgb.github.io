@@ -12,8 +12,8 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            -webkit-text-size-adjust: 100%; /* Prevent font size adjustment on iOS */
-            text-size-adjust: 100%; /* Prevent font size adjustment on Android */
+            -webkit-text-size-adjust: 99%; /* Prevent font size adjustment on iOS */
+            text-size-adjust: 99%; /* Prevent font size adjustment on Android */
         }
 
         body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
@@ -34,7 +34,7 @@
         .fixed-header {
             position: fixed;
             top: 0;
-            width: 100%;
+            width: 99%;
             background-color: white;
             z-index: 1000;
             padding: 8px 0; /* Reduced padding */
@@ -104,10 +104,10 @@
                 align-items: flex-start;
             }
             .filter-group {
-                width: 100%;
+                width: 98vw
             }
             .filter-group select {
-                width: 100%; /* Ensures select boxes take full width on mobile */
+                width: 98vw; /* Ensures select boxes take full width on mobile */
             }
             .custom-search-container input, .filter-status-btn {
              width: 98vw; /* Ensures search box and buttons take full width on mobile */
