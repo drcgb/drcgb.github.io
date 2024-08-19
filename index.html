@@ -219,24 +219,29 @@
             console.log("Initializing DataTable...");
 
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                const row = $('#abstractTable tbody tr').eq(dataIndex);
-                if (row.hasClass('end-of-records')) {
-                    return true; // Always include the "End of records" row
-                }
+    const row = $('#abstractTable tbody tr').eq(dataIndex);
+    if (row.hasClass('end-of-records')) {
+        return true; // Always include the "End of records" row
+    }
 
-                const searchValue = $('#customSearch').val().toLowerCase().trim();
-                const methodValue = $('#methodFilter').val().toLowerCase().trim();
-                const areaValue = $('#areaFilter').val().toLowerCase().trim();
+    const searchValue = $('#customSearch').val().toLowerCase().trim();
+    const methodValue = $('#methodFilter').val().toLowerCase().trim();
+    const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-                const mainMethod = methodData[dataIndex];
-                const researchAreasContent = researchAreasData[dataIndex].toLowerCase().trim();
+    const mainMethod = methodData[dataIndex]; // Get the Main Method from the stored array
+    const researchAreasContent = researchAreasData[dataIndex].toLowerCase().trim();
 
-                const methodMatch = methodValue === '' || mainMethod === methodValue;
-                const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
-                const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
+    // Ensure the method filter matches exactly the mainMethod value
+    const methodMatch = methodValue === '' || mainMethod === methodValue;
+    
+    // Ensure the area filter matches exactly the researchAreas value
+    const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
-                return methodMatch && areaMatch && searchMatch;
-            });
+    // Search input checks for partial matches within the mainMethod and research areas
+    const searchMatch = searchValue === '' || (mainMethod.includes(searchValue) || researchAreasContent.includes(searchValue));
+
+    return methodMatch && areaMatch && searchMatch;
+});
 
             dataTable = $('#abstractTable').DataTable({
                 paging: false,
