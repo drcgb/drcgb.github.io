@@ -21,11 +21,15 @@
             line-height: 1.2;
         }
 
-        .fixed-header {
-    position: fixed;
-    top: 0;
-    left: 0;
+        .table-wrapper {
     width: 100%;
+    max-width: 1200px; /* Adjust as needed */
+    margin: 0 auto;
+}
+
+.fixed-header {
+    position: sticky;
+    top: 0;
     background-color: white;
     z-index: 1000;
     padding: 10px 0;
@@ -34,6 +38,7 @@
 
 .table-container {
     margin-top: 80px; /* Adjust this margin if needed to create space for the fixed header */
+    overflow-y: auto;
 }
 
 @media (max-width: 600px) {
@@ -455,6 +460,9 @@ $(document).ready(function() {
         let tableWidth = $('#abstractTable').outerWidth();
         $('.fixed-header').css('width', tableWidth + 'px');
     }
+
+    // Your existing event handlers and other code...
+});
 
     adjustContentMargin();
 
