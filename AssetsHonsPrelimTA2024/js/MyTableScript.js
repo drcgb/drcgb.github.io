@@ -362,18 +362,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (selectedArea) {
             console.log("Selected area:", selectedArea); // Debugging line
             
-            dataTable.column(5).search(selectedArea).draw(); // Apply area filter directly
+            // Apply the area filter across multiple columns (F to K, corresponding to index 5 to 10)
+            dataTable
+                .columns([5, 6, 7, 8, 9, 10])  // Adjusting to match columns F-K
+                .search(selectedArea, true, false)
+                .draw();  // Apply area filter to all relevant columns
+    
             updateFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
         } else {
-            dataTable.search('').draw(); // Clear the search if no area is selected
+            dataTable
+                .columns([5, 6, 7, 8, 9, 10])  // Reset search across all columns F-K
+                .search('')
+                .draw();
+    
             updateFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
         }
     });
+    
     
 
     $('#filterStatusBtn').on('click', function() {
