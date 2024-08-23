@@ -57,8 +57,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
             const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
+            // Filter based on Method
             let methodMatch = false;
-
             switch (methodValue) {
                 case '':
                     methodMatch = true;
@@ -85,7 +85,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     break;
             }
 
-            const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+            // Filter based on Research Areas using areaValue directly
+            const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
 
             return methodMatch && areaMatch;
         });
@@ -100,7 +101,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $('#methodFilter').on('change', function() {
-            const currentMethod = $('#methodFilter').val();
             populateAreaFilter(allRows);  // Update area filter based on selected method
             dataTable.draw();
             updateFilterCounts();
@@ -109,9 +109,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $('#areaFilter').on('change', function() {
-            const currentMethod = $('#methodFilter').val();
-            populateMethodFilter(allRows, currentMethod);
-            dataTable.draw();
+            dataTable.draw();  // Simply redraw the table, filtering is already handled in the ext search
             updateFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
@@ -357,34 +355,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     $('#areaFilter').on('change', function() {
-        const selectedArea = $('#areaFilter').val();  // Store selected area
-        
-        if (selectedArea) {
-            console.log("Selected area:", selectedArea); // Debugging line
-            
-            // Apply the area filter across multiple columns (F to K, corresponding to index 5 to 10)
-            dataTable
-                .columns([5, 6, 7, 8, 9, 10])  // Adjusting to match columns F-K
-                .search(selectedArea, true, false)
-                .draw();  // Apply area filter to all relevant columns
-    
-            updateFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        } else {
-            dataTable
-                .columns([5, 6, 7, 8, 9, 10])  // Reset search across all columns F-K
-                .search('')
-                .draw();
-    
-            updateFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-        }
+        dataTable.draw();  // Simply redraw the table, filtering is already handled in the ext search
+        updateFilterCounts();
+        updateFilterStatus();
+        updateFilterNotice();
+        window.scrollTo(0, 0);
     });
-    
-    
 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
