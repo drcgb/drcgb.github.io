@@ -169,8 +169,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                         methodCounts.metaAnalysis += 1;
                         break;
                     case 'mixed-methods':
-                        methodCounts.mixedMethodsQuantitative += 1;  // Mixed methods under quantitative
-                        methodCounts.mixedMethodsQualitative += 1;  // Mixed methods under qualitative
+                        methodCounts.mixedMethodsQuantitative += 1;  // Count for quantitative mixed-methods
+                        methodCounts.mixedMethodsQualitative += 1;  // Count for qualitative mixed-methods
                         break;
                     case 'qualitative':
                         methodCounts.qualitative += 1;
@@ -185,18 +185,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     
+        // Ensure that we properly sum the mixed-methods counts
+        const totalMixedMethods = (methodCounts.mixedMethodsQuantitative || 0) + (methodCounts.mixedMethodsQualitative || 0);
+    
         const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
             <optgroup label="[Quantitative]" class="optgroup-bold">
-                <option value="all-quantitative">&#x2192; ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
-                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Analysis [≈${methodCounts.metaAnalysis} records]</option>
-                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="all-quantitative">&#x2192; ALL Quantitative [≈${(methodCounts.quantitative || 0) + (methodCounts.metaAnalysis || 0) + (methodCounts.mixedMethodsQuantitative || 0)} records]</option>
+                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Analysis [≈${methodCounts.metaAnalysis || 0} records]</option>
+                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative || 0} records]</option>
             </optgroup>
             <optgroup label="[Qualitative]" class="optgroup-bold">
-                <option value="all-qualitative">&#x2192; ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
-                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Synthesis [≈${methodCounts.metaSynthesis} records]</option>
-                <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="all-qualitative">&#x2192; ALL Qualitative [≈${(methodCounts.qualitative || 0) + (methodCounts.metaSynthesis || 0) + (methodCounts.mixedMethodsQualitative || 0)} records]</option>
+                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Synthesis [≈${methodCounts.metaSynthesis || 0} records]</option>
+                <option value="mixed-methods">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${totalMixedMethods} records]</option>
             </optgroup>
         `;
     
@@ -204,7 +207,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
         console.log("Method filter populated.");
     }
-    
+   
 
     function populateAreaFilter(rows) {
         console.log("Populating area filter...");
