@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let dataTable;
     let methodData = [];
     let researchAreasData = [];
+    let isFilterApplied = false; // Flag to track filter application
 
     try {
         const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
@@ -48,8 +49,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (isFilterApplied) return true; // Avoid re-applying during the same cycle
+
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
-            console.log("Method Filter Applied:", methodValue); // Log the value here
+            console.log("Method Filter Applied:", methodValue);
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
@@ -62,33 +65,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
 
+            isFilterApplied = true; // Mark as applied
             return methodMatch && areaMatch;
         });
 
+        // Ensure only one filter change event is handled at a time
         $('#methodFilter').on('change', function() {
-            console.log("Method filter changed to:", $('#methodFilter').val()); // Log value on change
-            dataTable.draw(); // Trigger filtering logic
-        });
-
-        dataTable.draw();
-
-        $('#customSearch').on('input', function() {
-            dataTable.search($(this).val()).draw();
-            updateMethodFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-        });
-
-        $('#methodFilter').on('change', function() {
-            console.log("Method filter changed to:", $('#methodFilter').val()); // Log value on change
+            isFilterApplied = false; // Reset flag before applying filter
+            console.log("Method filter changed to:", $('#methodFilter').val());
             dataTable.draw();
-            updateMethodFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
         });
 
         $('#areaFilter').on('change', function() {
+            isFilterApplied = false; // Reset flag before applying filter
             dataTable.draw();
+        });
+
+        $('#customSearch').on('input', function() {
+            dataTable.search($(this).val()).draw();
             updateMethodFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
@@ -239,52 +233,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $('.content').css('margin-top', totalMargin);
     }
-
-    adjustContentMargin();
-
-    $('#customSearch').on('input', function() {
-        if (dataTable) {
-            dataTable.search($(this).val()).draw();
-            updateMethodFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
-
-    $('#methodFilter').on('change', function() {
-        if (dataTable) {
-            dataTable.draw();
-            updateMethodFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
-
-    $('#areaFilter').on('change', function() {
-        if (dataTable) {
-            dataTable.draw();
-            updateMethodFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            if (dataTable) {
-                resetFilters();
-            }
-        }
-    });
 
     function resetFilters() {
         $('#methodFilter').val('');
