@@ -15,7 +15,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Data loaded:", allRows);
 
         if (allRows.length > 0) {
-            populateTable(allRows);  // This function now can access methodData and researchAreasData
+            // Initialize methodData and researchAreasData
+            methodData = [];
+            researchAreasData = [];
+
+            populateTable(allRows);
             populateMethodFilter(allRows);
             populateAreaFilter(allRows);
             initializeDataTable();
@@ -25,17 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
-
-    const searchInput = document.querySelector('.custom-search-container input');
-    const filterNotice = document.querySelector('.filter-notice');
-
-    function matchNoticeWidth() {
-        const searchWidth = searchInput.offsetWidth;
-        filterNotice.style.width = `${searchWidth}px`;
-    }
-
-    matchNoticeWidth();
-    window.addEventListener('resize', matchNoticeWidth);
 
     function initializeDataTable() {
         const tableElement = $('#abstractTable');
@@ -100,5 +93,100 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Table populated.");
     }
 
-    // ... (rest of your code remains the same)
-});
+    function populateMethodFilter(rows) {
+        console.log("Populating method filter...");
+        const methodCounts = {
+            quantitative: 0,
+            metaAnalysis: 0,
+            mixedMethodsQuantitative: 0,
+            qualitative: 0,
+            metaSynthesis: 0,
+            mixedMethodsQualitative: 0
+        };
+
+        rows.forEach(row => {
+            const mainMethod = row[1]?.trim().toLowerCase();
+            if (mainMethod) {
+                switch (mainMethod) {
+                    case 'quantitative':
+                        methodCounts.quantitative += 1;
+                        break;
+                    case 'meta-analysis':
+                        methodCounts.metaAnalysis += 1;
+                        break;
+                    case 'mixed-methods':
+                        methodCounts.mixedMethodsQuantitative += 1;
+                        methodCounts.mixedMethodsQualitative += 1;
+                        break;
+                    case 'qualitative':
+                        methodCounts.qualitative += 1;
+                        break;
+                    case 'meta-synthesis':
+                        methodCounts.metaSynthesis += 1;
+                        break;
+                }
+            }
+        });
+
+        const methodFilter = document.getElementById("methodFilter");
+        methodFilter.innerHTML = `
+            <option value="" style="font-weight: bold;">All Methods</option>
+            <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+                <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
+                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
+                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
+            <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+                <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
+                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
+                <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
+        `;
+
+        console.log("Method filter populated.");
+    }
+
+    function populateAreaFilter(rows) {
+        console.log("Populating area filter...");
+        const areaCounts = {};
+        rows.forEach(row => {
+            const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+            researchAreas.forEach(area => {
+                if (area) {
+                    areaCounts[area] = (areaCounts[area] || 0) + 1;
+                }
+            });
+        });
+
+        const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
+
+        const areaFilter = document.getElementById("areaFilter");
+        areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
+        areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
+            return `<option value="${area}">${area} [~${count} matches]</option>`;
+        }).join('');
+        console.log("Area filter populated.");
+    }
+
+    function updateFilterStatus() {
+        const searchValue = $('#customSearch').val().trim();
+        const methodValue = $('#methodFilter').val();
+        const areaValue = $('#areaFilter').val();
+
+        const filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
+
+        const button = $('#filterStatusBtn');
+        if (filterActive) {
+            button.removeClass('green').addClass('red').text('Click to clear all filters');
+        } else {
+            button.removeClass('red').addClass('green').text('No filters active');
+        }
+    }
+
+    function updateFilterNotice() {
+        const searchValue = $('#customSearch').val().trim();
+        const methodValue = $('#methodFilter').val();
+        const areaValue = $('#areaFilter').val();
+
+        let activeFilters = [];
+        if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
+        if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
+        if (areaValue) active
