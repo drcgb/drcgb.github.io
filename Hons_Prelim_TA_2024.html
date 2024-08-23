@@ -299,16 +299,33 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
     const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
 
-    // Logic for matching method
-    const isQuantitative = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || (mainMethod === 'mixed-methods' && methodValue.includes('quantitative'));
-    const isQualitative = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || (mainMethod === 'mixed-methods' && methodValue.includes('qualitative'));
+    let methodMatch = false;
 
-    let methodMatch = methodValue === '' || mainMethod === methodValue;
-    
-    if (methodValue.includes('quantitative') && methodValue !== 'meta-analysis') {
-        methodMatch = isQuantitative;
-    } else if (methodValue.includes('qualitative') && methodValue !== 'meta-synthesis') {
-        methodMatch = isQualitative;
+    // Logic for matching method
+    switch (methodValue) {
+        case '':
+            methodMatch = true; // "All Methods" selected
+            break;
+        case 'all-quantitative':
+            methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
+            break;
+        case 'quantitative':
+        case 'meta-analysis':
+            methodMatch = mainMethod === methodValue;
+            break;
+        case 'mixed-methods-quantitative':
+            methodMatch = mainMethod === 'mixed-methods';
+            break;
+        case 'all-qualitative':
+            methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
+            break;
+        case 'qualitative':
+        case 'meta-synthesis':
+            methodMatch = mainMethod === methodValue;
+            break;
+        case 'mixed-methods-qualitative':
+            methodMatch = mainMethod === 'mixed-methods';
+            break;
     }
 
     // Logic for matching area
@@ -387,7 +404,7 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             console.log("Table populated.");
         }
           
-       function populateMethodFilter(rows) {
+        function populateMethodFilter(rows) {
     console.log("Populating method filter...");
     const methodCounts = {
         quantitative: 0,
@@ -409,8 +426,8 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
                     methodCounts.metaAnalysis += 1;
                     break;
                 case 'mixed-methods':
-                    methodCounts.mixedMethodsQuantitative += 1;
-                    methodCounts.mixedMethodsQualitative += 1; // Include under both
+                    methodCounts.mixedMethodsQuantitative += 1; // Consider Mixed-Methods primarily quantitative here
+                    methodCounts.mixedMethodsQualitative += 1; // And also consider it qualitative
                     break;
                 case 'qualitative':
                     methodCounts.qualitative += 1;
@@ -424,14 +441,16 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
 
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML += `
-        <option value="" style="font-weight: bold;">All</option>
+        <option value="" style="font-weight: bold;">All Methods</option>
         <optgroup label="Quantitative">
-            <option value="quantitative" style="font-weight: bold;">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
+            <option value="all-quantitative" style="font-weight: bold;">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
+            <option value="quantitative">Quantitative [~${methodCounts.quantitative} matches]</option>
             <option value="meta-analysis">Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
             <option value="mixed-methods-quantitative">Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
         </optgroup>
         <optgroup label="Qualitative">
-            <option value="qualitative" style="font-weight: bold;">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
+            <option value="all-qualitative" style="font-weight: bold;">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
+            <option value="qualitative">Qualitative [~${methodCounts.qualitative} matches]</option>
             <option value="meta-synthesis">Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
             <option value="mixed-methods-qualitative">Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
         </optgroup>
