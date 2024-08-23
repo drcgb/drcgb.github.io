@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function populateMethodFilter(rows, selectedMethod = '') {
         console.log("Populating method filter...");
-
+    
         const selectedAreaValue = $('#areaFilter').val().toLowerCase().trim();
         const methodCounts = {
             quantitative: 0,
@@ -177,13 +177,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             metaSynthesis: 0,
             mixedMethodsQualitative: 0
         };
-
+    
         rows.forEach((row, index) => {
             const mainMethod = row[1]?.trim().toLowerCase();
             const researchAreasContent = researchAreasData[index];
-
+    
             const areaMatch = selectedAreaValue === '' || researchAreasContent.includes(selectedAreaValue);
-
+    
             if (mainMethod && areaMatch) {
                 switch (mainMethod) {
                     case 'quantitative':
@@ -202,10 +202,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     case 'meta-synthesis':
                         methodCounts.metaSynthesis += 1;
                         break;
+                    default:
+                        // If there's a method not covered by the above cases
+                        break;
                 }
             }
         });
-
+    
         const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
@@ -220,11 +223,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <option value="mixed-methods-qualitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
             </optgroup>
         `;
-
+    
         $('#methodFilter').val(selectedMethod);
-
+    
         console.log("Method filter populated.");
     }
+    
 
     function populateAreaFilter(rows) {
         console.log("Populating area filter...");
