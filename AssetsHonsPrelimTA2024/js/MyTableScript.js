@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Populating area filter...");
         const areaCounts = {};
         let totalAreas = 0;
-
+    
         rows.forEach(row => {
             const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
             researchAreas.forEach(area => {
@@ -243,16 +243,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             });
         });
-
+    
         const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-
+    
         const areaFilter = document.getElementById("areaFilter");
-        areaFilter.innerHTML = `<option value="">All Research Areas [~${totalAreas} records]</option>`;
+        areaFilter.innerHTML = `<option value="">All Research Areas</option>`;  // No record count here
         areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
             return `<option value="${area}">${area} [~${count} records]</option>`;
         }).join('');
         console.log("Area filter populated.");
     }
+    
 
     function updateFilterStatus() {
         const searchValue = $('#customSearch').val().trim();
