@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
         const data = await response.arrayBuffer();
         const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const sheet = workbook.Sheets[0];
         allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
         console.log("Data loaded:", allRows);
 
@@ -95,25 +95,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $('#customSearch').on('input', function() {
             dataTable.search($(this).val()).draw();
-            updateFilterCounts(); // Update counts after search
+            updateFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
         });
 
         $('#methodFilter').on('change', function() {
             dataTable.draw();
-            updateFilterCounts(); // Update counts after filter change
+            updateFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
         });
 
         $('#areaFilter').on('change', function() {
-            const currentMethod = $('#methodFilter').val(); // Preserve current method
-            populateMethodFilter(allRows, currentMethod); // Pass the current method
+            const currentMethod = $('#methodFilter').val();
+            populateMethodFilter(allRows, currentMethod);
             populateAreaFilter(allRows);
 
             dataTable.draw();
-            updateFilterCounts(); // Update counts after filter change
+            updateFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
         });
@@ -126,9 +126,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 dataTable.search('').draw();
 
-                updateFilterCounts(); // Update counts after clearing filters
+                updateFilterCounts(); // Reset counts when clearing filters
                 updateFilterStatus();
                 updateFilterNotice();
+
+                populateMethodFilter(allRows); // Reset method filter options
+                populateAreaFilter(allRows); // Reset area filter options
 
                 window.scrollTo(0, 0);
             }
@@ -317,7 +320,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     $('#customSearch').on('input', function() {
         if (dataTable) {
             dataTable.search($(this).val()).draw();
-            updateFilterCounts(); // Update counts after search
+            updateFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
@@ -329,7 +332,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     $('#methodFilter').on('change', function() {
         if (dataTable) {
             dataTable.draw();
-            updateFilterCounts(); // Update counts after method change
+            updateFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
@@ -344,7 +347,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateAreaFilter(allRows);
 
         dataTable.draw();
-        updateFilterCounts(); // Update counts after area change
+        updateFilterCounts();
         updateFilterStatus();
         updateFilterNotice();
         window.scrollTo(0, 0);
@@ -362,6 +365,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 updateFilterCounts(); // Reset counts when clearing filters
                 updateFilterStatus();
                 updateFilterNotice();
+
+                populateMethodFilter(allRows); // Reset method filter options
+                populateAreaFilter(allRows); // Reset area filter options
 
                 window.scrollTo(0, 0);
             } else {
