@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function populateMethodFilter(rows, selectedMethod = '') {
         console.log("Populating method filter...");
-        
+
         const selectedAreaValue = $('#areaFilter').val().toLowerCase().trim();
         const methodCounts = {
             quantitative: 0,
@@ -153,13 +153,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             metaSynthesis: 0,
             mixedMethodsQualitative: 0
         };
-    
+
         rows.forEach((row, index) => {
             const mainMethod = row[1]?.trim().toLowerCase();
             const researchAreasContent = researchAreasData[index];
-    
+
             const areaMatch = selectedAreaValue === '' || researchAreasContent.includes(selectedAreaValue);
-    
+
             if (mainMethod && areaMatch) {
                 switch (mainMethod) {
                     case 'quantitative':
@@ -198,26 +198,26 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} records]</option>
             </optgroup>
         `;
-        
+
         $('#methodFilter').val(selectedMethod);
-        
+
         console.log("Method filter populated.");
     }
 
     function populateAreaFilter(rows) {
         console.log("Populating area filter...");
-        
+
         const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaCounts = {};
-        
+
         rows.forEach((row, index) => {
             const mainMethod = row[1]?.trim().toLowerCase();
             const researchAreas = researchAreasData[index].split('; ').map(area => area.trim().toLowerCase());
-    
-            const methodMatch = selectedMethodValue === '' || mainMethod === selectedMethodValue || 
+
+            const methodMatch = selectedMethodValue === '' || mainMethod === selectedMethodValue ||
                 (selectedMethodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
                 (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod));
-    
+
             if (methodMatch) {
                 researchAreas.forEach(area => {
                     if (area) {
@@ -227,16 +227,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
             }
         });
-    
+
         const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-    
+
         const areaFilter = document.getElementById("areaFilter");
         areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>
                                 <option value="" disabled style="color: grey;">[Listed A—Z]</option>`;
         areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
             return `<option value="${area.toLowerCase()}">${area} [≈${count} records]</option>`;
         }).join('');
-    
+
         console.log("Area filter populated.");
     }
 
@@ -265,17 +265,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         const searchValue = $('#customSearch').val().trim();
         const methodValue = $('#methodFilter').val();
         const areaValue = $('#areaFilter').val();
-    
+
         let activeFilters = [];
         if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
         if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
         if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
-    
+
         const notice = $('#filterNotice');
         const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
-    
+
         const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
-    
+
         if (activeFilters.length > 0) {
             if (filteredRowCount > 0) {
                 notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 let alertMessage = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>No results found.</strong><br>`;
                 alertMessage += `No results found with this filter combination. Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
                 notice.html(alertMessage).show();
-    
+
                 $('#clearAllFiltersLink').on('click', function(e) {
                     e.preventDefault();
                     $('#filterStatusBtn').trigger('click');
@@ -294,7 +294,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         adjustContentMargin();
     }
-    
 
     function adjustContentMargin() {
         const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
