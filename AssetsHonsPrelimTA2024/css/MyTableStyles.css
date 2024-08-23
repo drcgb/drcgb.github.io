@@ -132,7 +132,6 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
     margin-top: 5px;
     margin-bottom: 2px;
     margin-left: 8px; /* Nudge the filter notice 8px to the right */
-    font-style: italic;
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
@@ -145,7 +144,7 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
 }
 
 table, th, td {
-    padding: 10px;
+    padding: 5px 15px 15px 15px;
     border-collapse: collapse;
     border: 1px solid black;
 }
