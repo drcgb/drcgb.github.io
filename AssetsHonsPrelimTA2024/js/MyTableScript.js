@@ -291,25 +291,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         const searchValue = $('#customSearch').val().trim();
         const methodValue = $('#methodFilter').val();
         const areaValue = $('#areaFilter').val();
-
+    
         let activeFilters = [];
         if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
         if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
         if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
-
+    
         const notice = $('#filterNotice');
         const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
-
+    
         const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
-
+    
         if (activeFilters.length > 0) {
             if (filteredRowCount > 0) {
                 notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
             } else {
-                let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
-                alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
+                let alertMessage = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>No results found.</strong><br>`;
+                alertMessage += `No results found with this filter combination. Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
                 notice.html(alertMessage).show();
-
+    
                 $('#clearAllFiltersLink').on('click', function(e) {
                     e.preventDefault();
                     $('#filterStatusBtn').trigger('click');
@@ -320,6 +320,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         adjustContentMargin();
     }
+    
 
     function adjustContentMargin() {
         const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
