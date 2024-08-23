@@ -48,22 +48,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            console.log('Method Filter Value:', $('#methodFilter').val().toLowerCase().trim());
+            console.log('Main Method Data:', methodData[dataIndex].toLowerCase().trim());
+        
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
-
+        
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
             const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
-
+        
             const methodMatch = methodValue === '' || mainMethod === methodValue ||
                 (methodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
                 (methodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)) ||
                 (methodValue === 'mixed-methods' && mainMethod === 'mixed-methods');
-
+        
             const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
-
+        
             return methodMatch && areaMatch;
         });
-
+     
+        
         dataTable.draw();
 
         $('#customSearch').on('input', function() {
