@@ -222,71 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <option value="mixed-methods-qualitative">&#x2198; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
             </optgroup>
         `;
-case 'mixed-methods':
-    methodCounts.mixedMethodsQuantitative += 1;
-    methodCounts.mixedMethodsQualitative += 1;
-    break;
-case 'qualitative':
-    methodCounts.qualitative += 1;
-    break;
-case 'meta-synthesis':
-    methodCounts.metaSynthesis += 1;
-    break;
-}
-
-const methodFilter = document.getElementById("methodFilter");
-methodFilter.innerHTML = `
-    <option value="" class="option-bold">All Methods</option>
-    <optgroup label="[Quantitative]" class="optgroup-bold">
-        <option value="all-quantitative">&#x2192; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
-        <option value="meta-analysis">&#x2198; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
-        <option value="mixed-methods-quantitative">&#x2198; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
-    </optgroup>
-    <optgroup label="[Qualitative]" class="optgroup-bold">
-        <option value="all-qualitative">&#x2192; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
-        <option value="meta-synthesis">&#x2198; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
-        <option value="mixed-methods-qualitative">&#x2198; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
-    </optgroup>
-`;
-
-$('#methodFilter').val(selectedMethod);
-
-console.log("Method filter populated.");
-
-function populateAreaFilter(rows) {
-    console.log("Populating area filter...");
-    const areaCounts = {};
-    rows.forEach(row => {
-        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-        researchAreas.forEach(area => {
-            if (area) {
-                const titleCaseArea = toTitleCase(area);
-                areaCounts[titleCaseArea] = (areaCounts[titleCaseArea] || 0) + 1;
-            }
-        });
-    });
-
-    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-
-    const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="" class="option-bold">All Research Areas</option>
-                            <option value="" disabled class="option-grey">[Listed A—Z]</option>`;
-    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area.toLowerCase()}">${area} [~${count} records]</option>`;
-    }).join('');
-    console.log("Area filter populated.");
-}
-
-function updateFilterCounts() {
-    const currentMethod = $('#methodFilter').val();
-    populateMethodFilter(allRows, currentMethod);
-    populateAreaFilter(allRows);
-}
-
-function updateFilterStatus() {
-    const searchValue = $('#customSearch').val().trim();
-    const methodValue = $('#methodFilter').val();
-}        
+        
 
         $('#methodFilter').val(selectedMethod);
 
