@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
     let allRows = [];
     let dataTable;
-    let methodData = []; // Declare methodData at the top level
-    let researchAreasData = []; // Declare researchAreasData at the top level
+    let methodData = [];
+    let researchAreasData = [];
 
     try {
         console.log("Loading XLSX data...");
@@ -69,15 +69,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-            const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
-            const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+            const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
+            const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
+            // Matching logic for methods
             let methodMatch = false;
-
-            // Logic for matching method
             switch (methodValue) {
                 case '':
-                    methodMatch = true; // "All Methods" selected
+                    methodMatch = true;
                     break;
                 case 'all-quantitative':
                     methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
@@ -101,10 +100,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     break;
             }
 
-            // Logic for matching area
+            // Matching logic for areas
             const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
-            // Combine method and area matches
+            // Return true only if both filters match
             return methodMatch && areaMatch;
         });
 
@@ -113,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Attach events
         $('#customSearch').on('input', function() {
-            dataTable.search($(this).val()).draw(); // Use DataTables native search
+            dataTable.search($(this).val()).draw();
             updateFilterStatus();
             updateFilterNotice();
         });
@@ -125,9 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $('#areaFilter').on('change', function() {
-            // Update method filter counts based on selected area
             populateMethodFilter(allRows);
-
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
@@ -135,22 +132,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $('#filterStatusBtn').on('click', function() {
             if ($(this).hasClass('red')) {
-                // Clear all filter inputs
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
 
-                // Clear DataTables native search and redraw
-                dataTable.search('').draw(); 
+                dataTable.search('').draw();
 
-                // Update filter status and notice
                 updateFilterStatus();
                 updateFilterNotice();
 
-                // Scroll the window to the top instantly
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                }, 0);
+                window.scrollTo(0, 0);
             }
         });
 
@@ -159,8 +150,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function populateTable(rows) {
         console.log("Populating table...");
-        methodData = []; // Initialize methodData
-        researchAreasData = []; // Initialize researchAreasData
+        methodData = [];
+        researchAreasData = [];
 
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
@@ -168,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
 
-            methodData.push(mainMethod.toLowerCase().trim()); // Ensure lowercase and trim before pushing
+            methodData.push(mainMethod.toLowerCase().trim());
             researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
 
             return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
@@ -348,9 +339,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     $('#areaFilter').on('change', function() {
-        // Update method filter counts based on selected area
         populateMethodFilter(allRows);
-
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
