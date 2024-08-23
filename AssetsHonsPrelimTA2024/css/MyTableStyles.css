@@ -203,7 +203,7 @@ select optgroup[label] {
 }
 
 .indented-option {
-    padding-left: 20px; /* Ensure the indent is consistent */
+    padding-left: 20px;
 }
 
 .optgroup-bold {
