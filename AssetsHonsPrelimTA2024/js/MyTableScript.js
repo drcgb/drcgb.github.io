@@ -1,41 +1,38 @@
-$(document).ready(function() {
+document.addEventListener("DOMContentLoaded", async () => {
     let allRows = [];
     let dataTable;
 
-    // Load and populate data
-    document.addEventListener("DOMContentLoaded", async () => {
-        try {
-            console.log("Loading XLSX data...");
-            const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-            const data = await response.arrayBuffer();
-            const workbook = XLSX.read(data, { type: "array" });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-            console.log("Data loaded:", allRows);
+    try {
+        console.log("Loading XLSX data...");
+        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+        const data = await response.arrayBuffer();
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+        console.log("Data loaded:", allRows);
 
-            if (allRows.length > 0) {
-                populateTable(allRows);
-                populateMethodFilter(allRows);
-                populateAreaFilter(allRows);
-                initializeDataTable();
-            } else {
-                console.error("No data loaded from XLSX file.");
-            }
-        } catch (err) {
-            console.error('Error loading XLSX data:', err);
+        if (allRows.length > 0) {
+            populateTable(allRows);
+            populateMethodFilter(allRows);
+            populateAreaFilter(allRows);
+            initializeDataTable();
+        } else {
+            console.error("No data loaded from XLSX file.");
         }
+    } catch (err) {
+        console.error('Error loading XLSX data:', err);
+    }
 
-        const searchInput = document.querySelector('.custom-search-container input');
-        const filterNotice = document.querySelector('.filter-notice');
+    const searchInput = document.querySelector('.custom-search-container input');
+    const filterNotice = document.querySelector('.filter-notice');
 
-        function matchNoticeWidth() {
-            const searchWidth = searchInput.offsetWidth;
-            filterNotice.style.width = `${searchWidth}px`;
-        }
+    function matchNoticeWidth() {
+        const searchWidth = searchInput.offsetWidth;
+        filterNotice.style.width = `${searchWidth}px`;
+    }
 
-        matchNoticeWidth();
-        window.addEventListener('resize', matchNoticeWidth);
-    });
+    matchNoticeWidth();
+    window.addEventListener('resize', matchNoticeWidth);
 
     function initializeDataTable() {
         const tableElement = $('#abstractTable');
@@ -233,59 +230,58 @@ $(document).ready(function() {
         $('.content').css('margin-top', totalMargin);
     }
 
-    $(document).ready(function() {
-        adjustContentMargin();
+    // Attach event listeners
+    adjustContentMargin();
 
-        $('#customSearch').on('input', function() {
+    $('#customSearch').on('input', function() {
+        if (dataTable) {
+            dataTable.search($(this).val()).draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
+
+    $('#methodFilter').on('change', function() {
+        if (dataTable) {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
+
+    $('#areaFilter').on('change', function() {
+        if (dataTable) {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
             if (dataTable) {
-                dataTable.search($(this).val()).draw();
+                $('#methodFilter').val('');
+                $('#areaFilter').val('');
+                $('#customSearch').val('');
+
+                dataTable.search('').draw();
+
                 updateFilterStatus();
                 updateFilterNotice();
+
                 window.scrollTo(0, 0);
             } else {
                 console.error("DataTable is not initialized.");
             }
-        });
-
-        $('#methodFilter').on('change', function() {
-            if (dataTable) {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-                window.scrollTo(0, 0);
-            } else {
-                console.error("DataTable is not initialized.");
-            }
-        });
-
-        $('#areaFilter').on('change', function() {
-            if (dataTable) {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-                window.scrollTo(0, 0);
-            } else {
-                console.error("DataTable is not initialized.");
-            }
-        });
-
-        $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red')) {
-                if (dataTable) {
-                    $('#methodFilter').val('');
-                    $('#areaFilter').val('');
-                    $('#customSearch').val('');
-
-                    dataTable.search('').draw();
-
-                    updateFilterStatus();
-                    updateFilterNotice();
-
-                    window.scrollTo(0, 0);
-                } else {
-                    console.error("DataTable is not initialized.");
-                }
-            }
-        });
+        }
     });
 });
