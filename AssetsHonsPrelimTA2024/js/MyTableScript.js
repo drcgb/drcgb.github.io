@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (allRows.length > 0) {
             populateTable(allRows);
             initializeDataTable();
-            populateAreaFilter(allRows); // Initial population of area filter
+            populateAreaFilter(allRows); // Populate area filter after DataTable initialization
             updateFilterCounts(); // Initialize filter counts on load
         } else {
             console.error("No data loaded from XLSX file.");
@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
+        // Apply custom filtering for Method and Area
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -66,8 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return methodMatch && areaMatch;
         });
 
-        dataTable.draw();
-
+        // Add input listeners after initialization to avoid interference
         $('#customSearch').on('input', function() {
             dataTable.search($(this).val()).draw();
             updateFilterCounts();
@@ -92,20 +92,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $('#filterStatusBtn').on('click', function() {
             if ($(this).hasClass('red')) {
-                $('#methodFilter').val('');
-                $('#areaFilter').val('');
-                $('#customSearch').val('');
-
-                dataTable.search('').draw();
-
-                updateFilterCounts(); // Reset counts when clearing filters
-                updateFilterStatus();
-                updateFilterNotice();
-
-                populateMethodFilter(allRows); // Reset method filter options
-                populateAreaFilter(allRows); // Reset area filter options
-
-                window.scrollTo(0, 0);
+                resetFilters();
             }
         });
     }
@@ -127,12 +114,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }).join('');
 
         tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
-    }
-
-    function toTitleCase(str) {
-        return str.replace(/\w\S*/g, function(txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        });
     }
 
     function populateMethodFilter(rows, selectedMethod = '') {
@@ -197,34 +178,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $('#methodFilter').val(selectedMethod);
     }
-   
-function populateAreaFilter(rows) {
-    const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
-    const areaCounts = {};
 
-    rows.forEach((row, index) => {
-        const mainMethod = row[1]?.trim().toLowerCase();
-        const researchAreasContent = researchAreasData[index];
+    function populateAreaFilter(rows) {
+        const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
+        const areaCounts = {};
 
-        if (mainMethod && (selectedMethodValue === '' || mainMethod === selectedMethodValue ||
-            (selectedMethodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
-            (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)))) {
-            
-            researchAreasContent.split('; ').forEach(area => {
-                if (area) {
-                    areaCounts[area] = (areaCounts[area] || 0) + 1;
-                }
-            });
-        }
-    });
+        rows.forEach((row, index) => {
+            const mainMethod = row[1]?.trim().toLowerCase();
+            const researchAreasContent = researchAreasData[index];
 
-    const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Areas</option>`;
-    Object.keys(areaCounts).forEach(area => {
-        areaFilter.innerHTML += `<option value="${area}">${area} (${areaCounts[area]})</option>`;
-    });
-}
+            if (mainMethod && (selectedMethodValue === '' || mainMethod === selectedMethodValue ||
+                (selectedMethodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
+                (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)))) {
+                
+                researchAreasContent.split('; ').forEach(area => {
+                    if (area) {
+                        areaCounts[area] = (areaCounts[area] || 0) + 1;
+                    }
+                });
+            }
+        });
 
+        const areaFilter = document.getElementById("areaFilter");
+        areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Areas</option>`;
+        Object.keys(areaCounts).forEach(area => {
+            areaFilter.innerHTML += `<option value="${area}">${area} (${areaCounts[area]})</option>`;
+        });
+    }
 
     function updateFilterCounts() {
         const currentMethod = $('#methodFilter').val();
@@ -332,23 +312,25 @@ function populateAreaFilter(rows) {
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             if (dataTable) {
-                $('#methodFilter').val('');
-                $('#areaFilter').val('');
-                $('#customSearch').val('');
-
-                dataTable.search('').draw();
-
-                updateFilterCounts(); // Reset counts when clearing filters
-                updateFilterStatus();
-                updateFilterNotice();
-
-                populateMethodFilter(allRows); // Reset method filter options
-                populateAreaFilter(allRows); // Reset area filter options
-
-                window.scrollTo(0, 0);
-            } else {
-                console.error("DataTable is not initialized.");
+                resetFilters();
             }
         }
     });
+
+    function resetFilters() {
+        $('#methodFilter').val('');
+        $('#areaFilter').val('');
+        $('#customSearch').val('');
+
+        dataTable.search('').draw();
+
+        updateFilterCounts(); // Reset counts when clearing filters
+        updateFilterStatus();
+        updateFilterNotice();
+
+        populateMethodFilter(allRows); // Reset method filter options
+        populateAreaFilter(allRows); // Reset area filter options
+
+        window.scrollTo(0, 0);
+    }
 });
