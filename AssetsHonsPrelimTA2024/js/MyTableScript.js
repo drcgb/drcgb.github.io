@@ -1,80 +1,13 @@
-let methodData = [];
-let researchAreasData = [];
-
 document.addEventListener("DOMContentLoaded", async () => {
     let allRows = [];
     let dataTable;
+    let methodData = [];
+    let researchAreasData = [];
 
-    try {
-        console.log("Loading XLSX data...");
-        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-        const data = await response.arrayBuffer();
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-        console.log("Data loaded:", allRows);
-
-        if (allRows.length > 0) {
-            // Initialize methodData and researchAreasData
-            methodData = [];
-            researchAreasData = [];
-
-            populateTable(allRows);
-            populateMethodFilter(allRows);
-            populateAreaFilter(allRows);
-            initializeDataTable();
-        } else {
-            console.error("No data loaded from XLSX file.");
-        }
-    } catch (err) {
-        console.error('Error loading XLSX data:', err);
-    }
-
-    function initializeDataTable() {
-        const tableElement = $('#abstractTable');
-        if (!tableElement.length) {
-            console.error('Table element not found in DOM.');
-            return;
-        }
-
-        console.log("Initializing DataTable...");
-
-        dataTable = tableElement.DataTable({
-            paging: false,
-            searching: true,
-            info: true,
-            autoWidth: false,
-            ordering: false,
-            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-            language: {
-                lengthMenu: 'Show up to _MENU_ records per page',
-            },
-            dom: '<"top"l>rt<"bottom"p><"clear">',
-            drawCallback: function(settings) {
-                console.log("Running drawCallback...");
-                const api = this.api();
-                const rows = api.rows({ search: 'applied' }).data().length;
-
-                // Remove existing "End of records" row
-                $('#abstractTable tbody .end-of-records').remove();
-
-                // Add "End of records" row at the end
-                if (rows === 0 || rows > 0) {
-                    $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
-                }
-            }
-        });
-
-        if (!dataTable) {
-            console.error("DataTable initialization failed.");
-        } else {
-            console.log("DataTable initialized successfully.");
-        }
-    }
-
+    // Function to populate the table with data
     function populateTable(rows) {
         console.log("Populating table...");
-        methodData = [];  // Clear methodData and researchAreasData
+        methodData = [];
         researchAreasData = [];
 
         const tbody = document.querySelector("#abstractTable tbody");
@@ -93,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Table populated.");
     }
 
+    // Function to populate the method filter
     function populateMethodFilter(rows) {
         console.log("Populating method filter...");
         const methodCounts = {
@@ -144,6 +78,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Method filter populated.");
     }
 
+    // Function to populate the area filter
     function populateAreaFilter(rows) {
         console.log("Populating area filter...");
         const areaCounts = {};
@@ -166,6 +101,83 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Area filter populated.");
     }
 
+    // Function to initialize the DataTable
+    function initializeDataTable() {
+        const tableElement = $('#abstractTable');
+        if (!tableElement.length) {
+            console.error('Table element not found in DOM.');
+            return;
+        }
+
+        console.log("Initializing DataTable...");
+
+        dataTable = tableElement.DataTable({
+            paging: false,
+            searching: true,
+            info: true,
+            autoWidth: false,
+            ordering: false,
+            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+            language: {
+                lengthMenu: 'Show up to _MENU_ records per page',
+            },
+            dom: '<"top"l>rt<"bottom"p><"clear">',
+            drawCallback: function(settings) {
+                console.log("Running drawCallback...");
+                const api = this.api();
+                const rows = api.rows({ search: 'applied' }).data().length;
+
+                // Remove existing "End of records" row
+                $('#abstractTable tbody .end-of-records').remove();
+
+                // Add "End of records" row at the end
+                if (rows === 0 || rows > 0) {
+                    $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+                }
+            }
+        });
+
+        if (!dataTable) {
+            console.error("DataTable initialization failed.");
+        } else {
+            console.log("DataTable initialized successfully.");
+        }
+    }
+
+    // Load XLSX data and initialize table and filters
+    try {
+        console.log("Loading XLSX data...");
+        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+        const data = await response.arrayBuffer();
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+        console.log("Data loaded:", allRows);
+
+        if (allRows.length > 0) {
+            populateTable(allRows);
+            populateMethodFilter(allRows);
+            populateAreaFilter(allRows);
+            initializeDataTable();
+        } else {
+            console.error("No data loaded from XLSX file.");
+        }
+    } catch (err) {
+        console.error('Error loading XLSX data:', err);
+    }
+
+    const searchInput = document.querySelector('.custom-search-container input');
+    const filterNotice = document.querySelector('.filter-notice');
+
+    function matchNoticeWidth() {
+        const searchWidth = searchInput.offsetWidth;
+        filterNotice.style.width = `${searchWidth}px`;
+    }
+
+    matchNoticeWidth();
+    window.addEventListener('resize', matchNoticeWidth);
+
+    // Additional functions (e.g., updating filter status and notices)
     function updateFilterStatus() {
         const searchValue = $('#customSearch').val().trim();
         const methodValue = $('#methodFilter').val();
@@ -189,4 +201,92 @@ document.addEventListener("DOMContentLoaded", async () => {
         let activeFilters = [];
         if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
         if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
-        if (areaValue) active
+        if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
+
+        const notice = $('#filterNotice');
+        const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+
+        const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
+
+        if (activeFilters.length > 0) {
+            if (filteredRowCount > 0) {
+                notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+            } else {
+                let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
+                alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
+                notice.html(alertMessage).show();
+
+                $('#clearAllFiltersLink').on('click', function(e) {
+                    e.preventDefault();
+                    $('#filterStatusBtn').trigger('click');
+                });
+            }
+        } else {
+            notice.hide();
+        }
+        adjustContentMargin();
+    }
+
+    function adjustContentMargin() {
+        const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+        const headerHeight = $('.fixed-header').outerHeight(true);
+        const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
+
+        $('.content').css('margin-top', totalMargin);
+    }
+
+    // Attach event listeners
+    adjustContentMargin();
+
+    $('#customSearch').on('input', function() {
+        if (dataTable) {
+            dataTable.search($(this).val()).draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
+
+    $('#methodFilter').on('change', function() {
+        if (dataTable) {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
+
+    $('#areaFilter').on('change', function() {
+        if (dataTable) {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            if (dataTable) {
+                $('#methodFilter').val('');
+                $('#areaFilter').val('');
+                $('#customSearch').val('');
+
+                dataTable.search('').draw();
+
+                updateFilterStatus();
+                updateFilterNotice();
+
+                window.scrollTo(0, 0);
+            } else {
+                console.error("DataTable is not initialized.");
+            }
+        }
+    });
+});
