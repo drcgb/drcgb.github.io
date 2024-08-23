@@ -9,15 +9,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
         const data = await response.arrayBuffer();
         const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[0];
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
         allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
         console.log("Data loaded:", allRows);
 
         if (allRows.length > 0) {
             populateTable(allRows);
-            populateMethodFilter(allRows);
-            populateAreaFilter(allRows);
             initializeDataTable();
+            updateFilterCounts(); // Initialize filter counts on load
         } else {
             console.error("No data loaded from XLSX file.");
         }
@@ -110,7 +109,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         $('#areaFilter').on('change', function() {
             const currentMethod = $('#methodFilter').val();
             populateMethodFilter(allRows, currentMethod);
-            populateAreaFilter(allRows);
 
             dataTable.draw();
             updateFilterCounts();
@@ -180,9 +178,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             mixedMethodsQualitative: 0
         };
 
-        rows.forEach(row => {
+        rows.forEach((row, index) => {
             const mainMethod = row[1]?.trim().toLowerCase();
-            const researchAreasContent = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '').join('; ');
+            const researchAreasContent = researchAreasData[index];
 
             const areaMatch = selectedAreaValue === '' || researchAreasContent.includes(selectedAreaValue);
 
@@ -212,17 +210,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
             <optgroup label="[Quantitative]" class="optgroup-bold">
-                <option value="all-quantitative">&#x2192; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
-                <option value="meta-analysis">&#x2198; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
-                <option value="mixed-methods-quantitative">&#x2198; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="all-quantitative">&#x279E; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="meta-analysis">&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
+                <option value="mixed-methods-quantitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
             </optgroup>
             <optgroup label="[Qualitative]" class="optgroup-bold">
-                <option value="all-qualitative">&#x2192; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
-                <option value="meta-synthesis">&#x2198; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
-                <option value="mixed-methods-qualitative">&#x2198; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="all-qualitative">&#x279E; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="meta-synthesis">&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
+                <option value="mixed-methods-qualitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
             </optgroup>
         `;
-        
 
         $('#methodFilter').val(selectedMethod);
 
@@ -345,7 +342,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     $('#areaFilter').on('change', function() {
         const currentMethod = $('#methodFilter').val();
         populateMethodFilter(allRows, currentMethod);
-        populateAreaFilter(allRows);
 
         dataTable.draw();
         updateFilterCounts();
