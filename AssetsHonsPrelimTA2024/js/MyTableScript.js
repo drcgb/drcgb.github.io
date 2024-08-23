@@ -13,24 +13,40 @@ $(document).ready(function() {
             allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
             console.log("Data loaded:", allRows);
 
-            populateTable(allRows);
-            populateMethodFilter(allRows);
-            populateAreaFilter(allRows);
-            initializeDataTable();
+            if (allRows.length > 0) {
+                populateTable(allRows);
+                populateMethodFilter(allRows);
+                populateAreaFilter(allRows);
+                initializeDataTable();
+            } else {
+                console.error("No data loaded from XLSX file.");
+            }
         } catch (err) {
             console.error('Error loading XLSX data:', err);
         }
+
+        const searchInput = document.querySelector('.custom-search-container input');
+        const filterNotice = document.querySelector('.filter-notice');
+
+        function matchNoticeWidth() {
+            const searchWidth = searchInput.offsetWidth;
+            filterNotice.style.width = `${searchWidth}px`;
+        }
+
+        matchNoticeWidth();
+        window.addEventListener('resize', matchNoticeWidth);
     });
 
     function initializeDataTable() {
-        if (!$('#abstractTable').length) {
+        const tableElement = $('#abstractTable');
+        if (!tableElement.length) {
             console.error('Table element not found in DOM.');
             return;
         }
 
         console.log("Initializing DataTable...");
 
-        dataTable = $('#abstractTable').DataTable({
+        dataTable = tableElement.DataTable({
             paging: false,
             searching: true,
             info: true,
@@ -42,6 +58,7 @@ $(document).ready(function() {
             },
             dom: '<"top"l>rt<"bottom"p><"clear">',
             drawCallback: function(settings) {
+                console.log("Running drawCallback...");
                 const api = this.api();
                 const rows = api.rows({ search: 'applied' }).data().length;
 
@@ -57,29 +74,26 @@ $(document).ready(function() {
 
         if (!dataTable) {
             console.error("DataTable initialization failed.");
+        } else {
+            console.log("DataTable initialized successfully.");
         }
     }
 
-    let methodData = []; // New array to store Main Method data
-    let researchAreasData = []; // New array to store Research Areas data
+    let methodData = [];
+    let researchAreasData = [];
 
     function populateTable(rows) {
         console.log("Populating table...");
-        methodData = []; // Reset arrays before populating
+        methodData = [];
         researchAreasData = [];
 
         const tbody = document.querySelector("#abstractTable tbody");
-        if (!tbody) {
-            console.error('Table body not found in DOM.');
-            return;
-        }
-
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
             const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
 
-            methodData.push(mainMethod.toLowerCase().trim()); // Ensure lowercase and trim before pushing
+            methodData.push(mainMethod.toLowerCase().trim());
             researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
 
             return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
@@ -152,7 +166,6 @@ $(document).ready(function() {
             });
         });
 
-        // Convert the areaCounts object into an array of entries and sort them alphabetically by the area name
         const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
         const areaFilter = document.getElementById("areaFilter");
@@ -189,33 +202,25 @@ $(document).ready(function() {
         if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
 
         const notice = $('#filterNotice');
-        if (dataTable) {
-            const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+        const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
 
-            // Exclude "End of records" row from the count
-            const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
+        const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
 
-            if (activeFilters.length > 0) {
-                if (filteredRowCount > 0) {
-                    notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
-                } else {
-                    let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
-                    alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
-                    notice.html(alertMessage).show();
-
-                    // Add event listener to the "CLEAR ALL" link
-                    $('#clearAllFiltersLink').on('click', function(e) {
-                        e.preventDefault(); // Prevent the default anchor behavior
-
-                        // Trigger the clear all filters action
-                        $('#filterStatusBtn').trigger('click');
-                    });
-                }
+        if (activeFilters.length > 0) {
+            if (filteredRowCount > 0) {
+                notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
             } else {
-                notice.hide();
+                let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
+                alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
+                notice.html(alertMessage).show();
+
+                $('#clearAllFiltersLink').on('click', function(e) {
+                    e.preventDefault();
+                    $('#filterStatusBtn').trigger('click');
+                });
             }
         } else {
-            console.error("DataTable was not initialized correctly.");
+            notice.hide();
         }
         adjustContentMargin();
     }
@@ -228,52 +233,59 @@ $(document).ready(function() {
         $('.content').css('margin-top', totalMargin);
     }
 
-    // Event listeners for dynamic content margin adjustments
     $(document).ready(function() {
-        if (dataTable) {
-            adjustContentMargin();
+        adjustContentMargin();
 
-            $('#customSearch').on('input', function() {
-                dataTable.search($(this).val()).draw(); // Use native DataTables search
+        $('#customSearch').on('input', function() {
+            if (dataTable) {
+                dataTable.search($(this).val()).draw();
                 updateFilterStatus();
                 updateFilterNotice();
-                window.scrollTo(0, 0); // Scroll to the top when a search is performed
-            });
+                window.scrollTo(0, 0);
+            } else {
+                console.error("DataTable is not initialized.");
+            }
+        });
 
-            $('#methodFilter').on('change', function() {
+        $('#methodFilter').on('change', function() {
+            if (dataTable) {
                 dataTable.draw();
                 updateFilterStatus();
                 updateFilterNotice();
-                window.scrollTo(0, 0); // Scroll to the top when a filter is applied
-            });
+                window.scrollTo(0, 0);
+            } else {
+                console.error("DataTable is not initialized.");
+            }
+        });
 
-            $('#areaFilter').on('change', function() {
+        $('#areaFilter').on('change', function() {
+            if (dataTable) {
                 dataTable.draw();
                 updateFilterStatus();
                 updateFilterNotice();
-                window.scrollTo(0, 0); // Scroll to the top when a filter is applied
-            });
+                window.scrollTo(0, 0);
+            } else {
+                console.error("DataTable is not initialized.");
+            }
+        });
 
-            $('#filterStatusBtn').on('click', function() {
-                if ($(this).hasClass('red')) {
-                    // Clear all filter inputs
-                    $('#methodFilter').val('');      // Clear the method filter dropdown
-                    $('#areaFilter').val('');        // Clear the area filter dropdown
-                    $('#customSearch').val('');      // Clear the custom search input field
+        $('#filterStatusBtn').on('click', function() {
+            if ($(this).hasClass('red')) {
+                if (dataTable) {
+                    $('#methodFilter').val('');
+                    $('#areaFilter').val('');
+                    $('#customSearch').val('');
 
-                    // Clear DataTables native search and redraw
-                    dataTable.search('').draw();     // Clear native DataTables search
+                    dataTable.search('').draw();
 
-                    // Update filter status and notice
                     updateFilterStatus();
                     updateFilterNotice();
 
-                    // Scroll the window to the top instantly
                     window.scrollTo(0, 0);
+                } else {
+                    console.error("DataTable is not initialized.");
                 }
-            });
-        } else {
-            console.error("DataTable was not initialized correctly.");
-        }
+            }
+        });
     });
 });
