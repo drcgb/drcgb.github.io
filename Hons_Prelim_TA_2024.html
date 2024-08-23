@@ -442,11 +442,11 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML += `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+        <optgroup label="Quantitative" style="font-weight: bold !important; color: grey;" disabled></optgroup>
             <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
             <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
             <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+        <optgroup label="Qualitative" style="font-weight: bold !important; color: grey;" disabled></optgroup>
             <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
             <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
             <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
