@@ -1,0 +1,31 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    -webkit-text-size-adjust: 99%; /* Prevent font size adjustment on iOS */
+    text-size-adjust: 99%; /* Prevent font size adjustment on Android */
+}
+
+body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
+.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
+    font-family: Arial, sans-serif;
+    font-size: 14px; /* Set the base font size */
+    line-height: 1.2;
+}
+
+/* Prevent font size changes when the phone is flipped to landscape */
+@media (orientation: landscape) {
+    body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
+    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
+        font-size: 14px; /* Ensure the font size stays the same in landscape mode */
+    }
+}
+
+/* Style for the search bar and the clear button */
+.custom-search-container input:focus {
+    background-color: #e0f7fa; /* Change this to your preferred color */
+}
+
+/* Additional CSS goes here... */
