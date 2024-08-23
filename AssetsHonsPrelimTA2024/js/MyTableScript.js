@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
-            console.log("Selected method:", methodValue); // Log selected method
+            console.log("Method Filter Applied:", methodValue); // Log the value here
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
@@ -63,6 +63,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
 
             return methodMatch && areaMatch;
+        });
+
+        $('#methodFilter').on('change', function() {
+            console.log("Method filter changed to:", $('#methodFilter').val()); // Log value on change
+            dataTable.draw(); // Trigger filtering logic
         });
 
         dataTable.draw();
