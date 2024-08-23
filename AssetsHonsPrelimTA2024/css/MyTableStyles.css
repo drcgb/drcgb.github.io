@@ -144,9 +144,12 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
 }
 
 table, th, td {
-    padding: 5px 15px 15px 15px;
     border-collapse: collapse;
     border: 1px solid black;
+}
+td {
+    padding: 3px 12px 12px 12px;
+    vertical-align: middle;
 }
 th {
     background-color: #f2f2f2;
