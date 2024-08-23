@@ -454,25 +454,25 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
 
     console.log("Method filter populated.");
 }
-        function populateAreaFilter(rows) {
-            console.log("Populating area filter...");
-            const areaCounts = {};
-            rows.forEach(row => {
-                const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-                researchAreas.forEach(area => {
-                    if (area) {
-                        areaCounts[area] = (areaCounts[area] || 0) + 1;
-                    }
-                });
-            });
+    function populateAreaFilter(rows) {
+    console.log("Populating area filter...");
+    const areaCounts = {};
+    rows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area] = (areaCounts[area] || 0) + 1;
+            }
+        });
+    });
 
-            const areaFilter = document.getElementById("areaFilter");
-            areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
-                return `<option value="${area}">${area} [~${count} matches]</option>`;
-            }).join('');
-            console.log("Area filter populated.");
-        }
-
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `<option value="">All Research Areas</option>`; // Change "All" to "All Research Areas"
+    areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
+        return `<option value="${area}">${area} [~${count} matches]</option>`;
+    }).join('');
+    console.log("Area filter populated.");
+}
         function updateFilterStatus() {
             const searchValue = $('#customSearch').val().trim();
             const methodValue = $('#methodFilter').val();
