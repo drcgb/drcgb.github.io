@@ -4,7 +4,116 @@ document.addEventListener("DOMContentLoaded", async () => {
     let methodData = [];
     let researchAreasData = [];
 
-    // Function to populate the table with data
+    try {
+        console.log("Loading XLSX data...");
+        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+        const data = await response.arrayBuffer();
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+        console.log("Data loaded:", allRows);
+
+        if (allRows.length > 0) {
+            populateTable(allRows);
+            populateMethodFilter(allRows);
+            populateAreaFilter(allRows);
+            initializeDataTable();
+        } else {
+            console.error("No data loaded from XLSX file.");
+        }
+    } catch (err) {
+        console.error('Error loading XLSX data:', err);
+    }
+
+    const searchInput = document.querySelector('.custom-search-container input');
+    const filterNotice = document.querySelector('.filter-notice');
+
+    function matchNoticeWidth() {
+        const searchWidth = searchInput.offsetWidth;
+        filterNotice.style.width = `${searchWidth}px`;
+    }
+
+    matchNoticeWidth();
+    window.addEventListener('resize', matchNoticeWidth);
+
+    function initializeDataTable() {
+        const tableElement = $('#abstractTable');
+        if (!tableElement.length) {
+            console.error('Table element not found in DOM.');
+            return;
+        }
+
+        console.log("Initializing DataTable...");
+
+        dataTable = tableElement.DataTable({
+            paging: false,
+            searching: true,
+            info: true,
+            autoWidth: false,
+            ordering: false,
+            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+            language: {
+                lengthMenu: 'Show up to _MENU_ records per page',
+            },
+            dom: '<"top"l>rt<"bottom"p><"clear">',
+            drawCallback: function(settings) {
+                console.log("Running drawCallback...");
+                const api = this.api();
+                const rows = api.rows({ search: 'applied' }).data().length;
+
+                // Remove existing "End of records" row
+                $('#abstractTable tbody .end-of-records').remove();
+
+                // Add "End of records" row at the end
+                if (rows === 0 || rows > 0) {
+                    $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+                }
+            }
+        });
+
+        if (!dataTable) {
+            console.error("DataTable initialization failed.");
+        } else {
+            console.log("DataTable initialized successfully.");
+        }
+
+        // Add custom filtering logic
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            const methodValue = $('#methodFilter').val().toLowerCase().trim();
+            const areaValue = $('#areaFilter').val().toLowerCase().trim();
+            const searchValue = $('#customSearch').val().toLowerCase().trim();
+
+            const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
+            const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+            const rowData = data[0].toLowerCase(); // Assuming the data you want to search is in the first column
+
+            let methodMatch = false;
+            let areaMatch = false;
+            let searchMatch = false;
+
+            // Method filter logic
+            if (methodValue === '' || mainMethod.includes(methodValue)) {
+                methodMatch = true;
+            }
+
+            // Area filter logic
+            if (areaValue === '' || researchAreasContent.includes(areaValue)) {
+                areaMatch = true;
+            }
+
+            // Search filter logic
+            if (searchValue === '' || rowData.includes(searchValue)) {
+                searchMatch = true;
+            }
+
+            // Only return true if all conditions are met
+            return methodMatch && areaMatch && searchMatch;
+        });
+
+        // Redraw the table to apply the custom filters
+        dataTable.draw();
+    }
+
     function populateTable(rows) {
         console.log("Populating table...");
         methodData = [];
@@ -26,7 +135,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Table populated.");
     }
 
-    // Function to populate the method filter
     function populateMethodFilter(rows) {
         console.log("Populating method filter...");
         const methodCounts = {
@@ -78,7 +186,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Method filter populated.");
     }
 
-    // Function to populate the area filter
     function populateAreaFilter(rows) {
         console.log("Populating area filter...");
         const areaCounts = {};
@@ -101,83 +208,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Area filter populated.");
     }
 
-    // Function to initialize the DataTable
-    function initializeDataTable() {
-        const tableElement = $('#abstractTable');
-        if (!tableElement.length) {
-            console.error('Table element not found in DOM.');
-            return;
-        }
-
-        console.log("Initializing DataTable...");
-
-        dataTable = tableElement.DataTable({
-            paging: false,
-            searching: true,
-            info: true,
-            autoWidth: false,
-            ordering: false,
-            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-            language: {
-                lengthMenu: 'Show up to _MENU_ records per page',
-            },
-            dom: '<"top"l>rt<"bottom"p><"clear">',
-            drawCallback: function(settings) {
-                console.log("Running drawCallback...");
-                const api = this.api();
-                const rows = api.rows({ search: 'applied' }).data().length;
-
-                // Remove existing "End of records" row
-                $('#abstractTable tbody .end-of-records').remove();
-
-                // Add "End of records" row at the end
-                if (rows === 0 || rows > 0) {
-                    $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
-                }
-            }
-        });
-
-        if (!dataTable) {
-            console.error("DataTable initialization failed.");
-        } else {
-            console.log("DataTable initialized successfully.");
-        }
-    }
-
-    // Load XLSX data and initialize table and filters
-    try {
-        console.log("Loading XLSX data...");
-        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-        const data = await response.arrayBuffer();
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-        console.log("Data loaded:", allRows);
-
-        if (allRows.length > 0) {
-            populateTable(allRows);
-            populateMethodFilter(allRows);
-            populateAreaFilter(allRows);
-            initializeDataTable();
-        } else {
-            console.error("No data loaded from XLSX file.");
-        }
-    } catch (err) {
-        console.error('Error loading XLSX data:', err);
-    }
-
-    const searchInput = document.querySelector('.custom-search-container input');
-    const filterNotice = document.querySelector('.filter-notice');
-
-    function matchNoticeWidth() {
-        const searchWidth = searchInput.offsetWidth;
-        filterNotice.style.width = `${searchWidth}px`;
-    }
-
-    matchNoticeWidth();
-    window.addEventListener('resize', matchNoticeWidth);
-
-    // Additional functions (e.g., updating filter status and notices)
     function updateFilterStatus() {
         const searchValue = $('#customSearch').val().trim();
         const methodValue = $('#methodFilter').val();
