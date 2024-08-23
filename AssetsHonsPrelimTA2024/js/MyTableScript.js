@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
     let allRows = [];
     let dataTable;
-    let methodData = [];
-    let researchAreasData = [];
+    let methodData = []; // Declare methodData at the top level
+    let researchAreasData = []; // Declare researchAreasData at the top level
 
     try {
         console.log("Loading XLSX data...");
@@ -72,8 +72,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
             const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
-            // Matching logic for methods
             let methodMatch = false;
+
             switch (methodValue) {
                 case '':
                     methodMatch = true;
@@ -100,17 +100,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     break;
             }
 
-            // Matching logic for areas
             const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
-            // Return true only if both filters match
             return methodMatch && areaMatch;
         });
 
-        // Initial filtering
         dataTable.draw();
 
-        // Attach events
         $('#customSearch').on('input', function() {
             dataTable.search($(this).val()).draw();
             updateFilterStatus();
@@ -124,7 +120,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $('#areaFilter').on('change', function() {
-            populateMethodFilter(allRows);
+            const currentMethod = $('#methodFilter').val(); // Preserve current method
+            populateMethodFilter(allRows, currentMethod); // Pass the current method
+
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
@@ -175,7 +173,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    function populateMethodFilter(rows) {
+    function populateMethodFilter(rows, selectedMethod) {
         console.log("Populating method filter...");
 
         const selectedAreaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -220,14 +218,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
             <optgroup label="[Quantitative]" style="font-weight: bold; color: grey;" disabled></optgroup>
-                <option value="all-quantitative">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="all-quantitative">&#x279E; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
                 <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
                 <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
             <optgroup label="[Qualitative]" style="font-weight: bold; color: grey;" disabled></optgroup>
-                <option value="all-qualitative">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="all-qualitative">&#x279E; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
                 <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
                 <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
         `;
+
+        $('#methodFilter').val(selectedMethod);
 
         console.log("Method filter populated.");
     }
@@ -339,7 +339,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     $('#areaFilter').on('change', function() {
-        populateMethodFilter(allRows);
+        const currentMethod = $('#methodFilter').val();
+        populateMethodFilter(allRows, currentMethod);
+
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
