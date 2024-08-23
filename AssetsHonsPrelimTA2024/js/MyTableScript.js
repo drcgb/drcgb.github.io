@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (allRows.length > 0) {
             populateTable(allRows);
             initializeDataTable();
-            updateFilterCounts(); // Initialize filter counts on load
             populateAreaFilter(allRows); // Initial population of area filter
+            updateFilterCounts(); // Initialize filter counts on load
         } else {
             console.error("No data loaded from XLSX file.");
         }
@@ -82,7 +82,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateFilterStatus();
             updateFilterNotice();
         });
-        
 
         $('#areaFilter').on('change', function() {
             dataTable.draw();  // Simply redraw the table, filtering is already handled in the ext search
