@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 $('#abstractTable tbody .end-of-records').remove();
 
-                if (rows === 0 || rows > 0) {
+                if (rows > 0) {
                     $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
                 }
             }
@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
+            console.log("Selected method:", methodValue); // Log selected method
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
@@ -74,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $('#methodFilter').on('change', function() {
-            console.log('Method Filter Changed:', $(this).val()); // Debugging line
+            console.log("Method filter changed to:", $('#methodFilter').val()); // Log value on change
             dataTable.draw();
             updateMethodFilterCounts();
             updateFilterStatus();
@@ -167,7 +168,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const areaFilter = document.getElementById("areaFilter");
         areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Areas</option>`;
         
-        // Populate options without counts
         const uniqueAreas = [...new Set(researchAreasData.join('; ').split('; ').map(area => area.trim()))];
         uniqueAreas.forEach(area => {
             areaFilter.innerHTML += `<option value="${area.toLowerCase()}">${area}</option>`;
@@ -194,9 +194,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function updateFilterNotice() {
-        const searchValue = $('#customSearch').val
-        const methodValue = $('#methodFilter').val().trim();
-        const areaValue = $('#areaFilter').val().trim();
+        const searchValue = $('#customSearch').val().trim();
+        const methodValue = $('#methodFilter').val();
+        const areaValue = $('#areaFilter').val();
 
         let activeFilters = [];
         if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
@@ -251,7 +251,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     $('#methodFilter').on('change', function() {
         if (dataTable) {
-            console.log('Method Filter Changed:', $(this).val()); // Debugging line
             dataTable.draw();
             updateMethodFilterCounts();
             updateFilterStatus();
