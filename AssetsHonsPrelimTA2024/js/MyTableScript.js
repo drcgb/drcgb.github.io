@@ -3,8 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let dataTable;
     let methodData = [];
     let researchAreasData = [];
-    let isFilterApplied = false; // Flag to track filter application
-
+    
     try {
         const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
         const data = await response.arrayBuffer();
@@ -15,8 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (allRows.length > 0) {
             populateTable(allRows);
             initializeDataTable();
-            populateAreaFilter(); // Populate area filter without counts
-            updateMethodFilterCounts(); // Initialize method filter counts on load
+            populateAreaFilter(); 
+            updateMethodFilterCounts(); 
         } else {
             console.error("No data loaded from XLSX file.");
         }
@@ -49,8 +48,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            if (isFilterApplied) return true; // Avoid re-applying during the same cycle
-
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             console.log("Method Filter Applied:", methodValue);
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -65,19 +62,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
 
-            isFilterApplied = true; // Mark as applied
             return methodMatch && areaMatch;
         });
 
-        // Ensure only one filter change event is handled at a time
         $('#methodFilter').on('change', function() {
-            isFilterApplied = false; // Reset flag before applying filter
-            console.log("Method filter changed to:", $('#methodFilter').val());
+            const methodValue = $('#methodFilter').val().toLowerCase().trim();
+            console.log("Method filter changed to:", methodValue);
             dataTable.draw();
         });
 
         $('#areaFilter').on('change', function() {
-            isFilterApplied = false; // Reset flag before applying filter
+            const areaValue = $('#areaFilter').val().toLowerCase().trim();
+            console.log("Area filter changed to:", areaValue);
             dataTable.draw();
         });
 
@@ -241,7 +237,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         dataTable.search('').draw();
 
-        updateMethodFilterCounts(); // Reset counts when clearing filters
+        updateMethodFilterCounts(); 
         updateFilterStatus();
         updateFilterNotice();
 
