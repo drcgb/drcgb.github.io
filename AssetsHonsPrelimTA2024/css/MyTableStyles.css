@@ -155,6 +155,8 @@ th {
     background-color: #f2f2f2;
     text-align: left;
     vertical-align: middle;
+    padding: 3px 12px 3px 12px;
+
 }
 table.dataTable tbody tr:hover {
     background-color: #e0f7fa;
