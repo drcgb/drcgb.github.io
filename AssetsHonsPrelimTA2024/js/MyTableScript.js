@@ -211,8 +211,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
             }
         } else {
-            notice.hide();
+            notice.hide();  // Ensure the notice is hidden when no filters are active
         }
+
         adjustContentMargin();
     }
 
