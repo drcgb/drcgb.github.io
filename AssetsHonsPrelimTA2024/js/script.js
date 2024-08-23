@@ -20,19 +20,6 @@ $(document).ready(function() {
         } catch (err) {
             console.error('Error loading XLSX data:', err);
         }
-
-        const searchInput = document.querySelector('.custom-search-container input');
-        const filterNotice = document.querySelector('.filter-notice');
-
-        function matchNoticeWidth() {
-            const searchWidth = searchInput.offsetWidth;
-            filterNotice.style.width = `${searchWidth}px`;
-        }
-
-        matchNoticeWidth();
-        window.addEventListener('resize', matchNoticeWidth);
-
-        console.log("DataTable initialized.");
     });
 
     function initializeDataTable() {
@@ -63,81 +50,40 @@ $(document).ready(function() {
             }
         });
 
-        // Custom filter logic
-        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            const methodValue = $('#methodFilter').val().toLowerCase().trim();
-            const areaValue = $('#areaFilter').val().toLowerCase().trim();
-
-            const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
-            const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
-
-            let methodMatch = false;
-
-            // Logic for matching method
-            switch (methodValue) {
-                case '':
-                    methodMatch = true; // "All Methods" selected
-                    break;
-                case 'all-quantitative':
-                    methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
-                    break;
-                case 'quantitative':
-                case 'meta-analysis':
-                    methodMatch = mainMethod === methodValue;
-                    break;
-                case 'mixed-methods-quantitative':
-                    methodMatch = mainMethod === 'mixed-methods';
-                    break;
-                case 'all-qualitative':
-                    methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
-                    break;
-                case 'qualitative':
-                case 'meta-synthesis':
-                    methodMatch = mainMethod === methodValue;
-                    break;
-                case 'mixed-methods-qualitative':
-                    methodMatch = mainMethod === 'mixed-methods';
-                    break;
-            }
-
-            // Logic for matching area
-            const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
-
-            // Combine method and area matches
-            return methodMatch && areaMatch;
-        });
-
-        // Initial filtering
-        dataTable.draw();
-
         // Attach events
         $('#customSearch').on('input', function() {
-            dataTable.search($(this).val()).draw(); // Use DataTables native search
-            updateFilterStatus();
-            updateFilterNotice();
+            if (dataTable) {
+                dataTable.search($(this).val()).draw(); // Use DataTables native search
+                updateFilterStatus();
+                updateFilterNotice();
+            }
         });
 
         $('#methodFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
+            if (dataTable) {
+                dataTable.draw();
+                updateFilterStatus();
+                updateFilterNotice();
+            }
         });
 
         $('#areaFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
+            if (dataTable) {
+                dataTable.draw();
+                updateFilterStatus();
+                updateFilterNotice();
+            }
         });
 
         $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red')) {
+            if ($(this).hasClass('red') && dataTable) {
                 // Clear all filter inputs
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
 
                 // Clear DataTables native search and redraw
-                dataTable.search('').draw(); 
+                dataTable.search('').draw();
 
                 // Update filter status and notice
                 updateFilterStatus();
@@ -314,46 +260,50 @@ $(document).ready(function() {
 
     // Event listeners for dynamic content margin adjustments
     $(document).ready(function() {
-        adjustContentMargin();
+        if (dataTable) {
+            adjustContentMargin();
 
-        $('#customSearch').on('input', function() {
-            dataTable.search($(this).val()).draw(); // Use native DataTables search
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0); // Scroll to the top when a search is performed
-        });
-
-        $('#methodFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0); // Scroll to the top when a filter is applied
-        });
-
-        $('#areaFilter').on('change', function() {
-            dataTable.draw();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0); // Scroll to the top when a filter is applied
-        });
-
-        $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red')) {
-                // Clear all filter inputs
-                $('#methodFilter').val('');      // Clear the method filter dropdown
-                $('#areaFilter').val('');        // Clear the area filter dropdown
-                $('#customSearch').val('');      // Clear the custom search input field
-
-                // Clear DataTables native search and redraw
-                dataTable.search('').draw();     // Clear native DataTables search
-
-                // Update filter status and notice
+            $('#customSearch').on('input', function() {
+                dataTable.search($(this).val()).draw(); // Use native DataTables search
                 updateFilterStatus();
                 updateFilterNotice();
+                window.scrollTo(0, 0); // Scroll to the top when a search is performed
+            });
 
-                // Scroll the window to the top instantly
-                window.scrollTo(0, 0);
-            }
-        });
+            $('#methodFilter').on('change', function() {
+                dataTable.draw();
+                updateFilterStatus();
+                updateFilterNotice();
+                window.scrollTo(0, 0); // Scroll to the top when a filter is applied
+            });
+
+            $('#areaFilter').on('change', function() {
+                dataTable.draw();
+                updateFilterStatus();
+                updateFilterNotice();
+                window.scrollTo(0, 0); // Scroll to the top when a filter is applied
+            });
+
+            $('#filterStatusBtn').on('click', function() {
+                if ($(this).hasClass('red')) {
+                    // Clear all filter inputs
+                    $('#methodFilter').val('');      // Clear the method filter dropdown
+                    $('#areaFilter').val('');        // Clear the area filter dropdown
+                    $('#customSearch').val('');      // Clear the custom search input field
+
+                    // Clear DataTables native search and redraw
+                    dataTable.search('').draw();     // Clear native DataTables search
+
+                    // Update filter status and notice
+                    updateFilterStatus();
+                    updateFilterNotice();
+
+                    // Scroll the window to the top instantly
+                    window.scrollTo(0, 0);
+                }
+            });
+        } else {
+            console.error("DataTable was not initialized correctly.");
+        }
     });
 });
