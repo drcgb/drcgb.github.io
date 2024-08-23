@@ -454,7 +454,7 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
 
     console.log("Method filter populated.");
 }
-    function populateAreaFilter(rows) {
+function populateAreaFilter(rows) {
     console.log("Populating area filter...");
     const areaCounts = {};
     rows.forEach(row => {
@@ -466,9 +466,12 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         });
     });
 
+    // Convert the areaCounts object into an array of entries and sort them alphabetically by the area name
+    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
+
     const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="">All Research Areas</option>`; // Change "All" to "All Research Areas"
-    areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
+    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
+    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
         return `<option value="${area}">${area} [~${count} matches]</option>`;
     }).join('');
     console.log("Area filter populated.");
