@@ -358,15 +358,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     $('#areaFilter').on('change', function() {
-        const currentMethod = $('#methodFilter').val();
-        populateMethodFilter(allRows, currentMethod);
-
-        dataTable.draw();
-        updateFilterCounts();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
+        const selectedArea = $('#areaFilter').val();  // Store selected area
+        
+        if (selectedArea) {
+            console.log("Selected area:", selectedArea); // Debugging line
+            
+            dataTable.column(5).search(selectedArea).draw(); // Apply area filter directly
+            updateFilterCounts();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            dataTable.search('').draw(); // Clear the search if no area is selected
+            updateFilterCounts();
+            updateFilterStatus();
+            updateFilterNotice();
+        }
     });
+    
 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
