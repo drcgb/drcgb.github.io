@@ -14,12 +14,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (allRows.length > 0) {
             populateTable(allRows);
             initializeDataTable();
-            populateAreaFilter(allRows); // Initial population of area filter
-            updateFilterCounts(); // Initialize filter counts on load
+            populateAreaFilter(); // Populate area filter without counts
+            updateMethodFilterCounts(); // Initialize method filter counts on load
         } else {
             console.error("No data loaded from XLSX file.");
         }
-        
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
@@ -48,7 +47,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        // Apply custom filtering for Method and Area
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -56,13 +54,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
             const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
-            // Filter based on Method
-            let methodMatch = methodValue === '' || mainMethod === methodValue ||
+            const methodMatch = methodValue === '' || mainMethod === methodValue ||
                 (methodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
                 (methodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)) ||
                 (methodValue === 'mixed-methods' && mainMethod === 'mixed-methods');
 
-            // Filter based on Research Areas using areaValue directly
             const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
 
             return methodMatch && areaMatch;
@@ -72,22 +68,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $('#customSearch').on('input', function() {
             dataTable.search($(this).val()).draw();
-            updateFilterCounts();
+            updateMethodFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
         });
 
         $('#methodFilter').on('change', function() {
-            populateAreaFilter(allRows);  // Update area filter based on selected method
             dataTable.draw();
-            updateFilterCounts();
+            updateMethodFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
         });
 
         $('#areaFilter').on('change', function() {
-            dataTable.draw();  // Simply redraw the table, filtering is already handled in the ext search
-            updateFilterCounts();
+            dataTable.draw();
+            updateMethodFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
         });
@@ -118,8 +113,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
     }
 
-    function populateMethodFilter(rows, selectedMethod = '') {
-        const selectedAreaValue = $('#areaFilter').val().toLowerCase().trim();
+    function populateMethodFilterCounts() {
         const methodCounts = {
             quantitative: 0,
             metaAnalysis: 0,
@@ -129,38 +123,27 @@ document.addEventListener("DOMContentLoaded", async () => {
             mixedMethodsQualitative: 0
         };
 
-        rows.forEach((row, index) => {
-            const mainMethod = row[1]?.trim().toLowerCase();
-            const researchAreasContent = researchAreasData[index];
-
-            const areaMatch = selectedAreaValue === '' || researchAreasContent.includes(selectedAreaValue);
-
-            if (mainMethod && areaMatch) {
-                switch (mainMethod) {
-                    case 'quantitative':
-                        methodCounts.quantitative += 1;
-                        break;
-                    case 'meta-analysis':
-                        methodCounts.metaAnalysis += 1;
-                        break;
-                    case 'mixed-methods':
-                        methodCounts.mixedMethodsQuantitative += 1;  // Count for quantitative mixed-methods
-                        methodCounts.mixedMethodsQualitative += 1;  // Count for qualitative mixed-methods
-                        break;
-                    case 'qualitative':
-                        methodCounts.qualitative += 1;
-                        break;
-                    case 'meta-synthesis':
-                        methodCounts.metaSynthesis += 1;
-                        break;
-                    default:
-                        // Handle any methods that don't fit the predefined categories
-                        break;
-                }
+        methodData.forEach(method => {
+            switch (method) {
+                case 'quantitative':
+                    methodCounts.quantitative += 1;
+                    break;
+                case 'meta-analysis':
+                    methodCounts.metaAnalysis += 1;
+                    break;
+                case 'mixed-methods':
+                    methodCounts.mixedMethodsQuantitative += 1;
+                    methodCounts.mixedMethodsQualitative += 1;
+                    break;
+                case 'qualitative':
+                    methodCounts.qualitative += 1;
+                    break;
+                case 'meta-synthesis':
+                    methodCounts.metaSynthesis += 1;
+                    break;
             }
         });
 
-        // Combine the Mixed-Methods counts
         const totalMixedMethods = (methodCounts.mixedMethodsQuantitative || 0) + (methodCounts.mixedMethodsQualitative || 0);
 
         const methodFilter = document.getElementById("methodFilter");
@@ -177,41 +160,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <option value="mixed-methods">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${totalMixedMethods} records]</option>
             </optgroup>
         `;
-
-        $('#methodFilter').val(selectedMethod);
     }
 
-    function populateAreaFilter(rows) {
-        const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
-        const areaCounts = {};
-
-        rows.forEach((row, index) => {
-            const mainMethod = row[1]?.trim().toLowerCase();
-            const researchAreasContent = researchAreasData[index];
-
-            if (mainMethod && (selectedMethodValue === '' || mainMethod === selectedMethodValue ||
-                (selectedMethodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
-                (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)))) {
-                
-                researchAreasContent.split('; ').forEach(area => {
-                    if (area) {
-                        areaCounts[area] = (areaCounts[area] || 0) + 1;
-                    }
-                });
-            }
-        });
-
+    function populateAreaFilter() {
         const areaFilter = document.getElementById("areaFilter");
         areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Areas</option>`;
-        Object.keys(areaCounts).forEach(area => {
-            areaFilter.innerHTML += `<option value="${area}">${area} (${areaCounts[area]})</option>`;
+        
+        // Populate options without counts
+        const uniqueAreas = [...new Set(researchAreasData.join('; ').split('; ').map(area => area.trim()))];
+        uniqueAreas.forEach(area => {
+            areaFilter.innerHTML += `<option value="${area.toLowerCase()}">${area}</option>`;
         });
     }
 
-    function updateFilterCounts() {
-        const currentMethod = $('#methodFilter').val();
-        populateMethodFilter(allRows, currentMethod);
-        populateAreaFilter(allRows);
+    function updateMethodFilterCounts() {
+        populateMethodFilterCounts();
     }
 
     function updateFilterStatus() {
@@ -276,7 +239,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     $('#customSearch').on('input', function() {
         if (dataTable) {
             dataTable.search($(this).val()).draw();
-            updateFilterCounts();
+            updateMethodFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
@@ -287,9 +250,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     $('#methodFilter').on('change', function() {
         if (dataTable) {
-            populateAreaFilter(allRows); // Update area filter based on selected method
             dataTable.draw();
-            updateFilterCounts();
+            updateMethodFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
@@ -300,9 +262,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     $('#areaFilter').on('change', function() {
         if (dataTable) {
-            populateMethodFilter(allRows); // Update method filter based on selected area
-            dataTable.draw();  // Simply redraw the table, filtering is already handled in the ext search
-            updateFilterCounts();
+            dataTable.draw();
+            updateMethodFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
@@ -326,12 +287,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         dataTable.search('').draw();
 
-        updateFilterCounts(); // Reset counts when clearing filters
+        updateMethodFilterCounts(); // Reset counts when clearing filters
         updateFilterStatus();
         updateFilterNotice();
-
-        populateMethodFilter(allRows); // Reset method filter options
-        populateAreaFilter(allRows); // Reset area filter options
 
         window.scrollTo(0, 0);
     }
