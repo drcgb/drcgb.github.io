@@ -100,6 +100,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $('#methodFilter').on('change', function() {
+            const currentMethod = $('#methodFilter').val();
+            populateAreaFilter(allRows);  // Update area filter based on selected method
             dataTable.draw();
             updateFilterCounts();
             updateFilterStatus();
@@ -109,7 +111,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         $('#areaFilter').on('change', function() {
             const currentMethod = $('#methodFilter').val();
             populateMethodFilter(allRows, currentMethod);
-
             dataTable.draw();
             updateFilterCounts();
             updateFilterStatus();
@@ -152,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             methodData.push(mainMethod.toLowerCase().trim());
             researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
 
-            return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+            return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br>${methodAndAreas}</td></tr>`;
         }).join('');
 
         tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
@@ -228,22 +229,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         console.log("Method filter populated.");
     }
-       
 
     function populateAreaFilter(rows) {
         console.log("Populating area filter...");
-    
-        const selectedArea = $('#areaFilter').val();  // Store the current selection
+        
+        const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaCounts = {};
+        
+        rows.forEach((row, index) => {
+            const mainMethod = row[1]?.trim().toLowerCase();
+            const researchAreas = researchAreasData[index].split('; ').map(area => area.trim().toLowerCase());
     
-        rows.forEach(row => {
-            const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-            researchAreas.forEach(area => {
-                if (area) {
-                    const titleCaseArea = toTitleCase(area);
-                    areaCounts[titleCaseArea] = (areaCounts[titleCaseArea] || 0) + 1;
-                }
-            });
+            const methodMatch = selectedMethodValue === '' || mainMethod === selectedMethodValue || 
+                (selectedMethodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
+                (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod));
+    
+            if (methodMatch) {
+                researchAreas.forEach(area => {
+                    if (area) {
+                        const titleCaseArea = toTitleCase(area);
+                        areaCounts[titleCaseArea] = (areaCounts[titleCaseArea] || 0) + 1;
+                    }
+                });
+            }
         });
     
         const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
@@ -255,11 +263,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             return `<option value="${area.toLowerCase()}">${area} [≈${count} records]</option>`;
         }).join('');
     
-        $('#areaFilter').val(selectedArea);  // Reapply the previously selected value
-    
         console.log("Area filter populated.");
     }
-    
 
     function updateFilterCounts() {
         const currentMethod = $('#methodFilter').val();
@@ -340,6 +345,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     $('#methodFilter').on('change', function() {
         if (dataTable) {
+            populateAreaFilter(allRows); // Update area filter based on selected method
             dataTable.draw();
             updateFilterCounts();
             updateFilterStatus();
