@@ -213,11 +213,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
-            <optgroup label="[Quantitative]" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
                 <option value="all-quantitative">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
                 <option value="meta-analysis">&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
                 <option value="mixed-methods-quantitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
-            <optgroup label="[Qualitative]" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
                 <option value="all-qualitative">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
                 <option value="meta-synthesis">&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
                 <option value="mixed-methods-qualitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
@@ -266,14 +266,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
-            <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <optgroup label="[Quantitative]" style="font-weight: bold; color: grey;" disabled></optgroup>
                 <option value="all-quantitative">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
-                <option value="meta-analysis">&nbsp&nbsp &#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
-                <option value="mixed-methods-quantitative">&nbsp&nbsp &#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
-            <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
+                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
+            <optgroup label="[Qualitative]" style="font-weight: bold; color: grey;" disabled></optgroup>
                 <option value="all-qualitative">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
-                <option value="meta-synthesis">&nbsp&nbsp &#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
-                <option value="mixed-methods-qualitative">&nbsp&nbsp &#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
+                <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
         `;
 
         console.log("Method filter updated dynamically.");
