@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let dataTable;
     let methodData = [];
     let researchAreasData = [];
-    
+
     try {
         const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
         const data = await response.arrayBuffer();
@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (allRows.length > 0) {
             populateTable(allRows);
             initializeDataTable();
-            populateAreaFilter(); 
-            updateMethodFilterCounts(); 
+            populateAreaFilter();
+            updateMethodFilterCounts();
         } else {
             console.error("No data loaded from XLSX file.");
         }
@@ -49,7 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
-            console.log("Method Filter Applied:", methodValue);
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
@@ -66,20 +65,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $('#methodFilter').on('change', function() {
-            const methodValue = $('#methodFilter').val().toLowerCase().trim();
-            console.log("Method filter changed to:", methodValue);
             dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
         });
 
         $('#areaFilter').on('change', function() {
-            const areaValue = $('#areaFilter').val().toLowerCase().trim();
-            console.log("Area filter changed to:", areaValue);
             dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
         });
 
         $('#customSearch').on('input', function() {
             dataTable.search($(this).val()).draw();
-            updateMethodFilterCounts();
             updateFilterStatus();
             updateFilterNotice();
         });
@@ -169,10 +167,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    function updateMethodFilterCounts() {
-        populateMethodFilterCounts();
-    }
-
     function updateFilterStatus() {
         const searchValue = $('#customSearch').val().trim();
         const methodValue = $('#methodFilter').val();
@@ -213,7 +207,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 $('#clearAllFiltersLink').on('click', function(e) {
                     e.preventDefault();
-                    $('#filterStatusBtn').trigger('click');
+                    resetFilters();
                 });
             }
         } else {
@@ -237,7 +231,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         dataTable.search('').draw();
 
-        updateMethodFilterCounts(); 
+        updateMethodFilterCounts();
         updateFilterStatus();
         updateFilterNotice();
 
