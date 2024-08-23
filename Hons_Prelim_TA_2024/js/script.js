@@ -6,7 +6,7 @@ $(document).ready(function() {
     document.addEventListener("DOMContentLoaded", async () => {
         try {
             console.log("Loading XLSX data...");
-            const response = await fetch("Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+            const response = await fetch("Hons_Prelim_TA_2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
             const data = await response.arrayBuffer();
             const workbook = XLSX.read(data, { type: "array" });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
