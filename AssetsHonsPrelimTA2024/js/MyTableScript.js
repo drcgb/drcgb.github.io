@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
     let allRows = [];
     let dataTable;
-    let methodData = [];
-    let researchAreasData = [];
 
     try {
         console.log("Loading XLSX data...");
@@ -25,27 +23,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error('Error loading XLSX data:', err);
     }
 
-    const searchInput = document.querySelector('.custom-search-container input');
-    const filterNotice = document.querySelector('.filter-notice');
-
-    function matchNoticeWidth() {
-        const searchWidth = searchInput.offsetWidth;
-        filterNotice.style.width = `${searchWidth}px`;
-    }
-
-    matchNoticeWidth();
-    window.addEventListener('resize', matchNoticeWidth);
-
     function initializeDataTable() {
-        const tableElement = $('#abstractTable');
-        if (!tableElement.length) {
-            console.error('Table element not found in DOM.');
-            return;
-        }
-
         console.log("Initializing DataTable...");
 
-        dataTable = tableElement.DataTable({
+        dataTable = $('#abstractTable').DataTable({
             paging: false,
             searching: true,
             info: true,
@@ -57,62 +38,101 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
             dom: '<"top"l>rt<"bottom"p><"clear">',
             drawCallback: function(settings) {
-                console.log("Running drawCallback...");
                 const api = this.api();
                 const rows = api.rows({ search: 'applied' }).data().length;
 
-                // Remove existing "End of records" row
                 $('#abstractTable tbody .end-of-records').remove();
 
-                // Add "End of records" row at the end
-                if (rows === 0 || rows > 0) {
+                if (rows > 0) {
                     $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
                 }
             }
         });
 
-        if (!dataTable) {
-            console.error("DataTable initialization failed.");
-        } else {
-            console.log("DataTable initialized successfully.");
-        }
-
-        // Add custom filtering logic
+        // Custom filter logic
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
-            const searchValue = $('#customSearch').val().toLowerCase().trim();
 
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
             const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
-            const rowData = data[0].toLowerCase(); // Assuming the data you want to search is in the first column
 
             let methodMatch = false;
-            let areaMatch = false;
-            let searchMatch = false;
 
-            // Method filter logic
-            if (methodValue === '' || mainMethod.includes(methodValue)) {
-                methodMatch = true;
+            switch (methodValue) {
+                case '':
+                    methodMatch = true;
+                    break;
+                case 'all-quantitative':
+                    methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
+                    break;
+                case 'quantitative':
+                case 'meta-analysis':
+                    methodMatch = mainMethod === methodValue;
+                    break;
+                case 'mixed-methods-quantitative':
+                    methodMatch = mainMethod === 'mixed-methods';
+                    break;
+                case 'all-qualitative':
+                    methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
+                    break;
+                case 'qualitative':
+                case 'meta-synthesis':
+                    methodMatch = mainMethod === methodValue;
+                    break;
+                case 'mixed-methods-qualitative':
+                    methodMatch = mainMethod === 'mixed-methods';
+                    break;
             }
 
-            // Area filter logic
-            if (areaValue === '' || researchAreasContent.includes(areaValue)) {
-                areaMatch = true;
-            }
+            const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
-            // Search filter logic
-            if (searchValue === '' || rowData.includes(searchValue)) {
-                searchMatch = true;
-            }
-
-            // Only return true if all conditions are met
-            return methodMatch && areaMatch && searchMatch;
+            return methodMatch && areaMatch;
         });
 
-        // Redraw the table to apply the custom filters
         dataTable.draw();
+
+        $('#customSearch').on('input', function() {
+            dataTable.search($(this).val()).draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        });
+
+        $('#methodFilter').on('change', function() {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        });
+
+        $('#areaFilter').on('change', function() {
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        });
+
+        $('#filterStatusBtn').on('click', function() {
+            if ($(this).hasClass('red')) {
+                $('#methodFilter').val('');
+                $('#areaFilter').val('');
+                $('#customSearch').val('');
+
+                dataTable.search('').draw();
+
+                updateFilterStatus();
+                updateFilterNotice();
+
+                window.scrollTo(0, 0);
+            }
+        });
+
+        console.log("DataTable initialized successfully.");
     }
+
+    let methodData = [];
+    let researchAreasData = [];
 
     function populateTable(rows) {
         console.log("Populating table...");
@@ -243,7 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
             } else {
                 let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
-                alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
+                alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL filters</a>.';
                 notice.html(alertMessage).show();
 
                 $('#clearAllFiltersLink').on('click', function(e) {
@@ -265,45 +285,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         $('.content').css('margin-top', totalMargin);
     }
 
-    // Attach event listeners
-    adjustContentMargin();
+    $(document).ready(function() {
+        adjustContentMargin();
 
-    $('#customSearch').on('input', function() {
-        if (dataTable) {
+        $('#customSearch').on('input', function() {
             dataTable.search($(this).val()).draw();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
+        });
 
-    $('#methodFilter').on('change', function() {
-        if (dataTable) {
+        $('#methodFilter').on('change', function() {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
+        });
 
-    $('#areaFilter').on('change', function() {
-        if (dataTable) {
+        $('#areaFilter').on('change', function() {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
+        });
 
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            if (dataTable) {
+        $('#filterStatusBtn').on('click', function() {
+            if ($(this).hasClass('red')) {
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
@@ -314,9 +321,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 updateFilterNotice();
 
                 window.scrollTo(0, 0);
-            } else {
-                console.error("DataTable is not initialized.");
             }
-        }
+        });
     });
 });
