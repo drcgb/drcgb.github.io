@@ -442,17 +442,15 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML += `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative">
-            <option value="all-quantitative" style="font-weight: bold;">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
-            <option value="quantitative">Quantitative [~${methodCounts.quantitative} matches]</option>
-            <option value="meta-analysis">Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
-            <option value="mixed-methods-quantitative">Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
+        <optgroup label="Quantitative" disabled style="font-weight: bold; color: grey;">
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
         </optgroup>
-        <optgroup label="Qualitative">
-            <option value="all-qualitative" style="font-weight: bold;">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
-            <option value="qualitative">Qualitative [~${methodCounts.qualitative} matches]</option>
-            <option value="meta-synthesis">Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
-            <option value="mixed-methods-qualitative">Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
+        <optgroup label="Qualitative" disabled style="font-weight: bold; color: grey;">
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
         </optgroup>
     `;
 
