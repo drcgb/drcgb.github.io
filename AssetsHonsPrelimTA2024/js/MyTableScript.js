@@ -58,32 +58,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
             // Filter based on Method
-            let methodMatch = false;
-            switch (methodValue) {
-                case '':
-                    methodMatch = true;
-                    break;
-                case 'all-quantitative':
-                    methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
-                    break;
-                case 'quantitative':
-                case 'meta-analysis':
-                    methodMatch = mainMethod === methodValue;
-                    break;
-                case 'mixed-methods-quantitative':
-                    methodMatch = mainMethod === 'mixed-methods';
-                    break;
-                case 'all-qualitative':
-                    methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
-                    break;
-                case 'qualitative':
-                case 'meta-synthesis':
-                    methodMatch = mainMethod === methodValue;
-                    break;
-                case 'mixed-methods-qualitative':
-                    methodMatch = mainMethod === 'mixed-methods';
-                    break;
-            }
+            let methodMatch = methodValue === '' || mainMethod === methodValue ||
+                (methodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
+                (methodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod));
 
             // Filter based on Research Areas using areaValue directly
             const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
@@ -146,7 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
             const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
-            const methodAndAreas = `<strong class="areas-section"><br>Areas:</strong>${researchAreas.filter(Boolean).join('; ')}`;
+            const methodAndAreas = `<strong class="areas-section"><br>Areas: </strong>${researchAreas.filter(Boolean).join('; ')}<br>`;
 
             methodData.push(mainMethod.toLowerCase().trim());
             researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
@@ -215,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Analysis [≈${methodCounts.metaAnalysis} records]</option>
                 <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} records]</option>
             </optgroup>
-                <optgroup label="[Qualitative]" class="optgroup-bold">
+            <optgroup label="[Qualitative]" class="optgroup-bold">
                 <option value="all-qualitative">&#x2192; ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
                 <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Synthesis [≈${methodCounts.metaSynthesis} records]</option>
                 <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} records]</option>
