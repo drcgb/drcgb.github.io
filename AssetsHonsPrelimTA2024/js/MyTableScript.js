@@ -199,34 +199,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         $('#methodFilter').val(selectedMethod);
     }
    
+function populateAreaFilter(rows) {
+    const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
+    const areaCounts = {};
 
-    function populateAreaFilter(rows) {
-        const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
-        const areaCounts = {};
+    rows.forEach((row, index) => {
+        const mainMethod = row[1]?.trim().toLowerCase();
+        const researchAreasContent = researchAreasData[index];
 
-        rows.forEach((row, index) => {
-            const mainMethod = row[1]?.trim().toLowerCase();
-            const researchAreasContent = researchAreasData[index];
+        if (mainMethod && (selectedMethodValue === '' || mainMethod === selectedMethodValue ||
+            (selectedMethodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
+            (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)))) {
+            
+            researchAreasContent.split('; ').forEach(area => {
+                if (area) {
+                    areaCounts[area] = (areaCounts[area] || 0) + 1;
+                }
+            });
+        }
+    });
 
-            if (mainMethod && (selectedMethodValue === '' || mainMethod === selectedMethodValue ||
-                (selectedMethodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
-                (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)))) {
-                
-                researchAreasContent.split('; ').forEach(area => {
-                    if (area) {
-                        areaCounts[area] = (areaCounts[area] || 0) + 1;
-                    }
-                });
-            }
-        });
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Areas</option>`;
+    Object.keys(areaCounts).forEach(area => {
+        areaFilter.innerHTML += `<option value="${area}">${area} (${areaCounts[area]})</option>`;
+    });
+}
 
-        const areaFilter = document.getElementById("areaFilter");
-        areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Areas</option>`;
-        Object.keys(areaCounts).forEach(area => {
-            areaFilter.innerHTML += `<option value="${area}">${area} (${areaCounts[area]})</option>`;
-        });
-    }
-    
 
     function updateFilterCounts() {
         const currentMethod = $('#methodFilter').val();
@@ -319,11 +318,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     $('#areaFilter').on('change', function() {
-        dataTable.draw();  // Simply redraw the table, filtering is already handled in the ext search
-        updateFilterCounts();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
+        if (dataTable) {
+            populateMethodFilter(allRows); // Update method filter based on selected area
+            dataTable.draw();  // Simply redraw the table, filtering is already handled in the ext search
+            updateFilterCounts();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            console.error("DataTable is not initialized.");
+        }
     });
 
     $('#filterStatusBtn').on('click', function() {
