@@ -232,7 +232,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function populateAreaFilter(rows) {
         console.log("Populating area filter...");
+    
+        const selectedArea = $('#areaFilter').val();  // Store the current selection
         const areaCounts = {};
+    
         rows.forEach(row => {
             const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
             researchAreas.forEach(area => {
@@ -242,17 +245,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             });
         });
-
+    
         const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-
+    
         const areaFilter = document.getElementById("areaFilter");
         areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>
                                 <option value="" disabled style="color: grey;">[Listed A—Z]</option>`;
         areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
             return `<option value="${area.toLowerCase()}">${area} [~${count} records]</option>`;
         }).join('');
+    
+        $('#areaFilter').val(selectedArea);  // Reapply the previously selected value
+    
         console.log("Area filter populated.");
     }
+    
 
     function updateFilterCounts() {
         const currentMethod = $('#methodFilter').val();
