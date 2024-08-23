@@ -199,9 +199,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    function populateMethodFilter(rows, selectedMethod) {
+    function populateMethodFilter(rows, selectedMethod = '') {
         console.log("Populating method filter...");
-
+    
         const selectedAreaValue = $('#areaFilter').val().toLowerCase().trim();
         const methodCounts = {
             quantitative: 0,
@@ -211,13 +211,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             metaSynthesis: 0,
             mixedMethodsQualitative: 0
         };
-
+    
         rows.forEach(row => {
             const mainMethod = row[1]?.trim().toLowerCase();
             const researchAreasContent = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '').join('; ');
-            
+    
             const areaMatch = selectedAreaValue === '' || researchAreasContent.includes(selectedAreaValue);
-
+    
             if (mainMethod && areaMatch) {
                 switch (mainMethod) {
                     case 'quantitative':
@@ -239,26 +239,24 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             }
         });
-
+    
+        const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML = `
-        <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="[Quantitative]" class="optgroup-bold">
-            <option value="all-quantitative"><span class="bold-option">&#x279E; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</span></option>
-            <option value="meta-analysis"><span class="indented-option">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</span></option>
-            <option value="mixed-methods-quantitative"><span class="indented-option">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</span></option>
-        </optgroup>
-        <optgroup label="[Qualitative]" class="optgroup-bold">
-            <option value="all-qualitative"><span class="bold-option">&#x279E; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</span></option>
-            <option value="meta-synthesis"><span class="indented-option">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</span></option>
-            <option value="mixed-methods-qualitative"><span class="indented-option">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</span></option>
-        </optgroup>
-    `;
+            <option value="" style="font-weight: bold;">All Methods</option>
+            <optgroup label="[Quantitative]">
+                <option value="all-quantitative">&#x279E; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="meta-analysis">&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
+                <option value="mixed-methods-quantitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
+            </optgroup>
+            <optgroup label="[Qualitative]">
+                <option value="all-qualitative">&#x279E; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="meta-synthesis">&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
+                <option value="mixed-methods-qualitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
+            </optgroup>
+        `;
     
-    
-        
-
         $('#methodFilter').val(selectedMethod);
-
+    
         console.log("Method filter populated.");
     }
 
@@ -399,7 +397,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             if (dataTable) {
-                // Clear all filter inputs
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
@@ -407,7 +404,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Clear DataTables native search and redraw
                 dataTable.search('').draw();
     
-                // Recalculate and reset method and area filter counts
+                // Repopulate filters to reset counts
                 populateMethodFilter(allRows);
                 populateAreaFilter(allRows);
     
@@ -422,5 +419,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
     });
+    
     
 });
