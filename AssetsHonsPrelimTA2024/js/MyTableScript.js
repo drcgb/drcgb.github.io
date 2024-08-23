@@ -74,6 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         $('#methodFilter').on('change', function() {
+            console.log('Method Filter Changed:', $(this).val()); // Debugging line
             dataTable.draw();
             updateMethodFilterCounts();
             updateFilterStatus();
@@ -193,9 +194,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function updateFilterNotice() {
-        const searchValue = $('#customSearch').val().trim();
-        const methodValue = $('#methodFilter').val();
-        const areaValue = $('#areaFilter').val();
+        const searchValue = $('#customSearch').val
+        const methodValue = $('#methodFilter').val().trim();
+        const areaValue = $('#areaFilter').val().trim();
 
         let activeFilters = [];
         if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
@@ -250,6 +251,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     $('#methodFilter').on('change', function() {
         if (dataTable) {
+            console.log('Method Filter Changed:', $(this).val()); // Debugging line
             dataTable.draw();
             updateMethodFilterCounts();
             updateFilterStatus();
@@ -294,4 +296,3 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.scrollTo(0, 0);
     }
 });
-
