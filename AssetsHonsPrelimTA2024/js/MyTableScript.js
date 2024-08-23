@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (allRows.length > 0) {
             populateTable(allRows);
             initializeDataTable();
-            populateAreaFilter(allRows); // Populate area filter after DataTable initialization
+            populateAreaFilter(allRows); // Initial population of area filter
             updateFilterCounts(); // Initialize filter counts on load
         } else {
             console.error("No data loaded from XLSX file.");
@@ -59,7 +59,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Filter based on Method
             let methodMatch = methodValue === '' || mainMethod === methodValue ||
                 (methodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
-                (methodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod));
+                (methodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)) ||
+                (methodValue === 'mixed-methods' && mainMethod === 'mixed-methods');
 
             // Filter based on Research Areas using areaValue directly
             const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
@@ -67,7 +68,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             return methodMatch && areaMatch;
         });
 
-        // Add input listeners after initialization to avoid interference
+        dataTable.draw();
+
         $('#customSearch').on('input', function() {
             dataTable.search($(this).val()).draw();
             updateFilterCounts();
@@ -158,20 +160,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        // Ensure that we properly sum the mixed-methods counts
+        // Combine the Mixed-Methods counts
         const totalMixedMethods = (methodCounts.mixedMethodsQuantitative || 0) + (methodCounts.mixedMethodsQualitative || 0);
 
         const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
             <optgroup label="[Quantitative]" class="optgroup-bold">
-                <option value="all-quantitative">&#x2192; ALL Quantitative [≈${(methodCounts.quantitative || 0) + (methodCounts.metaAnalysis || 0) + (methodCounts.mixedMethodsQuantitative || 0)} records]</option>
-                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Analysis [≈${methodCounts.metaAnalysis || 0} records]</option>
-                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative || 0} records]</option>
+                <option value="all-quantitative">&#x2192; ALL Quantitative [≈${(methodCounts.quantitative || 0) + (methodCounts.metaAnalysis || 0) + methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Analysis [≈${methodCounts.metaAnalysis} records]</option>
+                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} records]</option>
             </optgroup>
             <optgroup label="[Qualitative]" class="optgroup-bold">
-                <option value="all-qualitative">&#x2192; ALL Qualitative [≈${(methodCounts.qualitative || 0) + (methodCounts.metaSynthesis || 0) + (methodCounts.mixedMethodsQualitative || 0)} records]</option>
-                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Synthesis [≈${methodCounts.metaSynthesis || 0} records]</option>
+                <option value="all-qualitative">&#x2192; ALL Qualitative [≈${(methodCounts.qualitative || 0) + (methodCounts.metaSynthesis || 0) + methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&#x2198; Meta-Synthesis [≈${methodCounts.metaSynthesis} records]</option>
                 <option value="mixed-methods">&nbsp;&nbsp;&nbsp;&#x2198; Mixed-Methods [≈${totalMixedMethods} records]</option>
             </optgroup>
         `;
