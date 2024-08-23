@@ -108,24 +108,50 @@ document.addEventListener("DOMContentLoaded", async () => {
         dataTable.draw();
 
         $('#customSearch').on('input', function() {
-            dataTable.search($(this).val()).draw();
+            const searchText = $(this).val().trim().toLowerCase();
+            const filteredRows = allRows.filter(row => {
+                const combinedText = row.join(' ').toLowerCase();
+                return combinedText.includes(searchText);
+            });
+
+            populateMethodFilter(filteredRows);  // Update method counts
+            populateAreaFilter(filteredRows);    // Update area counts
+
+            dataTable.search(searchText).draw();
             updateFilterStatus();
             updateFilterNotice();
+            window.scrollTo(0, 0);
         });
 
         $('#methodFilter').on('change', function() {
+            const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
+            const filteredRows = allRows.filter(row => {
+                const mainMethod = row[1]?.trim().toLowerCase() || '';
+                return selectedMethodValue === '' || mainMethod === selectedMethodValue;
+            });
+
+            populateAreaFilter(filteredRows);    // Update area counts
+
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
+            window.scrollTo(0, 0);
         });
 
         $('#areaFilter').on('change', function() {
-            const currentMethod = $('#methodFilter').val(); // Preserve current method
-            populateMethodFilter(allRows, currentMethod); // Pass the current method
+            const selectedAreaValue = $('#areaFilter').val().toLowerCase().trim();
+            const filteredRows = allRows.filter(row => {
+                const researchAreasContent = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '').join('; ');
+                return selectedAreaValue === '' || researchAreasContent.includes(selectedAreaValue);
+            });
+
+            const currentMethod = $('#methodFilter').val();
+            populateMethodFilter(filteredRows, currentMethod);  // Update method counts
 
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
+            window.scrollTo(0, 0);
         });
 
         $('#filterStatusBtn').on('click', function() {
@@ -332,6 +358,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     $('#methodFilter').on('change', function() {
         if (dataTable) {
+            const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
+            const filteredRows = allRows.filter(row => {
+                const mainMethod = row[1]?.trim().toLowerCase() || '';
+                return selectedMethodValue === '' || mainMethod === selectedMethodValue;
+            });
+
+            populateAreaFilter(filteredRows);    // Update area counts
+
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
@@ -342,13 +376,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     $('#areaFilter').on('change', function() {
-        const currentMethod = $('#methodFilter').val();
-        populateMethodFilter(allRows, currentMethod);
+        if (dataTable) {
+            const selectedAreaValue = $('#areaFilter').val().toLowerCase().trim();
+            const filteredRows = allRows.filter(row => {
+                const researchAreasContent = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '').join('; ');
+                return selectedAreaValue === '' || researchAreasContent.includes(selectedAreaValue);
+            });
 
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
+            const currentMethod = $('#methodFilter').val();
+            populateMethodFilter(filteredRows, currentMethod);  // Update method counts
+
+            dataTable.draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        } else {
+            console.error("DataTable is not initialized.");
+        }
     });
 
     $('#filterStatusBtn').on('click', function() {
