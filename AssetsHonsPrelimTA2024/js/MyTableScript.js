@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
     let allRows = [];
     let dataTable;
+    let methodData = []; // Declare methodData at the top level
+    let researchAreasData = []; // Declare researchAreasData at the top level
 
     try {
         console.log("Loading XLSX data...");
@@ -23,6 +25,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error('Error loading XLSX data:', err);
     }
 
+    const searchInput = document.querySelector('.custom-search-container input');
+    const filterNotice = document.querySelector('.filter-notice');
+
+    function matchNoticeWidth() {
+        const searchWidth = searchInput.offsetWidth;
+        filterNotice.style.width = `${searchWidth}px`;
+    }
+
+    matchNoticeWidth();
+    window.addEventListener('resize', matchNoticeWidth);
+
     function initializeDataTable() {
         console.log("Initializing DataTable...");
 
@@ -41,9 +54,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const api = this.api();
                 const rows = api.rows({ search: 'applied' }).data().length;
 
+                // Remove existing "End of records" row
                 $('#abstractTable tbody .end-of-records').remove();
 
-                if (rows > 0) {
+                // Add "End of records" row at the end
+                if (rows === 0 || rows > 0) {
                     $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
                 }
             }
@@ -54,14 +69,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-            const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
-            const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+            const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+            const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
 
             let methodMatch = false;
 
+            // Logic for matching method
             switch (methodValue) {
                 case '':
-                    methodMatch = true;
+                    methodMatch = true; // "All Methods" selected
                     break;
                 case 'all-quantitative':
                     methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
@@ -85,59 +101,63 @@ document.addEventListener("DOMContentLoaded", async () => {
                     break;
             }
 
+            // Logic for matching area
             const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
+            // Combine method and area matches
             return methodMatch && areaMatch;
         });
 
+        // Initial filtering
         dataTable.draw();
 
+        // Attach events
         $('#customSearch').on('input', function() {
-            dataTable.search($(this).val()).draw();
+            dataTable.search($(this).val()).draw(); // Use DataTables native search
             updateFilterStatus();
             updateFilterNotice();
-            window.scrollTo(0, 0);
         });
 
         $('#methodFilter').on('change', function() {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
-            window.scrollTo(0, 0);
         });
 
         $('#areaFilter').on('change', function() {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
-            window.scrollTo(0, 0);
         });
 
         $('#filterStatusBtn').on('click', function() {
             if ($(this).hasClass('red')) {
+                // Clear all filter inputs
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
 
-                dataTable.search('').draw();
+                // Clear DataTables native search and redraw
+                dataTable.search('').draw(); 
 
+                // Update filter status and notice
                 updateFilterStatus();
                 updateFilterNotice();
 
-                window.scrollTo(0, 0);
+                // Scroll the window to the top instantly
+                setTimeout(function() {
+                    window.scrollTo(0, 0);
+                }, 0);
             }
         });
 
         console.log("DataTable initialized successfully.");
     }
 
-    let methodData = [];
-    let researchAreasData = [];
-
     function populateTable(rows) {
         console.log("Populating table...");
-        methodData = [];
-        researchAreasData = [];
+        methodData = []; // Initialize methodData
+        researchAreasData = []; // Initialize researchAreasData
 
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
@@ -145,7 +165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
 
-            methodData.push(mainMethod.toLowerCase().trim());
+            methodData.push(mainMethod.toLowerCase().trim()); // Ensure lowercase and trim before pushing
             researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
 
             return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
@@ -263,7 +283,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
             } else {
                 let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
-                alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL filters</a>.';
+                alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
                 notice.html(alertMessage).show();
 
                 $('#clearAllFiltersLink').on('click', function(e) {
@@ -285,32 +305,45 @@ document.addEventListener("DOMContentLoaded", async () => {
         $('.content').css('margin-top', totalMargin);
     }
 
-    $(document).ready(function() {
-        adjustContentMargin();
+    // Attach event listeners
+    adjustContentMargin();
 
-        $('#customSearch').on('input', function() {
+    $('#customSearch').on('input', function() {
+        if (dataTable) {
             dataTable.search($(this).val()).draw();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
-        });
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
 
-        $('#methodFilter').on('change', function() {
+    $('#methodFilter').on('change', function() {
+        if (dataTable) {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
-        });
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
 
-        $('#areaFilter').on('change', function() {
+    $('#areaFilter').on('change', function() {
+        if (dataTable) {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
-        });
+        } else {
+            console.error("DataTable is not initialized.");
+        }
+    });
 
-        $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red')) {
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            if (dataTable) {
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
@@ -321,7 +354,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 updateFilterNotice();
 
                 window.scrollTo(0, 0);
+            } else {
+                console.error("DataTable is not initialized.");
             }
-        });
+        }
     });
 });
