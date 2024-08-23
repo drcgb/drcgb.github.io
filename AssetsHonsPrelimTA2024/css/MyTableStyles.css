@@ -197,3 +197,16 @@ select optgroup.optgroup-bold:before {
 select optgroup[label] {
     font-style: normal;
 }
+.bold-option {
+    font-weight: bold;
+    color: black;
+}
+
+.indented-option {
+    padding-left: 20px; /* Ensure the indent is consistent */
+}
+
+.optgroup-bold {
+    font-weight: bold;
+    color: black;
+}

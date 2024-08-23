@@ -242,18 +242,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML = `
-            <option value="" style="font-weight: bold;">All Methods</option>
-            <optgroup label="[Quantitative]" class="optgroup-bold">
-                <option value="all-quantitative">&#x279E; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
-                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
-                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
-            </optgroup>
-            <optgroup label="[Qualitative]" class="optgroup-bold">
-                <option value="all-qualitative">&#x279E; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
-                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
-                <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
-            </optgroup>
-        `;
+        <option value="" style="font-weight: bold;">All Methods</option>
+        <optgroup label="[Quantitative]" class="optgroup-bold">
+            <option value="all-quantitative" class="bold-option">&#x279E; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
+            <option value="meta-analysis" class="indented-option">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
+            <option value="mixed-methods-quantitative" class="indented-option">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
+        </optgroup>
+        <optgroup label="[Qualitative]" class="optgroup-bold">
+            <option value="all-qualitative" class="bold-option">&#x279E; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
+            <option value="meta-synthesis" class="indented-option">&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
+            <option value="mixed-methods-qualitative" class="indented-option">&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
+        </optgroup>
+    `;
+    
         
 
         $('#methodFilter').val(selectedMethod);
