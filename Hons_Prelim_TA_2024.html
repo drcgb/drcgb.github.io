@@ -291,19 +291,32 @@
         }
     });
 
-    // Custom filter logic
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const methodValue = $('#methodFilter').val().toLowerCase().trim();
-        const areaValue = $('#areaFilter').val().toLowerCase().trim();
+// Custom filter logic
+$.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    const methodValue = $('#methodFilter').val().toLowerCase().trim();
+    const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
-        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+    const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+    const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
 
-        const methodMatch = methodValue === '' || mainMethod === methodValue;
-        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+    // Logic for matching method
+    const isQuantitative = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || (mainMethod === 'mixed-methods' && methodValue.includes('quantitative'));
+    const isQualitative = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || (mainMethod === 'mixed-methods' && methodValue.includes('qualitative'));
 
-        return methodMatch && areaMatch;
-    });
+    let methodMatch = methodValue === '' || mainMethod === methodValue;
+    
+    if (methodValue.includes('quantitative') && methodValue !== 'meta-analysis') {
+        methodMatch = isQuantitative;
+    } else if (methodValue.includes('qualitative') && methodValue !== 'meta-synthesis') {
+        methodMatch = isQualitative;
+    }
+
+    // Logic for matching area
+    const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+
+    // Combine method and area matches
+    return methodMatch && areaMatch;
+});
 
     // Initial filtering
     dataTable.draw();
@@ -374,23 +387,58 @@
             console.log("Table populated.");
         }
           
-        function populateMethodFilter(rows) {
-            console.log("Populating method filter...");
-            const methodCounts = {};
-            rows.forEach(row => {
-                const mainMethod = row[1]?.trim().toLowerCase();
-                if (mainMethod) {
-                    methodCounts[mainMethod] = (methodCounts[mainMethod] || 0) + 1;
-                }
-            });
+       function populateMethodFilter(rows) {
+    console.log("Populating method filter...");
+    const methodCounts = {
+        quantitative: 0,
+        metaAnalysis: 0,
+        mixedMethodsQuantitative: 0,
+        qualitative: 0,
+        metaSynthesis: 0,
+        mixedMethodsQualitative: 0
+    };
 
-            const methodFilter = document.getElementById("methodFilter");
-            methodFilter.innerHTML += Object.entries(methodCounts).map(([method, count]) => {
-                return `<option value="${method}">${method} [~${count} matches]</option>`;
-            }).join('');
-            console.log("Method filter populated.");
+    rows.forEach(row => {
+        const mainMethod = row[1]?.trim().toLowerCase();
+        if (mainMethod) {
+            switch (mainMethod) {
+                case 'quantitative':
+                    methodCounts.quantitative += 1;
+                    break;
+                case 'meta-analysis':
+                    methodCounts.metaAnalysis += 1;
+                    break;
+                case 'mixed-methods':
+                    methodCounts.mixedMethodsQuantitative += 1;
+                    methodCounts.mixedMethodsQualitative += 1; // Include under both
+                    break;
+                case 'qualitative':
+                    methodCounts.qualitative += 1;
+                    break;
+                case 'meta-synthesis':
+                    methodCounts.metaSynthesis += 1;
+                    break;
+            }
         }
+    });
 
+    const methodFilter = document.getElementById("methodFilter");
+    methodFilter.innerHTML += `
+        <option value="" style="font-weight: bold;">All</option>
+        <optgroup label="Quantitative">
+            <option value="quantitative" style="font-weight: bold;">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
+            <option value="meta-analysis">Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
+            <option value="mixed-methods-quantitative">Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
+        </optgroup>
+        <optgroup label="Qualitative">
+            <option value="qualitative" style="font-weight: bold;">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
+            <option value="meta-synthesis">Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
+            <option value="mixed-methods-qualitative">Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
+        </optgroup>
+    `;
+
+    console.log("Method filter populated.");
+}
         function populateAreaFilter(rows) {
             console.log("Populating area filter...");
             const areaCounts = {};
