@@ -145,7 +145,7 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
 }
 
 table, th, td {
-    padding: 0px;
+    padding: 10px;
     border-collapse: collapse;
     border: 1px solid black;
 }
