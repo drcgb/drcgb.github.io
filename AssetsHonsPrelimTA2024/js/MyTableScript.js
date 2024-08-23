@@ -279,8 +279,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (filteredRowCount > 0) {
                 notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
             } else {
-                let alertMessage = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>No results found.</strong><br>`;
-                alertMessage += `No results found with this filter combination. Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
+                let alertMessage = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>No results found with this filter combination.</strong><br>`;
+                alertMessage += `Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
                 notice.html(alertMessage).show();
 
                 $('#clearAllFiltersLink').on('click', function(e) {
