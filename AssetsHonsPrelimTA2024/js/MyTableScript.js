@@ -252,7 +252,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>
                                 <option value="" disabled style="color: grey;">[Listed A—Z]</option>`;
         areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-            return `<option value="${area.toLowerCase()}">${area} [~${count} records]</option>`;
+            return `<option value="${area.toLowerCase()}">${area} [≈${count} records]</option>`;
         }).join('');
     
         $('#areaFilter').val(selectedArea);  // Reapply the previously selected value
