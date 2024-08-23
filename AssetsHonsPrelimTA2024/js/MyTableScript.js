@@ -17,9 +17,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             populateTable(allRows);
             initializeDataTable();
             updateFilterCounts(); // Initialize filter counts on load
+            populateAreaFilter(allRows); // Initial population of area filter
         } else {
             console.error("No data loaded from XLSX file.");
         }
+        
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
@@ -84,6 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateFilterStatus();
             updateFilterNotice();
         });
+        
 
         $('#areaFilter').on('change', function() {
             dataTable.draw();  // Simply redraw the table, filtering is already handled in the ext search
@@ -210,40 +213,32 @@ document.addEventListener("DOMContentLoaded", async () => {
    
 
     function populateAreaFilter(rows) {
-        console.log("Populating area filter...");
-
         const selectedMethodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaCounts = {};
-
+    
         rows.forEach((row, index) => {
             const mainMethod = row[1]?.trim().toLowerCase();
-            const researchAreas = researchAreasData[index].split('; ').map(area => area.trim().toLowerCase());
-
-            const methodMatch = selectedMethodValue === '' || mainMethod === selectedMethodValue ||
+            const researchAreasContent = researchAreasData[index];
+    
+            if (mainMethod && (selectedMethodValue === '' || mainMethod === selectedMethodValue ||
                 (selectedMethodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
-                (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod));
-
-            if (methodMatch) {
-                researchAreas.forEach(area => {
+                (selectedMethodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)))) {
+                
+                researchAreasContent.split('; ').forEach(area => {
                     if (area) {
-                        const titleCaseArea = toTitleCase(area);
-                        areaCounts[titleCaseArea] = (areaCounts[titleCaseArea] || 0) + 1;
+                        areaCounts[area] = (areaCounts[area] || 0) + 1;
                     }
                 });
             }
         });
-
-        const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-
+    
         const areaFilter = document.getElementById("areaFilter");
-        areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>
-                                <option value="" disabled style="color: grey;">[Listed A—Z]</option>`;
-        areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-            return `<option value="${area.toLowerCase()}">${area} [≈${count} records]</option>`;
-        }).join('');
-
-        console.log("Area filter populated.");
+        areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Areas</option>`;
+        Object.keys(areaCounts).forEach(area => {
+            areaFilter.innerHTML += `<option value="${area}">${area} (${areaCounts[area]})</option>`;
+        });
     }
+    
 
     function updateFilterCounts() {
         const currentMethod = $('#methodFilter').val();
