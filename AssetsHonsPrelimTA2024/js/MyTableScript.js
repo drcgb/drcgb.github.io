@@ -186,6 +186,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             mixedMethodsQualitative: 0
         };
 
+        let totalMethods = 0;
+
         rows.forEach(row => {
             const mainMethod = row[1]?.trim().toLowerCase();
             if (mainMethod) {
@@ -207,12 +209,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                         methodCounts.metaSynthesis += 1;
                         break;
                 }
+                totalMethods += 1;
             }
         });
 
         const methodFilter = document.getElementById("methodFilter");
         methodFilter.innerHTML = `
-            <option value="" style="font-weight: bold;">All Methods</option>
+            <option value="" style="font-weight: bold;">All Methods [~${totalMethods} records]</option>
             <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
                 <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
                 <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
@@ -229,11 +232,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     function populateAreaFilter(rows) {
         console.log("Populating area filter...");
         const areaCounts = {};
+        let totalAreas = 0;
+
         rows.forEach(row => {
             const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
             researchAreas.forEach(area => {
                 if (area) {
                     areaCounts[area] = (areaCounts[area] || 0) + 1;
+                    totalAreas += 1;
                 }
             });
         });
@@ -241,7 +247,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
         const areaFilter = document.getElementById("areaFilter");
-        areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
+        areaFilter.innerHTML = `<option value="">All Research Areas [~${totalAreas} records]</option>`;
         areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
             return `<option value="${area}">${area} [~${count} records]</option>`;
         }).join('');
