@@ -182,17 +182,18 @@ table.dataTable tbody tr:hover {
     box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.bold-option {
+select optgroup.optgroup-bold {
     font-weight: bold;
     color: black;
 }
 
-.indented-option {
-    padding-left: 20px;
-}
-
-.optgroup-bold {
+select optgroup.optgroup-bold:before {
+    content: attr(label);
+    display: block;
     font-weight: bold;
     color: black;
 }
 
+select optgroup[label] {
+    font-style: normal;
+}
