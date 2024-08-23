@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
     let allRows = [];
     let dataTable;
-    let methodData = []; // Declare methodData at the top level
-    let researchAreasData = []; // Declare researchAreasData at the top level
+    let methodData = [];
+    let researchAreasData = [];
 
     try {
         console.log("Loading XLSX data...");
@@ -64,20 +64,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        // Custom filter logic
+        // Custom filter logic for both method and area filters
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-            const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
-            const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+            const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; 
+            const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; 
 
             let methodMatch = false;
 
             // Logic for matching method
             switch (methodValue) {
                 case '':
-                    methodMatch = true; // "All Methods" selected
+                    methodMatch = true; 
                     break;
                 case 'all-quantitative':
                     methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
@@ -113,10 +113,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Attach events
         $('#customSearch').on('input', function() {
-            dataTable.search($(this).val()).draw(); // Use DataTables native search
+            dataTable.search($(this).val()).draw(); 
             updateFilterStatus();
             updateFilterNotice();
-            updateMethodFilterCounts(); // Update method counts based on area selection
+            updateMethodFilterCounts(); 
         });
 
         $('#methodFilter').on('change', function() {
@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
-            updateMethodFilterCounts(); // Update method counts based on area selection
+            updateMethodFilterCounts(); 
         });
 
         $('#filterStatusBtn').on('click', function() {
@@ -139,15 +139,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
 
-                // Clear DataTables native search and redraw
                 dataTable.search('').draw(); 
 
-                // Update filter status and notice
                 updateFilterStatus();
                 updateFilterNotice();
-                updateMethodFilterCounts(); // Reset method counts
+                updateMethodFilterCounts(); 
 
-                // Scroll the window to the top instantly
                 setTimeout(function() {
                     window.scrollTo(0, 0);
                 }, 0);
@@ -159,8 +156,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function populateTable(rows) {
         console.log("Populating table...");
-        methodData = []; // Initialize methodData
-        researchAreasData = []; // Initialize researchAreasData
+        methodData = []; 
+        researchAreasData = []; 
 
         const tbody = document.querySelector("#abstractTable tbody");
         tbody.innerHTML = rows.map(row => {
@@ -168,7 +165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
             const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
 
-            methodData.push(mainMethod.toLowerCase().trim()); // Ensure lowercase and trim before pushing
+            methodData.push(mainMethod.toLowerCase().trim()); 
             researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
 
             return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
@@ -217,13 +214,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
             <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-                <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
-                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
-                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="all-quantitative">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="meta-analysis">&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
+                <option value="mixed-methods-quantitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
             <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-                <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
-                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
-                <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="all-qualitative">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="meta-synthesis">&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
+                <option value="mixed-methods-qualitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
         `;
 
         console.log("Method filter populated.");
@@ -270,13 +267,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         methodFilter.innerHTML = `
             <option value="" style="font-weight: bold;">All Methods</option>
             <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-                <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
-                <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
-                <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="all-quantitative">All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} records]</option>
+                <option value="meta-analysis">&#x21B3; Meta-Analysis [~${methodCounts.metaAnalysis} records]</option>
+                <option value="mixed-methods-quantitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} records]</option>
             <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-                <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
-                <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
-                <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="all-qualitative">All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} records]</option>
+                <option value="meta-synthesis">&#x21B3; Meta-Synthesis [~${methodCounts.metaSynthesis} records]</option>
+                <option value="mixed-methods-qualitative">&#x21B3; Mixed-Methods [~${methodCounts.mixedMethodsQualitative} records]</option>
         `;
 
         console.log("Method filter updated dynamically.");
@@ -369,7 +366,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             dataTable.search($(this).val()).draw();
             updateFilterStatus();
             updateFilterNotice();
-            updateMethodFilterCounts(); // Update method counts based on area selection
+            updateMethodFilterCounts(); 
         } else {
             console.error("DataTable is not initialized.");
         }
@@ -390,7 +387,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             dataTable.draw();
             updateFilterStatus();
             updateFilterNotice();
-            updateMethodFilterCounts(); // Update method counts based on area selection
+            updateMethodFilterCounts(); 
         } else {
             console.error("DataTable is not initialized.");
         }
@@ -407,7 +404,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 updateFilterStatus();
                 updateFilterNotice();
-                updateMethodFilterCounts(); // Reset method counts
+                updateMethodFilterCounts(); 
 
                 window.scrollTo(0, 0);
             } else {
