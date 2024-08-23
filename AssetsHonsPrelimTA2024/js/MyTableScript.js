@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (allRows.length > 0) {
             populateTable(allRows);
             initializeDataTable();
-            populateAreaFilter(); // Populate area filter without counts
-            updateMethodFilterCounts(); // Initialize method filter counts on load
+            populateAreaFilter();
+            populateMethodFilterCounts();
         } else {
             console.error("No data loaded from XLSX file.");
         }
@@ -41,33 +41,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 $('#abstractTable tbody .end-of-records').remove();
 
-                if (rows === 0 || rows > 0) {
+                if (rows > 0) {
                     $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
                 }
             }
         });
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-            console.log('Method Filter Value:', $('#methodFilter').val().toLowerCase().trim());
-            console.log('Main Method Data:', methodData[dataIndex].toLowerCase().trim());
-        
             const methodValue = $('#methodFilter').val().toLowerCase().trim();
             const areaValue = $('#areaFilter').val().toLowerCase().trim();
-        
+
             const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
             const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
-        
-            const methodMatch = methodValue === '' || mainMethod === methodValue ||
-                (methodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) ||
-                (methodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)) ||
-                (methodValue === 'mixed-methods' && mainMethod === 'mixed-methods');
-        
+
+            const methodMatch = methodValue === '' || 
+                                mainMethod === methodValue || 
+                                (methodValue === 'all-quantitative' && ['quantitative', 'meta-analysis', 'mixed-methods'].includes(mainMethod)) || 
+                                (methodValue === 'all-qualitative' && ['qualitative', 'meta-synthesis', 'mixed-methods'].includes(mainMethod)) || 
+                                (methodValue === 'mixed-methods' && mainMethod === 'mixed-methods');
+
             const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
-        
+
             return methodMatch && areaMatch;
         });
-     
-        
+
         dataTable.draw();
 
         $('#customSearch').on('input', function() {
@@ -170,7 +167,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const areaFilter = document.getElementById("areaFilter");
         areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Areas</option>`;
         
-        // Populate options without counts
         const uniqueAreas = [...new Set(researchAreasData.join('; ').split('; ').map(area => area.trim()))];
         uniqueAreas.forEach(area => {
             areaFilter.innerHTML += `<option value="${area.toLowerCase()}">${area}</option>`;
@@ -209,92 +205,4 @@ document.addEventListener("DOMContentLoaded", async () => {
         const notice = $('#filterNotice');
         const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
 
-        const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
-
-        if (activeFilters.length > 0) {
-            if (filteredRowCount > 0) {
-                notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
-            } else {
-                let alertMessage = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>No results found with this filter combination.</strong><br>`;
-                alertMessage += `Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
-                notice.html(alertMessage).show();
-
-                $('#clearAllFiltersLink').on('click', function(e) {
-                    e.preventDefault();
-                    $('#filterStatusBtn').trigger('click');
-                });
-            }
-        } else {
-            notice.hide();
-        }
-        adjustContentMargin();
-    }
-
-    function adjustContentMargin() {
-        const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-        const headerHeight = $('.fixed-header').outerHeight(true);
-        const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
-
-        $('.content').css('margin-top', totalMargin);
-    }
-
-    adjustContentMargin();
-
-    $('#customSearch').on('input', function() {
-        if (dataTable) {
-            dataTable.search($(this).val()).draw();
-            updateMethodFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
-
-    $('#methodFilter').on('change', function() {
-        if (dataTable) {
-            dataTable.draw();
-            updateMethodFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
-
-    $('#areaFilter').on('change', function() {
-        if (dataTable) {
-            dataTable.draw();
-            updateMethodFilterCounts();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        } else {
-            console.error("DataTable is not initialized.");
-        }
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            if (dataTable) {
-                resetFilters();
-            }
-        }
-    });
-
-    function resetFilters() {
-        $('#methodFilter').val('');
-        $('#areaFilter').val('');
-        $('#customSearch').val('');
-
-        dataTable.search('').draw();
-
-        updateMethodFilterCounts(); // Reset counts when clearing filters
-        updateFilterStatus();
-        updateFilterNotice();
-
-        window.scrollTo(0, 0);
-    }
-});
+        const filteredRowCount = filteredRows.filter(row
