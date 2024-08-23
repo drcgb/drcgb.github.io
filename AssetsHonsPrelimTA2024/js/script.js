@@ -23,6 +23,11 @@ $(document).ready(function() {
     });
 
     function initializeDataTable() {
+        if (!$('#abstractTable').length) {
+            console.error('Table element not found in DOM.');
+            return;
+        }
+
         console.log("Initializing DataTable...");
 
         dataTable = $('#abstractTable').DataTable({
@@ -50,53 +55,9 @@ $(document).ready(function() {
             }
         });
 
-        // Attach events
-        $('#customSearch').on('input', function() {
-            if (dataTable) {
-                dataTable.search($(this).val()).draw(); // Use DataTables native search
-                updateFilterStatus();
-                updateFilterNotice();
-            }
-        });
-
-        $('#methodFilter').on('change', function() {
-            if (dataTable) {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            }
-        });
-
-        $('#areaFilter').on('change', function() {
-            if (dataTable) {
-                dataTable.draw();
-                updateFilterStatus();
-                updateFilterNotice();
-            }
-        });
-
-        $('#filterStatusBtn').on('click', function() {
-            if ($(this).hasClass('red') && dataTable) {
-                // Clear all filter inputs
-                $('#methodFilter').val('');
-                $('#areaFilter').val('');
-                $('#customSearch').val('');
-
-                // Clear DataTables native search and redraw
-                dataTable.search('').draw();
-
-                // Update filter status and notice
-                updateFilterStatus();
-                updateFilterNotice();
-
-                // Scroll the window to the top instantly
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                }, 0);
-            }
-        });
-
-        console.log("DataTable initialized.");
+        if (!dataTable) {
+            console.error("DataTable initialization failed.");
+        }
     }
 
     let methodData = []; // New array to store Main Method data
@@ -108,6 +69,11 @@ $(document).ready(function() {
         researchAreasData = [];
 
         const tbody = document.querySelector("#abstractTable tbody");
+        if (!tbody) {
+            console.error('Table body not found in DOM.');
+            return;
+        }
+
         tbody.innerHTML = rows.map(row => {
             const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
             const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
@@ -223,29 +189,33 @@ $(document).ready(function() {
         if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
 
         const notice = $('#filterNotice');
-        const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+        if (dataTable) {
+            const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
 
-        // Exclude "End of records" row from the count
-        const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
+            // Exclude "End of records" row from the count
+            const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
 
-        if (activeFilters.length > 0) {
-            if (filteredRowCount > 0) {
-                notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+            if (activeFilters.length > 0) {
+                if (filteredRowCount > 0) {
+                    notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+                } else {
+                    let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
+                    alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
+                    notice.html(alertMessage).show();
+
+                    // Add event listener to the "CLEAR ALL" link
+                    $('#clearAllFiltersLink').on('click', function(e) {
+                        e.preventDefault(); // Prevent the default anchor behavior
+
+                        // Trigger the clear all filters action
+                        $('#filterStatusBtn').trigger('click');
+                    });
+                }
             } else {
-                let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
-                alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
-                notice.html(alertMessage).show();
-
-                // Add event listener to the "CLEAR ALL" link
-                $('#clearAllFiltersLink').on('click', function(e) {
-                    e.preventDefault(); // Prevent the default anchor behavior
-
-                    // Trigger the clear all filters action
-                    $('#filterStatusBtn').trigger('click');
-                });
+                notice.hide();
             }
         } else {
-            notice.hide();
+            console.error("DataTable was not initialized correctly.");
         }
         adjustContentMargin();
     }
