@@ -398,19 +398,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             if (dataTable) {
+                // Clear all filter inputs
                 $('#methodFilter').val('');
                 $('#areaFilter').val('');
                 $('#customSearch').val('');
-
+    
+                // Clear DataTables native search and redraw
                 dataTable.search('').draw();
-
+    
+                // Recalculate and reset method and area filter counts
+                populateMethodFilter(allRows);
+                populateAreaFilter(allRows);
+    
+                // Update filter status and notice
                 updateFilterStatus();
                 updateFilterNotice();
-
+    
+                // Scroll the window to the top instantly
                 window.scrollTo(0, 0);
             } else {
                 console.error("DataTable is not initialized.");
             }
         }
     });
+    
 });
