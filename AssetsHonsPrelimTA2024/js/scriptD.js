@@ -2,7 +2,6 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
-let initialContainerWidth = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -14,50 +13,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
         console.log("Data loaded:", allRows);
 
-        // Set the initial container width and lock it
-        initialContainerWidth = document.querySelector('.page-wrapper').offsetWidth;
-        document.querySelector('.page-wrapper').style.width = `${initialContainerWidth}px`;
-
         populateTable(allRows);
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
         initializeDataTable();
 
-        adjustMargin(); // Initial adjustment
+        adjustContentMargin(); // Adjust margin initially
+        matchNoticeWidth(); // Ensure filter notice matches search input width
 
-        window.addEventListener('resize', handleResize); // Adjust margin and container width on window resize
+        window.addEventListener('resize', () => {
+            adjustContentMargin(); // Adjust margin on window resize
+            matchNoticeWidth(); // Match filter notice width to search input
+        });
+
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 });
-
-function handleResize() {
-    const currentWidth = window.innerWidth;
-
-    if (currentWidth !== lastWindowWidth) {
-        // Update container width only when the window width changes
-        initialContainerWidth = document.querySelector('.page-wrapper').offsetWidth;
-        document.querySelector('.page-wrapper').style.width = `${initialContainerWidth}px`;
-    }
-
-    adjustMargin(); // Adjust the margin after resizing
-}
-
-function adjustMargin() {
-    const headerHeight = document.querySelector('.fixed-header').offsetHeight;
-    const filterNotice = document.querySelector('.filter-notice');
-
-    // Only add filterNotice height if it is visible
-    const filterNoticeHeight = (filterNotice && filterNotice.style.display !== 'none') ? filterNotice.offsetHeight : 0;
-
-    // Calculate the total height of the elements above the table
-    const totalMargin = headerHeight + filterNoticeHeight;
-
-    // Apply the margin to the content and table container
-    document.querySelector('.content').style.marginTop = `${totalMargin}px`;
-
-    console.log("Adjusted margin to:", totalMargin, "px");
-}
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
@@ -84,7 +56,7 @@ function initializeDataTable() {
         }
     });
 
-    // Reintroduce custom filtering logic
+    // Custom filtering logic
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -272,9 +244,27 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
+    adjustContentMargin();
+}
+
+function adjustContentMargin() {
+    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const headerHeight = $('.fixed-header').outerHeight(true);
+    const totalMargin = headerHeight + filterNoticeHeight;
+
+    $('.content').css('margin-top', totalMargin);
+}
+
+function matchNoticeWidth() {
+    const searchInput = document.querySelector('.custom-search-container input');
+    const filterNotice = document.querySelector('.filter-notice');
+    const searchWidth = searchInput.offsetWidth;
+    filterNotice.style.width = `${searchWidth}px`;
 }
 
 $(document).ready(function() {
+    adjustContentMargin();
+
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
@@ -308,7 +298,4 @@ $(document).ready(function() {
             window.scrollTo(0, 0);
         }
     });
-
-    adjustMargin(); // Initial adjustment
-    window.addEventListener('resize', handleResize); // Adjust margin on window resize
 });
