@@ -2,6 +2,19 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
+let researchAreaOptions = [
+    "Applied Psychology", "Artificial Intelligence (AI) & Automation", "Behavioural Addictions", 
+    "Biological Psychology", "Child Development", "Child Neglect", "Climate Psychology", 
+    "Clinical Neuropsychology", "Clinical Psychology", "Cognitive Psychology", 
+    "Communication Psychology", "Community Psychology", "Criminology", "Cultural Psychology", 
+    "Cyberpsychology", "Developmental Psychology", "Educational Psychology", 
+    "Environmental Psychology", "Experimental Psychology", "Forensic Psychology", 
+    "Genetics", "Health Psychology", "Human Factors", "Individual Differences", 
+    "Journalism Psychology", "Learning & Behaviour", "Organisational Psychology", "Perception", 
+    "Performing Arts Psychology", "Personality Psychology", "Political Psychology", 
+    "Positive Psychology", "Psychometrics", "Public Health", "Sex Research", 
+    "Social Psychology", "Sport & Exercise Psychology"
+];
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -29,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-window.onload = function() {
+window.onload = function () {
     adjustContentMargin();
     matchNoticeWidth();
 };
@@ -48,7 +61,7 @@ function initializeDataTable() {
             lengthMenu: 'Show up to _MENU_ records per page',
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function(settings) {
+        drawCallback: function (settings) {
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
@@ -62,15 +75,42 @@ function initializeDataTable() {
         }
     });
 
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
         const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
         const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
-        const methodMatch = methodValue === '' || (mainMethod.includes(methodValue));
-        const areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
+        let methodMatch = false;
+
+        switch (methodValue) {
+            case '':
+                methodMatch = true;
+                break;
+            case 'all-quantitative':
+                methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
+                break;
+            case 'quantitative':
+            case 'meta-analysis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-quantitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+            case 'all-qualitative':
+                methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
+                break;
+            case 'qualitative':
+            case 'meta-synthesis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-qualitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+        }
+
+        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
         return methodMatch && areaMatch;
     });
@@ -137,35 +177,25 @@ function populateMethodFilter(rows) {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="quantitative">Quantitative [${methodCounts.quantitative} records]</option>
-            <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis} records]</option>
-            <option value="mixed-methods-quantitative">Mixed-Methods Quantitative [${methodCounts.mixedMethodsQuantitative} records]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="qualitative">Qualitative [${methodCounts.qualitative} records]</option>
-            <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis} records]</option>
-            <option value="mixed-methods-qualitative">Mixed-Methods Qualitative [${methodCounts.mixedMethodsQualitative} records]</option>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
+            <option value="meta-analysis">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
+            <option value="mixed-methods-quantitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
+            <option value="meta-synthesis">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
+            <option value="mixed-methods-qualitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
     `;
     console.log("Method filter populated.");
 }
 
-const researchAreasOptions = [
-    "Applied Psychology", "Artificial Intelligence (AI) & Automation", "Behavioural Addictions",
-    "Biological Psychology", "Child Development", "Child Neglect", "Climate Psychology",
-    "Clinical Neuropsychology", "Clinical Psychology", "Cognitive Psychology",
-    "Communication Psychology", "Community Psychology", "Criminology", "Cultural Psychology",
-    "Cyberpsychology", "Developmental Psychology", "Educational Psychology",
-    "Environmental Psychology", "Experimental Psychology", "Forensic Psychology",
-    "Genetics", "Health Psychology", "Human Factors", "Individual Differences",
-    "Journalism Psychology", "Learning & Behaviour", "Organisational Psychology", "Perception",
-    "Performing Arts Psychology", "Personality Psychology", "Political Psychology",
-    "Positive Psychology", "Psychometrics", "Public Health", "Sex Research",
-    "Social Psychology", "Sport & Exercise Psychology"
-];
-
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
     const areaCounts = {};
+
+    researchAreaOptions.forEach(area => {
+        areaCounts[area.toLowerCase()] = 0; // Initialize with zero count
+    });
 
     rows.forEach(row => {
         const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
@@ -176,15 +206,12 @@ function populateAreaFilter(rows) {
         });
     });
 
-    const sortedAreas = researchAreasOptions.map(option => {
-        const lowerOption = option.toLowerCase();
-        return [option, areaCounts[lowerOption] || 0];
-    }).sort(([a], [b]) => a.localeCompare(b));
+    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area.toLowerCase()}">${area} [${count} records]</option>`;
+        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
 
     console.log("Area filter populated.");
@@ -230,14 +257,14 @@ function updateMethodFilterCounts() {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="quantitative">Quantitative [${methodCounts.quantitative} records]</option>
-            <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis} records]</option>
-            <option value="mixed-methods-quantitative">Mixed-Methods Quantitative [${methodCounts.mixedMethodsQuantitative} records]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="qualitative">Qualitative [${methodCounts.qualitative} records]</option>
-            <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis} records]</option>
-            <option value="mixed-methods-qualitative">Mixed-Methods Qualitative [${methodCounts.mixedMethodsQualitative} records]</option>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
+            <option value="meta-analysis">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
+            <option value="mixed-methods-quantitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
+            <option value="meta-synthesis">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
+            <option value="mixed-methods-qualitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
     `;
 }
 
@@ -246,6 +273,10 @@ function updateAreaFilterCounts() {
 
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const areaCounts = {};
+
+    researchAreaOptions.forEach(area => {
+        areaCounts[area.toLowerCase()] = 0;
+    });
 
     visibleRows.forEach(row => {
         const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
@@ -256,15 +287,12 @@ function updateAreaFilterCounts() {
         });
     });
 
-    const sortedAreas = researchAreasOptions.map(option => {
-        const lowerOption = option.toLowerCase();
-        return [option, areaCounts[lowerOption] || 0];
-    }).sort(([a], [b]) => a.localeCompare(b));
+    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area.toLowerCase()}">${area} [${count} records]</option>`;
+        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
 }
 
@@ -306,7 +334,7 @@ function updateFilterNotice() {
             alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
             notice.html(alertMessage).show();
 
-            $('#clearAllFiltersLink').on('click', function(e) {
+            $('#clearAllFiltersLink').on('click', function (e) {
                 e.preventDefault();
                 $('#filterStatusBtn').trigger('click');
             });
@@ -314,14 +342,16 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-    
-    adjustContentMargin();  // Recalculate margin after updating notice
+
+    adjustContentMargin();
 }
 
 function adjustContentMargin() {
     const blueBarHeight = $('.blue-bar').outerHeight(true);
     const headerHeight = $('.fixed-header').outerHeight(true) + 5;
+
     const totalMargin = headerHeight + blueBarHeight;
+
     $('.content').css('margin-top', totalMargin);
 }
 
@@ -332,32 +362,33 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     adjustContentMargin();
 
-    $('#customSearch').on('input', function() {
+    $('#customSearch').on('input', function () {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
     });
-    
-    $('#methodFilter').on('change', function() {
+
+    $('#methodFilter').on('change', function () {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
     });
-    
-    $('#areaFilter').on('change', function() {
+
+    $('#areaFilter').on('change', function () {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
     });
- 
-    $('#filterStatusBtn').on('click', function() {
+
+    $('#filterStatusBtn').on('click', function () {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
             $('#areaFilter').val('');
             $('#customSearch').val('');
+
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
