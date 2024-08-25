@@ -17,10 +17,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
         initializeDataTable();
+
+        adjustTableMargin(); // Initial adjustment
+
+        window.addEventListener('resize', adjustTableMargin); // Adjust margin on window resize
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 });
+
+function adjustTableMargin() {
+    const headerHeight = document.querySelector('.fixed-header').offsetHeight;
+    const filterNoticeHeight = document.querySelector('.filter-notice').offsetHeight || 0;
+    const filterContainerHeight = document.querySelector('.filter-container').offsetHeight || 0;
+
+    // Calculate the total height of the elements above the table
+    const totalHeight = headerHeight + filterNoticeHeight + filterContainerHeight;
+
+    document.querySelector('.table-container').style.marginTop = `${totalHeight}px`;
+    console.log("Adjusted table margin to:", totalHeight, "px");
+}
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
