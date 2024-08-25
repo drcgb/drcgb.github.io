@@ -163,16 +163,15 @@ function populateMethodFilter(rows) {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
-            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
-            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
-            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
-            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
-    `;
-
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
+            <option value="meta-analysis">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
+            <option value="mixed-methods-quantitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
+            <option value="meta-synthesis">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
+            <option value="mixed-methods-qualitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
+`;
     console.log("Method filter populated.");
 }
 
@@ -192,12 +191,34 @@ function populateAreaFilter(rows) {
     const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
     const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
+    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
+    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}">${area} [~${count} matches]</option>`;
+        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
+
     console.log("Area filter populated.");
 }
+
+function updateMethodFilterCounts() {
+    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const methodCounts = { /* recalculate counts based on visibleRows */ };
+
+    // Update the method dropdown with the new counts
+}
+
+function updateAreaFilterCounts() {
+    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const areaCounts = { /* recalculate counts based on visibleRows */ };
+
+    // Update the area dropdown with the new counts
+}
+
+dataTable.on('draw', function() {
+    updateMethodFilterCounts();
+    updateAreaFilterCounts();
+});
+
 
 function updateFilterStatus() {
     const searchValue = $('#customSearch').val().trim();
@@ -354,13 +375,16 @@ $(document).ready(function() {
         window.scrollTo(0, 0);
     });
 
-    $('#areaFilter').on('change', function() {
+    $('#methodFilter').on('change', function() {
+        let selectedText = $(this).find("option:selected").text();
+        selectedText = selectedText.replace('↘ ', '').trim(); // Remove the arrow and trim spaces
+        $(this).find("option:selected").text(selectedText);
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
         window.scrollTo(0, 0);
     });
-
+    
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
