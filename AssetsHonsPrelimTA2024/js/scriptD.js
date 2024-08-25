@@ -211,6 +211,7 @@ function updateMethodFilterCounts() {
         mixedMethodsQualitative: 0
     };
 
+    // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
         const mainMethod = row[1]?.trim().toLowerCase();
         if (mainMethod) {
@@ -235,6 +236,7 @@ function updateMethodFilterCounts() {
         }
     });
 
+    // Clear and repopulate the method filter dropdown
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
@@ -253,6 +255,7 @@ function updateAreaFilterCounts() {
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const areaCounts = {};
 
+    // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
         const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
         researchAreas.forEach(area => {
@@ -264,6 +267,7 @@ function updateAreaFilterCounts() {
 
     const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
+    // Clear and repopulate the area filter dropdown
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
     areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
@@ -271,6 +275,7 @@ function updateAreaFilterCounts() {
         return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
 }
+
 
 function updateFilterStatus() {
     const searchValue = $('#customSearch').val().trim();
@@ -368,7 +373,7 @@ $(document).ready(function() {
         updateAreaFilterCounts();
         scrollToTop();
     });
-
+    
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
@@ -377,7 +382,7 @@ $(document).ready(function() {
         updateAreaFilterCounts();
         scrollToTop();
     });
-
+    
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
@@ -386,7 +391,7 @@ $(document).ready(function() {
         updateAreaFilterCounts();
         scrollToTop();
     });
-
+ 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
