@@ -3,47 +3,6 @@ let dataTable;
 let methodData = [];
 let researchAreasData = [];
 
-// Full list of possible research areas options
-const researchAreasOptions = [
-    "Applied Psychology",
-    "Artificial Intelligence (AI) & Automation",
-    "Behavioural Addictions",
-    "Biological Psychology",
-    "Child Development",
-    "Child Neglect",
-    "Climate Psychology",
-    "Clinical Neuropsychology",
-    "Clinical Psychology",
-    "Cognitive Psychology",
-    "Communication Psychology",
-    "Community Psychology",
-    "Criminology",
-    "Cultural Psychology",
-    "Cyberpsychology",
-    "Developmental Psychology",
-    "Educational Psychology",
-    "Environmental Psychology",
-    "Experimental Psychology",
-    "Forensic Psychology",
-    "Genetics",
-    "Health Psychology",
-    "Human Factors",
-    "Individual Differences",
-    "Journalism Psychology",
-    "Learning & Behaviour",
-    "Organisational Psychology",
-    "Perception",
-    "Performing Arts Psychology",
-    "Personality Psychology",
-    "Political Psychology",
-    "Positive Psychology",
-    "Psychometrics",
-    "Public Health",
-    "Sex Research",
-    "Social Psychology",
-    "Sport & Exercise Psychology"
-];
-
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         console.log("Loading XLSX data...");
@@ -56,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         populateTable(allRows);
         populateMethodFilter(allRows);
-        populateAreaFilter();
+        populateAreaFilter(allRows);
 
         // Initialize the dataTable after the filters are populated
         initializeDataTable();
@@ -220,13 +179,25 @@ function populateMethodFilter(rows) {
     console.log("Method filter populated.");
 }
 
-function populateAreaFilter() {
+function populateAreaFilter(rows) {
     console.log("Populating area filter...");
+    const areaCounts = {};
+    rows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area] = (areaCounts[area] || 0) + 1;
+            }
+        });
+    });
+
+    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += researchAreasOptions.map(area => {
-        return `<option value="${area.toLowerCase()}">${area}</option>`;
+    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
+    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
+        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
 
     console.log("Area filter populated.");
@@ -245,6 +216,7 @@ function updateMethodFilterCounts() {
         mixedMethodsQualitative: 0
     };
 
+    // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
         const mainMethod = row[1]?.trim().toLowerCase();
         if (mainMethod) {
@@ -269,6 +241,7 @@ function updateMethodFilterCounts() {
         }
     });
 
+    // Clear and repopulate the method filter dropdown
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
@@ -287,25 +260,26 @@ function updateAreaFilterCounts() {
     if (!dataTable) return;
 
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
-    const areaCounts = researchAreasOptions.reduce((acc, area) => {
-        acc[area.toLowerCase()] = 0;
-        return acc;
-    }, {});
+    const areaCounts = {};
 
+    // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
         const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
         researchAreas.forEach(area => {
-            if (area && areaCounts.hasOwnProperty(area)) {
-                areaCounts[area] += 1;
+            if (area) {
+                areaCounts[area] = (areaCounts[area] || 0) + 1;
             }
         });
     });
 
+    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
+
+    // Clear and repopulate the area filter dropdown
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += researchAreasOptions.map(area => {
-        const count = areaCounts[area.toLowerCase()];
-        return `<option value="${area.toLowerCase()}">${area} [≈${count} record(s)]</option>`;
+    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
+    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
+        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
 }
 
@@ -406,6 +380,9 @@ $(document).ready(function() {
     });
     
     $('#methodFilter').on('change', function() {
+        const value = $(this).val();
+        updateMethodFilterCounts();  // Update counts
+        $('#methodFilter').val(value);  // Re-select the chosen value
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
@@ -413,6 +390,9 @@ $(document).ready(function() {
     });
     
     $('#areaFilter').on('change', function() {
+        const value = $(this).val();
+        updateAreaFilterCounts();  // Update counts
+        $('#areaFilter').val(value);  // Re-select the chosen value
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
@@ -464,9 +444,11 @@ function adjustTextSize(increase) {
         return; // No adjustment needed
     }
 
+    // Calculate the new font size based on adjustment level
     const baseSize = 15; // Default font size in px
     const newSize = baseSize + adjustmentLevel * 1.5; // Adjust by 1.5px per step
 
+    // Apply the new font size to all relevant elements
     document.querySelector('body').style.fontSize = `${newSize}px`;
     document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
         el.style.fontSize = `${newSize}px`;
@@ -478,6 +460,7 @@ function resetTextSize() {
     adjustmentLevel = 0; // Reset adjustment level
     const baseSize = 15; // Default font size in px
 
+    // Reset font size for all relevant elements
     document.querySelector('body').style.fontSize = `${baseSize}px`;
     document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
         el.style.fontSize = `${baseSize}px`;
