@@ -72,7 +72,7 @@ body, table, th, td,
 .fixed-header,
 .content {
     width: calc(100vw - 1px); /* Consistent width with scrollbar accounted for */
-    max-width: calc(100vw - 1px); /* Prevent expansion */
+    max-width: 100% /* Prevent expansion */
     margin: 0 auto; /* Center the container */
     text-align: left; /* Ensure left alignment */
     box-sizing: border-box;
