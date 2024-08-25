@@ -59,7 +59,6 @@ function initializeDataTable() {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
 
-            // Update filter counts dynamically
             updateMethodFilterCounts();
             updateAreaFilterCounts();
         }
@@ -191,7 +190,39 @@ function populateAreaFilter() {
         <option value="applied psychology">Applied Psychology [~${areaCounts['applied psychology'] || 0} record(s)]</option>
         <option value="artificial intelligence (ai) & automation">Artificial Intelligence (AI) & Automation [~${areaCounts['artificial intelligence (ai) & automation'] || 0} record(s)]</option>
         <option value="behavioural addictions">Behavioural Addictions [~${areaCounts['behavioural addictions'] || 0} record(s)]</option>
-        <!-- Add the rest of the research areas similarly -->
+        <option value="biological psychology">Biological Psychology [~${areaCounts['biological psychology'] || 0} record(s)]</option>
+        <option value="child development">Child Development [~${areaCounts['child development'] || 0} record(s)]</option>
+        <option value="child neglect">Child Neglect [~${areaCounts['child neglect'] || 0} record(s)]</option>
+        <option value="climate psychology">Climate Psychology [~${areaCounts['climate psychology'] || 0} record(s)]</option>
+        <option value="clinical neuropsychology">Clinical Neuropsychology [~${areaCounts['clinical neuropsychology'] || 0} record(s)]</option>
+        <option value="clinical psychology">Clinical Psychology [~${areaCounts['clinical psychology'] || 0} record(s)]</option>
+        <option value="cognitive psychology">Cognitive Psychology [~${areaCounts['cognitive psychology'] || 0} record(s)]</option>
+        <option value="communication psychology">Communication Psychology [~${areaCounts['communication psychology'] || 0} record(s)]</option>
+        <option value="community psychology">Community Psychology [~${areaCounts['community psychology'] || 0} record(s)]</option>
+        <option value="criminology">Criminology [~${areaCounts['criminology'] || 0} record(s)]</option>
+        <option value="cultural psychology">Cultural Psychology [~${areaCounts['cultural psychology'] || 0} record(s)]</option>
+        <option value="cyberpsychology">Cyberpsychology [~${areaCounts['cyberpsychology'] || 0} record(s)]</option>
+        <option value="developmental psychology">Developmental Psychology [~${areaCounts['developmental psychology'] || 0} record(s)]</option>
+        <option value="educational psychology">Educational Psychology [~${areaCounts['educational psychology'] || 0} record(s)]</option>
+        <option value="environmental psychology">Environmental Psychology [~${areaCounts['environmental psychology'] || 0} record(s)]</option>
+        <option value="experimental psychology">Experimental Psychology [~${areaCounts['experimental psychology'] || 0} record(s)]</option>
+        <option value="forensic psychology">Forensic Psychology [~${areaCounts['forensic psychology'] || 0} record(s)]</option>
+        <option value="genetics">Genetics [~${areaCounts['genetics'] || 0} record(s)]</option>
+        <option value="health psychology">Health Psychology [~${areaCounts['health psychology'] || 0} record(s)]</option>
+        <option value="human factors">Human Factors [~${areaCounts['human factors'] || 0} record(s)]</option>
+        <option value="individual differences">Individual Differences [~${areaCounts['individual differences'] || 0} record(s)]</option>
+        <option value="journalism psychology">Journalism Psychology [~${areaCounts['journalism psychology'] || 0} record(s)]</option>
+        <option value="learning & behaviour">Learning & Behaviour [~${areaCounts['learning & behaviour'] || 0} record(s)]</option>
+        <option value="organisational psychology">Organisational Psychology [~${areaCounts['organisational psychology'] || 0} record(s)]</option>
+        <option value="perception">Perception [~${areaCounts['perception'] || 0} record(s)]</option>
+        <option value="performing arts psychology">Performing Arts Psychology [~${areaCounts['performing arts psychology'] || 0} record(s)]</option>
+        <option value="personality psychology">Personality Psychology [~${areaCounts['personality psychology'] || 0} record(s)]</option>
+        <option value="political psychology">Political Psychology [~${areaCounts['political psychology'] || 0} record(s)]</option>
+        <option value="positive psychology">Positive Psychology [~${areaCounts['positive psychology'] || 0} record(s)]</option>
+        <option value="psychometrics">Psychometrics [~${areaCounts['psychometrics'] || 0} record(s)]</option>
+        <option value="public health">Public Health [~${areaCounts['public health'] || 0} record(s)]</option>
+        <option value="sex research">Sex Research [~${areaCounts['sex research'] || 0} record(s)]</option>
+        <option value="social psychology">Social Psychology [~${areaCounts['social psychology'] || 0} record(s)]</option>
         <option value="sport & exercise psychology">Sport & Exercise Psychology [~${areaCounts['sport & exercise psychology'] || 0} record(s)]</option>
     `;
     console.log("Area filter populated.");
