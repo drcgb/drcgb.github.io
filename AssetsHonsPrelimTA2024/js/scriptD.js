@@ -180,7 +180,7 @@ function populateAreaFilter(rows) {
     console.log("Populating area filter...");
     const areaCounts = {};
     rows.forEach(row => {
-        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toUpperCase() || '');
         researchAreas.forEach(area => {
             if (area) {
                 areaCounts[area] = (areaCounts[area] || 0) + 1;
