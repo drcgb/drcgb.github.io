@@ -1,71 +1,207 @@
+/* Global Styles */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    -webkit-text-size-adjust: 99%; /* Prevent font size adjustment on iOS */
+    text-size-adjust: 99%; /* Prevent font size adjustment on Android */
+}
+
+body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
+.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
+    font-family: Arial, sans-serif;
+    font-size: 14px; /* Set the base font size */
+    line-height: 1.2;
+}
+
+/* Prevent font size changes when the phone is flipped to landscape */
+@media (orientation: landscape) {
+    body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
+    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
+        font-size: 14px; /* Ensure the font size stays the same in landscape mode */
+    }
+}
+
 /* Page Wrapper */
 .page-wrapper {
     max-width: 1200px; /* Set a maximum width for the page content */
     margin: 0 auto; /* Center the content horizontally */
-    padding: 0 20px; /* Optional padding to add space inside the wrapper */
+    padding: 0;
 }
 
 /* Fixed Header */
 .fixed-header {
-    width: 100%; /* Ensure the header spans the full width of the page-wrapper */
+    width: 100%;
     position: fixed;
     top: 0;
-    left: 0;
-    background-color: #fff; /* Background color for the header */
+    background-color: white;
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
-    padding: 10px 0; /* Padding for the header */
+    padding: 8px 0; /* Adjusted padding */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Content Area */
 .content {
-    padding-top: 100px; /* Adjust this padding to match the height of the fixed header */
-}
-
-/* Table Container */
-.table-container {
-    width: 100%; /* Ensure the table spans the full width of the content area */
-    overflow-x: auto; /* Enable horizontal scrolling if needed */
-}
-
-/* DataTables Wrapper */
-.dataTables_wrapper {
-    width: 100%; /* Ensure the DataTables wrapper matches the content width */
-}
-
-/* Filter Container */
-.filter-container {
-    margin-bottom: 20px; /* Add some space below the filters */
-}
-
-/* Filter Notice */
-.filter-notice {
-    margin-top: 10px;
-    color: #333;
-    font-weight: bold;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-top: 100px; /* Adjust this to account for the header height */
+    transition: margin-top 0.3s ease;
 }
 
 /* Custom Search Container */
 .custom-search-container {
-    margin-bottom: 10px;
+    margin-left: 3px;
+    width: 97vw;
+    max-width: 97vw; /* Ensure it doesn't overshoot the screen */
+    text-align: center;
+    margin-bottom: 2px; /* Reduced margin */
+    padding: 5px; /* Reduced padding */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.custom-search-container input {
+    width: 100%;
+    max-width: 100%; /* Ensure it doesn't overshoot the screen */
+    padding: 8px; /* Reduced padding */
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Filter Container */
+.dataTables_wrapper .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 5px;
+    width: 100%;
+    max-width: 100%; /* Ensure it doesn't overshoot the screen */
+    padding: 5px; /* Reduced padding */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Filter Groups */
+.filter-group {
+    display: flex;
+    align-items: center;
+    max-width: 100%; /* Ensure it doesn't overshoot the screen */
+}
+
+.filter-group label {
+    margin-right: 1px;
+    margin-left: 3px;
+    font-weight: bold; /* Bold filter labels */
+}
+
+.filter-group select {
+    min-width: 150px;
+    max-width: 100%; /* Ensure it doesn't overshoot the screen */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .filter-group {
+        width: 97vw;
+    }
+    .filter-group select {
+        width: 97vw; /* Ensures select boxes take full width on mobile */
+    }
+    .custom-search-container input, .filter-status-btn {
+        width: 97vw; /* Ensures search box and buttons take full width on mobile */
+        font-size: 14px; /* Adjust this value to increase the text size */
+        font-weight: bold; /* Makes the font bold */
+    }
 }
 
 /* Filter Status Button */
 .filter-status-btn {
-    padding: 8px 16px;
-    font-size: 14px;
+    margin-left: 2px;
+    margin-right: 1.5px;
+    margin-top: 2.5px;
+    padding: 3px 3px;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    font-weight: bold; /* Makes the font bold */
 }
 
-/* Adjustments for Dropdowns */
-.filter-group {
-    margin-right: 15px;
-    display: inline-block;
+.filter-status-btn.green {
+    background-color: #28a745;
+    color: white;
+}
+
+.filter-status-btn.red {
+    background-color: red;
+    color: white;
+}
+
+/* Filter Notice */
+.filter-notice {
+    margin-top: 5px;
+    margin-bottom: 2px;
+    margin-left: 8px; /* Nudge the filter notice 8px to the right */
+    font-style: italic;
+    color: #000000;
+    background-color: #ebb6fcd8;
+    border: 1px solid #c953ff;
+    padding: 8px;
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 97vw;
+    max-width: 97vw; /* Ensure it doesn't overshoot the screen */
+    display: none;
+}
+
+/* Table Styling */
+table, th, td {
+    padding: 0px;
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+
+th {
+    background-color: #f2f2f2;
+    text-align: left;
     vertical-align: middle;
 }
 
-/* Ensure text inside table headers is aligned */
-#abstractTable th {
-    text-align: left;
+table.dataTable tbody tr:hover {
+    background-color: #e0f7fa;
+}
+
+/* Table Container */
+.table-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px; /* Reduced margin */
+}
+
+/* End of Records Styling */
+.end-of-records td {
+    text-align: center;
     padding: 10px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f2f2f2;
+    border-top: 2px solid #ccc;
+}
+
+/* DataTables Pagination */
+.dataTables_wrapper .dataTables_paginate {
+    position: static;
+    margin-top: auto;
+    background-color: white;
+    padding: 5px 0;
+    text-align: center;
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
 }
