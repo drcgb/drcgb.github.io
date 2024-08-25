@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searchable and Filterable Table</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="AssetsHonsPrelimTA2024/css/stylesD.css">
+</head>
+<body>
+    <div class="fixed-header">
+        <div class="custom-search-container">
+            <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
+        </div>
+        <div class="dataTables_wrapper">
+            <div class="filter-container">
+                <p>You can filter by <strong>Method</strong> and/or <strong>Research Area</strong> using the dropdown options below. The corresponding record counts will update dynamically. When filters are active, the green button will turn red and you can click it to clear the filters.</p>
+                <div class="filter-group">
+                    <label for="methodFilter">Filter(Method):</label>
+                    <select id="methodFilter"><option value="">All</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="areaFilter">Filter(Areas):</label>
+                    <select id="areaFilter"><option value="">All</option></select>
+                </div>
+                <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
+            </div>
+            <div class="filter-notice" id="filterNotice"></div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="table-container">
+            <table id="abstractTable" class="display">
+                <thead>
+                    <tr><th>Preliminary Title and Abstract</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="AssetsHonsPrelimTA2024/js/scriptD.js"></script>
+</body>
+</html>
