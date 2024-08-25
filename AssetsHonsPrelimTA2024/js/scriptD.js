@@ -244,13 +244,17 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-    adjustContentMargin();
+    
+    adjustContentMargin();  // Recalculate margin after updating notice
+
 }
 
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true);
-    const totalMargin = headerHeight + filterNoticeHeight;
+
+    // Calculate total margin only considering visible elements
+    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight : 0);
 
     $('.content').css('margin-top', totalMargin);
 }
