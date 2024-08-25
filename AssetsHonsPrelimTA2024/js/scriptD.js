@@ -61,11 +61,16 @@ function initializeDataTable() {
         }
     });
 
-    // Remove event listeners for dropdown menus for now.
-    $('#methodFilter').off();
-    $('#areaFilter').off();
-
     dataTable.draw();
+
+    // Simplified dropdown functionality: no event listeners for now.
+    $('#methodFilter').on('change', function() {
+        dataTable.column(0).search(this.value).draw();
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.column(0).search(this.value).draw();
+    });
 
     console.log("DataTable initialized.");
 }
@@ -101,73 +106,34 @@ function populateFilters(rows) {
 }
 
 function populateMethodFilter(rows) {
-    const methodCounts = {
-        quantitative: 0,
-        metaAnalysis: 0,
-        mixedMethodsQuantitative: 0,
-        qualitative: 0,
-        metaSynthesis: 0,
-        mixedMethodsQualitative: 0
-    };
+    const methods = new Set(rows.map(row => row[1]?.trim().toLowerCase()).filter(Boolean));
+    const methodFilter = document.getElementById("methodFilter");
 
-    rows.forEach(row => {
-        const mainMethod = row[1]?.trim().toLowerCase();
-        if (mainMethod) {
-            switch (mainMethod) {
-                case 'quantitative':
-                    methodCounts.quantitative += 1;
-                    break;
-                case 'meta-analysis':
-                    methodCounts.metaAnalysis += 1;
-                    break;
-                case 'mixed-methods':
-                    methodCounts.mixedMethodsQuantitative += 1;
-                    methodCounts.mixedMethodsQualitative += 1;
-                    break;
-                case 'qualitative':
-                    methodCounts.qualitative += 1;
-                    break;
-                case 'meta-synthesis':
-                    methodCounts.metaSynthesis += 1;
-                    break;
-            }
-        }
+    methodFilter.innerHTML = `<option value="">All Methods</option>`;
+    methods.forEach(method => {
+        methodFilter.innerHTML += `<option value="${method}" style="text-transform: capitalize;">${method.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`;
     });
 
-    const methodFilter = document.getElementById("methodFilter");
-    methodFilter.innerHTML = `
-        <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative" style="font-weight: bold;">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
-            <option value="meta-analysis" style="padding-left: 20px;">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} matches]</option>
-            <option value="mixed-methods-quantitative" style="padding-left: 20px;">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} matches]</option>
-        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative" style="font-weight: bold;">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
-            <option value="meta-synthesis" style="padding-left: 20px;">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} matches]</option>
-            <option value="mixed-methods-qualitative" style="padding-left: 20px;">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} matches]</option>
-    `;
     console.log("Method filter populated.");
 }
 
 function populateAreaFilter(rows) {
-    const areaCounts = {};
+    const areas = new Set();
     rows.forEach(row => {
-        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-        researchAreas.forEach(area => {
-            if (area) {
-                areaCounts[area] = (areaCounts[area] || 0) + 1;
+        row.slice(5, 11).forEach(area => {
+            if (area?.trim()) {
+                areas.add(area.trim().toLowerCase());
             }
         });
     });
 
-    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-
     const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="">All Research Areas</option>
-                            <optgroup label="*Listed A-Z*" style="font-weight: bold; color: grey;" disabled></optgroup>`;
-    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}" style="text-transform: capitalize;">${area} [≈${count} matches]</option>`;
-    }).join('');
+
+    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
+    areas.forEach(area => {
+        areaFilter.innerHTML += `<option value="${area}" style="text-transform: capitalize;">${area.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`;
+    });
+
     console.log("Area filter populated.");
 }
 
@@ -177,72 +143,33 @@ function updateFilters(api) {
 }
 
 function updateMethodFilter(api) {
-    const methodCounts = {
-        quantitative: 0,
-        metaAnalysis: 0,
-        mixedMethodsQuantitative: 0,
-        qualitative: 0,
-        metaSynthesis: 0,
-        mixedMethodsQualitative: 0
-    };
-
-    api.rows({ search: 'applied' }).data().each(row => {
-        const mainMethod = row[1] ? row[1].toLowerCase().trim() : '';
-        if (mainMethod) {
-            switch (mainMethod) {
-                case 'quantitative':
-                    methodCounts.quantitative += 1;
-                    break;
-                case 'meta-analysis':
-                    methodCounts.metaAnalysis += 1;
-                    break;
-                case 'mixed-methods':
-                    methodCounts.mixedMethodsQuantitative += 1;
-                    methodCounts.mixedMethodsQualitative += 1;
-                    break;
-                case 'qualitative':
-                    methodCounts.qualitative += 1;
-                    break;
-                case 'meta-synthesis':
-                    methodCounts.metaSynthesis += 1;
-                    break;
-            }
-        }
-    });
-
     const methodFilter = $('#methodFilter');
-    methodFilter.html(`
-        <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative" style="font-weight: bold;">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
-            <option value="meta-analysis" style="padding-left: 20px;">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} matches]</option>
-            <option value="mixed-methods-quantitative" style="padding-left: 20px;">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} matches]</option>
-        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative" style="font-weight: bold;">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
-            <option value="meta-synthesis" style="padding-left: 20px;">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} matches]</option>
-            <option value="mixed-methods-qualitative" style="padding-left: 20px;">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} matches]</option>
-    `);
+    const methods = new Set(api.column(0).data().map(row => row.match(/Method:\s([^\s]+)/)?.[1]?.toLowerCase()).filter(Boolean));
+    
+    methodFilter.html(`<option value="">All Methods</option>`);
+    methods.forEach(method => {
+        methodFilter.append(`<option value="${method}" style="text-transform: capitalize;">${method.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`);
+    });
 }
 
 function updateAreaFilter(api) {
-    const areaCounts = {};
+    const areaFilter = $('#areaFilter');
+    const areas = new Set();
 
-    api.rows({ search: 'applied' }).data().each(row => {
-        const researchAreas = row[5] ? row[5].toLowerCase().split('; ') : [];
-        researchAreas.forEach(area => {
-            if (area) {
-                areaCounts[area] = (areaCounts[area] || 0) + 1;
-            }
-        });
+    api.column(0).data().each(row => {
+        const areaMatch = row.match(/Areas:\s(.+)$/);
+        if (areaMatch) {
+            areaMatch[1].split('; ').forEach(area => {
+                if (area) {
+                    areas.add(area.toLowerCase());
+                }
+            });
+        }
     });
 
-    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-
-    const areaFilter = $('#areaFilter');
-    areaFilter.html(`<option value="">All Research Areas</option>
-                     <optgroup label="*Listed A-Z*" style="font-weight: bold; color: grey;" disabled></optgroup>`);
-    sortedAreas.forEach(([area, count]) => {
-        areaFilter.append(`<option value="${area}" style="text-transform: capitalize;">${area} [≈${count} matches]</option>`);
+    areaFilter.html(`<option value="">All Research Areas</option>`);
+    areas.forEach(area => {
+        areaFilter.append(`<option value="${area}" style="text-transform: capitalize;">${area.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`);
     });
 }
 
