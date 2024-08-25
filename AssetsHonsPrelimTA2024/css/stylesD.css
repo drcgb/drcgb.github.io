@@ -87,6 +87,7 @@ body, table, th, td,
     justify-content: flex-start; /* Align filters to the left */
     gap: 10px; /* Increase gap between filters */
     width: 100%;
+    padding: 10px; /* Increase padding */
 }
 
 .filter-group {
