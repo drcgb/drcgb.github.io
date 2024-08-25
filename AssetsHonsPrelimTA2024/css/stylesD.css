@@ -1,184 +1,23 @@
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    -webkit-text-size-adjust: 99%; /* Prevent font size adjustment on iOS */
-    text-size-adjust: 99%; /* Prevent font size adjustment on Android */
-}
-
-body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
-.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
-    font-family: Arial, sans-serif;
-    font-size: 14px; /* Set the base font size */
-    line-height: 1.2;
-}
-
-/* Prevent font size changes when the phone is flipped to landscape */
-@media (orientation: landscape) {
-    body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
-    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
-        font-size: 14px; /* Ensure the font size stays the same in landscape mode */
-    }
+.page-wrapper {
+    max-width: 1200px; /* Adjust this to match your content width */
+    margin: 0 auto; /* Center the wrapper */
 }
 
 .fixed-header {
+    width: 100%; /* Full width relative to the wrapper */
     position: fixed;
     top: 0;
-    width: 100vw;
-    background-color: white;
+    left: 0;
+    background-color: #fff; /* Adjust as needed */
     z-index: 1000;
-    padding: 8px 8px ;/* Reduced padding */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for visibility */
 }
 
 .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    box-sizing: border-box;
-    margin-top: 10px; /* Adjust this to account for the header height */
-    transition: margin-top 0.3s ease;
-}
-
-.custom-search-container {
-    margin-left: 3px;
-    width: 97vw;
-    max-width: 97vw; /* Ensure it doesn't overshoot the screen */
-    text-align: center;
-    margin-bottom: 2px; /* Reduced margin */
-    padding: 5px; /* Reduced padding */
-    box-sizing: border-box; /* Include padding in width calculation */
-}
-
-.custom-search-container input {
-    width: 100%;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
-    padding: 8px; /* Reduced padding */
-    border-radius: 4px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-
-.dataTables_wrapper .filter-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 5px;
-    width: 100%;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
-    padding: 5px; /* Reduced padding */
-    padding-right: 2px; /* Adjusted right padding */
-    box-sizing: border-box; /* Include padding in width calculation */
-}
-
-.filter-group {
-    display: flex;
-    align-items: center;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
-}
-
-.filter-group label {
-    margin-right: 1px;
-    margin-left: 3px;
-    font-weight: bold; /* Bold filter labels */
-}
-
-.filter-group select {
-    min-width: 150px;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
-}
-
-@media (max-width: 600px) {
-    .filter-container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .filter-group {
-        width: 97vw;
-    }
-    .filter-group select {
-        width: 97vw; /* Ensures select boxes take full width on mobile */
-    }
-    .custom-search-container input, .filter-status-btn {
-        width: 97vw; /* Ensures search box and buttons take full width on mobile */
-        font-size: 14px; /* Adjust this value to increase the text size */
-        font-weight: bold; /* Makes the font bold */
-    }
-}
-
-.filter-status-btn {
-    margin-left: 2px;
-    margin-right: 1.5px;
-    margin-top: 2.5px;
-    padding: 3px 3px;
-    padding-right: 3px; /* Added right padding */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    font-weight: bold; /* Makes the font bold */
-}
-.filter-status-btn.green {
-    background-color: #28a745;
-    color: white;
-}
-.filter-status-btn.red {
-    background-color: red;
-    color: white;
-}
-
-.filter-notice {
-    margin-top: 5px;
-    margin-bottom: 2px;
-    margin-left: 8px; /* Nudge the filter notice 8px to the right */
-    color: #000000;
-    background-color: #ebb6fcd8;
-    border: 1px solid #c953ff;
-    padding: 8px;
-    border-radius: 4px;
-    box-sizing: border-box;
-    width: 97vw;
-    max-width: 97vw; /* Ensure it doesn't overshoot the screen */
-    display: none;
-}
-
-table, th, td {
-    padding: 0px;
-    border-collapse: collapse;
-    border: 1px solid black;
-}
-th {
-    background-color: #f2f2f2;
-    text-align: left;
-    vertical-align: middle;
-}
-table.dataTable tbody tr:hover {
-    background-color: #e0f7fa;
+    padding-top: 100px; /* Ensure content is not hidden behind the fixed header */
 }
 
 .table-container {
-    flex: 1;
-    overflow-y: auto;
-    margin-bottom: 10px; /* Reduced margin */
-}
-
-.end-of-records td {
-    text-align: center;
-    padding: 10px;
-    font-size: 14px;
-    color: #333;
-    background-color: #f2f2f2;
-    border-top: 2px solid #ccc;
-}
-
-.dataTables_wrapper .dataTables_paginate {
-    position: static;
-    margin-top: auto;
-    background-color: white;
-    padding: 5px 0;
-    text-align: center;
-    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    overflow-x: auto; /* Ensure table is responsive */
 }
