@@ -361,10 +361,11 @@ $(document).ready(function() {
     });
 
     $('#closeInstructions').on('click', function(e) {
-        e.preventDefault();
-        toggleInstructions();
+        e.preventDefault(); // Prevent the default action of the link
+        toggleInstructions(); // Call the function to toggle instructions
     });
 
+    // Other event listeners
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
@@ -411,20 +412,17 @@ $(document).ready(function() {
     document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
     document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
     document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
-    $('#closeInstructions').on('click', function(e) {
-        e.preventDefault();
-        toggleInstructions();
-    });
 });
 
 // Function to toggle instructions
 function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
-    details.open = !details.open;
+    details.open = !details.open; // Toggle the 'open' attribute
     console.log('Instructions toggled:', details.open);
+    
     const toggleLink = document.getElementById("instructionsToggle");
     toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
-    adjustContentMargin();
+    adjustContentMargin(); // Recalculate margin after toggling
 }
 
 // Variables to track the current adjustment level
