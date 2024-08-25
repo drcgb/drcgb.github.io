@@ -331,7 +331,7 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-    
+
     adjustContentMargin();
 }
 
@@ -360,21 +360,21 @@ $(document).ready(function() {
         updateFilterNotice();
         scrollToTop();
     });
-    
+
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
         scrollToTop();
     });
-    
+
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
         scrollToTop();
     });
- 
+
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
