@@ -267,31 +267,69 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-// Toggle instructions visibility
-function toggleInstructions() {
-    const details = document.getElementById("instructionsDetails");
-    details.open = !details.open;
-    adjustContentMargin(); // Adjust margin based on visibility
-}
+$(document).ready(function() {
+    // Toggle instructions visibility
+    $('#instructionsToggle').on('click', function() {
+        const details = $('#instructionsDetails');
+        details.toggle();
+        const isOpen = details.is(':visible');
+        $('#instructionsToggle').text(isOpen ? "▼ Instructions" : "► Instructions");
+        adjustContentMargin(); // Adjust margin when instructions visibility changes
+    });
+
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault();
+        $('#instructionsDetails').hide();
+        $('#instructionsToggle').text("► Instructions");
+        adjustContentMargin(); // Adjust margin when instructions visibility changes
+    });
+
+});
 
 // Adjust text size
 function adjustTextSize(increase) {
-    const contentTable = $("#abstractTable tbody td"); // Select all table cells
-    const currentSize = parseFloat(contentTable.css("font-size")); // Get current size of table text
-    let newSize;
+    const adjustmentFactor = increase ? 1.1 : 0.9;
 
-    if (increase) {
-        newSize = Math.min(currentSize * 1.1, 24); // Limit the max increase to 24px
-    } else {
-        newSize = Math.max(currentSize * 0.9, 10); // Limit the minimum decrease to 10px
-    }
+    // Adjust text size for table content (td)
+    $('#abstractTable td').each(function() {
+        const currentSize = parseFloat($(this).css('font-size'));
+        const newSize = currentSize * adjustmentFactor;
+        $(this).css('font-size', newSize + 'px');
+    });
 
-    contentTable.css("font-size", newSize + "px");
+    // Adjust text size for table headers (th)
+    $('#abstractTable th').each(function() {
+        const currentSize = parseFloat($(this).css('font-size'));
+        const newSize = currentSize * adjustmentFactor;
+        $(this).css('font-size', newSize + 'px');
+    });
+
+    // Adjust text size for filter notices and instructions
+    $('.filter-notice, .instructions').each(function() {
+        const currentSize = parseFloat($(this).css('font-size'));
+        const newSize = currentSize * adjustmentFactor;
+        $(this).css('font-size', newSize + 'px');
+    });
+
+    // Adjust text size for filter dropdown options
+    $('.filter-group select').each(function() {
+        const currentSize = parseFloat($(this).css('font-size'));
+        const newSize = currentSize * adjustmentFactor;
+        $(this).css('font-size', newSize + 'px');
+    });
+
+    // Adjust text size for buttons
+    $('.text-size-controls span, .reset-text-size, #filterStatusBtn').each(function() {
+        const currentSize = parseFloat($(this).css('font-size'));
+        const newSize = currentSize * adjustmentFactor;
+        $(this).css('font-size', newSize + 'px');
+    });
 }
+
 
 // Reset text size
 function resetTextSize() {
-    $('#abstractTable tbody td').css("font-size", "14px"); // Reset to default size
+    $('#abstractTable tbody td th .filter-notice, .instructions, .filter-group select, .text-size-controls span, .reset-text-size, #filterStatusBtn').css("font-size", "14px"); // Reset to default size
 }
 
 $(document).ready(function() {
