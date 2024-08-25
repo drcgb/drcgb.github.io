@@ -31,7 +31,7 @@ body, table, th, td,
 .blue-bar {
     background-color: #0056b3; /* Dark blue background */
     height: 40px; /* Adjust height if needed */
-    width: 100%;
+    width: 100vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
