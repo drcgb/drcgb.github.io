@@ -247,6 +247,8 @@ function updateFilterNotice() {
     
     adjustContentMargin();  // Recalculate margin after updating notice
 
+    // Reset scroll position to top-left after updating the notice
+    window.scrollTo(0, 0);
 }
 
 function adjustContentMargin() {
@@ -287,21 +289,21 @@ $(document).ready(function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0);
+        window.scrollTo(0, 0); // Reset scroll position to top-left
     });
 
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0);
+        window.scrollTo(0, 0); // Reset scroll position to top-left
     });
 
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0);
+        window.scrollTo(0, 0); // Reset scroll position to top-left
     });
 
     $('#filterStatusBtn').on('click', function() {
@@ -313,7 +315,7 @@ $(document).ready(function() {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
-            window.scrollTo(0, 0);
+            window.scrollTo(0, 0); // Reset scroll position to top-left
         }
     });
 
