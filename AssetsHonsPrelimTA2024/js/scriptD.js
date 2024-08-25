@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         populateTable(allRows);
         initializeDataTable();
-        populateFilters(allRows);  // Combined population function
+        populateFilters(allRows);
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
@@ -57,85 +57,15 @@ function initializeDataTable() {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
 
-            updateFilters(api);  // Update filter counts dynamically
+            updateFilters(api);
         }
     });
 
-    // Custom filter logic
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const methodValue = $('#methodFilter').val().toLowerCase().trim();
-        const areaValue = $('#areaFilter').val().toLowerCase().trim();
-
-        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
-        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
-
-        let methodMatch = false;
-
-        switch (methodValue) {
-            case '':
-                methodMatch = true;
-                break;
-            case 'all-quantitative':
-                methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
-                break;
-            case 'quantitative':
-            case 'meta-analysis':
-                methodMatch = mainMethod === methodValue;
-                break;
-            case 'mixed-methods-quantitative':
-                methodMatch = mainMethod === 'mixed-methods';
-                break;
-            case 'all-qualitative':
-                methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
-                break;
-            case 'qualitative':
-            case 'meta-synthesis':
-                methodMatch = mainMethod === methodValue;
-                break;
-            case 'mixed-methods-qualitative':
-                methodMatch = mainMethod === 'mixed-methods';
-                break;
-        }
-
-        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
-
-        return methodMatch && areaMatch;
-    });
+    // Remove event listeners for dropdown menus for now.
+    $('#methodFilter').off();
+    $('#areaFilter').off();
 
     dataTable.draw();
-
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw();
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#methodFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#areaFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-
-            dataTable.search('').draw();
-
-            updateFilterStatus();
-            updateFilterNotice();
-
-            window.scrollTo(0, 0);
-        }
-    });
 
     console.log("DataTable initialized.");
 }
@@ -381,32 +311,5 @@ $(document).ready(function() {
         updateFilterStatus();
         updateFilterNotice();
         window.scrollTo(0, 0);
-    });
-
-    $('#methodFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#areaFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-
-            dataTable.search('').draw();
-
-            updateFilterStatus();
-            updateFilterNotice();
-
-            window.scrollTo(0, 0);
-        }
     });
 });

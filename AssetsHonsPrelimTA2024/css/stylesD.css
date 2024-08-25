@@ -70,7 +70,7 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
     width: 100%;
     max-width: 100%; /* Ensure it doesn't overshoot the screen */
     padding: 5px; /* Reduced padding */
-    padding-right: 5px; /* Add padding to the right side */
+    padding-right: 2px; /* Adjusted right padding */
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
@@ -114,6 +114,7 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
     margin-right: 1.5px;
     margin-top: 2.5px;
     padding: 3px 3px;
+    padding-right: 3px; /* Added right padding */
     border: none;
     border-radius: 4px;
     cursor: pointer;
