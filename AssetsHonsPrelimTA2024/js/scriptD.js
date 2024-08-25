@@ -221,7 +221,7 @@ function updateFilterNotice() {
 
     let activeFilters = [];
     if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
-    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
+    if (methodValue) activeFilters.push(`Method: "${methodValue.replace('↘ ', '')}"`); // Remove the arrow for display
     if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
 
     const notice = $('#filterNotice');
@@ -230,27 +230,26 @@ function updateFilterNotice() {
     const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
 
     if (activeFilters.length > 0) {
+        let filterText = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | `;
         if (filteredRowCount > 0) {
-            notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+            notice.html(`${filterText}<strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
-            let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
-            alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
-            notice.html(alertMessage).show();
+            notice.html(`${filterText}<strong>No results found with this filter combination.</strong> Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`).show();
 
             $('#clearAllFiltersLink').on('click', function(e) {
                 e.preventDefault();
-
                 $('#filterStatusBtn').trigger('click');
             });
         }
     } else {
         notice.hide();
     }
-    
+
     adjustContentMargin();  // Recalculate margin after updating notice
+
     // Add a slight delay before resetting scroll position
     setTimeout(() => {
-    window.scrollTo(0, 0);
+    content.scrollTo(0, 0);
     }, 65);  // 65 milliseconds delay
 }
 
