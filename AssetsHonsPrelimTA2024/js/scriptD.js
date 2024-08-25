@@ -2,6 +2,7 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
+let updateCountsTimeout; // Declare the timeout variable
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -30,6 +31,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
+window.onload = function() {
+    adjustContentMargin();
+    matchNoticeWidth();
+};
+
 function initializeDataTable() {
     console.log("Initializing DataTable...");
 
@@ -55,7 +61,7 @@ function initializeDataTable() {
                     $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
                 }
 
-                clearTimeout(updateCountsTimeout);
+                clearTimeout(updateCountsTimeout);  // Clear previous timeout
                 updateCountsTimeout = setTimeout(() => {
                     updateMethodFilterCounts();
                     updateAreaFilterCounts();
@@ -110,6 +116,7 @@ function initializeDataTable() {
     }
 }
 
+// Populate the table with rows
 function populateTable(rows) {
     console.log("Populating table...");
     methodData = [];
@@ -131,6 +138,7 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
+// Populate the method filter dropdown
 function populateMethodFilter(rows) {
     console.log("Populating method filter...");
     const methodCounts = {
@@ -181,6 +189,7 @@ function populateMethodFilter(rows) {
     console.log("Method filter populated.");
 }
 
+// Populate the area filter dropdown
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
     const areaCounts = {};
@@ -205,6 +214,7 @@ function populateAreaFilter(rows) {
     console.log("Area filter populated.");
 }
 
+// Update method filter counts dynamically
 function updateMethodFilterCounts() {
     if (!dataTable) return;
 
@@ -218,7 +228,6 @@ function updateMethodFilterCounts() {
         mixedMethodsQualitative: 0
     };
 
-    // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
         const mainMethod = row[1]?.trim().toLowerCase();
         if (mainMethod) {
@@ -243,7 +252,6 @@ function updateMethodFilterCounts() {
         }
     });
 
-    // Clear and repopulate the method filter dropdown
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
@@ -258,13 +266,13 @@ function updateMethodFilterCounts() {
     `;
 }
 
+// Update area filter counts dynamically
 function updateAreaFilterCounts() {
     if (!dataTable) return;
 
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const areaCounts = {};
 
-    // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
         const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
         researchAreas.forEach(area => {
@@ -276,7 +284,6 @@ function updateAreaFilterCounts() {
 
     const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
-    // Clear and repopulate the area filter dropdown
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
     areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
@@ -331,7 +338,7 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-    
+
     adjustContentMargin();  // Recalculate margin after updating notice
 
 }
@@ -375,33 +382,41 @@ $(document).ready(function() {
 
     // Other event listeners
     $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw();
+        if (dataTable) {
+            dataTable.search($(this).val()).draw();
+        }
         updateFilterStatus();
         updateFilterNotice();
         scrollToTop();
     });
     
     $('#methodFilter').on('change', function() {
-        dataTable.draw();
+        if (dataTable) {
+            dataTable.draw();
+        }
         updateFilterStatus();
         updateFilterNotice();
         scrollToTop();
     });
     
     $('#areaFilter').on('change', function() {
-        dataTable.draw();
+        if (dataTable) {
+            dataTable.draw();
+        }
         updateFilterStatus();
         updateFilterNotice();
         scrollToTop();
     });
- 
+
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
             $('#areaFilter').val('');
             $('#customSearch').val('');
 
-            dataTable.search('').draw();
+            if (dataTable) {
+                dataTable.search('').draw();
+            }
             updateFilterStatus();
             updateFilterNotice();
             scrollToTop();
@@ -419,7 +434,7 @@ function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
     details.open = !details.open; // Toggle the 'open' attribute
     console.log('Instructions toggled:', details.open);
-    
+
     const toggleLink = document.getElementById("instructionsToggle");
     toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
     adjustContentMargin(); // Recalculate margin after toggling
