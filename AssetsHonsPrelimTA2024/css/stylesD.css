@@ -1,23 +1,23 @@
-.page-wrapper {
-    max-width: 1200px; /* Adjust this to match your content width */
-    margin: 0 auto; /* Center the wrapper */
-}
-
 .fixed-header {
-    width: 100%; /* Full width relative to the wrapper */
+    width: 100%; /* Match the header width to the viewport or wrapper */
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #fff; /* Adjust as needed */
+    background-color: #fff; /* Background color to ensure visibility */
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for visibility */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
 }
 
 .content {
-    padding-top: 100px; /* Ensure content is not hidden behind the fixed header */
+    padding-top: 70px; /* Adjust this padding to match the height of the fixed header */
 }
 
 .table-container {
     width: 100%;
+    padding: 0 20px; /* Optional: padding to match the header and content widths */
     overflow-x: auto; /* Ensure table is responsive */
+}
+
+.dataTables_wrapper {
+    width: 100%; /* Ensure the DataTables wrapper matches the content width */
 }
