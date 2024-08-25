@@ -49,18 +49,9 @@ function initializeDataTable() {
             lengthMenu: 'Show up to _MENU_ records per page',
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function(settings) {
-            const api = this.api();
-            const rows = api.rows({ search: 'applied' }).data().length;
-
-            $('#abstractTable tbody .end-of-records').remove();
-            if (rows === 0 || rows > 0) {
-                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
-            }
-
-            // Update filter counts dynamically
-            updateMethodFilterCounts();
-            updateAreaFilterCounts();
+        initComplete: function() {
+            updateMethodFilterCounts(); // Initial update of method filter counts
+            updateAreaFilterCounts(); // Initial update of area filter counts
         }
     });
 
@@ -103,6 +94,25 @@ function initializeDataTable() {
         const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
         return methodMatch && areaMatch;
+    });
+
+    // Event listeners for updating counts on filter changes
+    $('#methodFilter').on('change', function() {
+        dataTable.draw(); // Trigger the DataTable to redraw
+        updateMethodFilterCounts(); // Manually update method filter counts
+        updateAreaFilterCounts(); // Manually update area filter counts
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw(); // Trigger the DataTable to redraw
+        updateMethodFilterCounts(); // Manually update method filter counts
+        updateAreaFilterCounts(); // Manually update area filter counts
+    });
+
+    $('#customSearch').on('input', function() {
+        dataTable.search($(this).val()).draw(); // Apply the search
+        updateMethodFilterCounts(); // Manually update method filter counts
+        updateAreaFilterCounts(); // Manually update area filter counts
     });
 
     dataTable.draw(); // Apply filters initially
@@ -167,14 +177,14 @@ function populateMethodFilter(rows) {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">All Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
-            <option value="meta-analysis">Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
-            <option value="mixed-methods-quantitative">Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">All Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
-            <option value="meta-synthesis">Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
-            <option value="mixed-methods-qualitative">Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
+            <option value="meta-analysis">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
+            <option value="mixed-methods-quantitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
+            <option value="meta-synthesis">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
+            <option value="mixed-methods-qualitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
     `;
     console.log("Method filter populated.");
 }
@@ -195,7 +205,7 @@ function populateAreaFilter(rows) {
 
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += `<option disabled style="color: grey;">Listed A-Z</option>`;
+    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
         return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
@@ -245,14 +255,14 @@ function updateMethodFilterCounts() {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">All Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
-            <option value="meta-analysis">Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
-            <option value="mixed-methods-quantitative">Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">All Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
-            <option value="meta-synthesis">Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
-            <option value="mixed-methods-qualitative">Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
+            <option value="meta-analysis">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
+            <option value="mixed-methods-quantitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
+            <option value="meta-synthesis">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
+            <option value="mixed-methods-qualitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
     `;
 }
 
@@ -264,7 +274,7 @@ function updateAreaFilterCounts() {
 
     // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
-        const researchAreas = row[0].split('<br><br>Areas:</strong> ')[1]?.split('; ') || [];
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
         researchAreas.forEach(area => {
             if (area) {
                 areaCounts[area] = (areaCounts[area] || 0) + 1;
@@ -277,7 +287,7 @@ function updateAreaFilterCounts() {
     // Clear and repopulate the area filter dropdown
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += `<option disabled style="color: grey;">Listed A-Z</option>`;
+    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
         return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
@@ -329,9 +339,8 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-    
-    adjustContentMargin();  // Recalculate margin after updating notice
 
+    adjustContentMargin();  // Recalculate margin after updating notice
 }
 
 function adjustContentMargin() {
@@ -378,21 +387,21 @@ $(document).ready(function() {
         updateFilterNotice();
         scrollToTop();
     });
-    
+
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
         scrollToTop();
     });
-    
+
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
         scrollToTop();
     });
- 
+
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
@@ -417,7 +426,7 @@ function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
     details.open = !details.open; // Toggle the 'open' attribute
     console.log('Instructions toggled:', details.open);
-    
+
     const toggleLink = document.getElementById("instructionsToggle");
     toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
     adjustContentMargin(); // Recalculate margin after toggling
