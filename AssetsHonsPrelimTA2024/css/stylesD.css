@@ -156,7 +156,7 @@ p.instructions {
 
 .filter-status-btn {
     margin-left: 0; /* Align button to the left */
-    padding: 5px 15px; /* Increase padding */
+    padding: 5px 7px; /* Increase padding */
     border: 1px solid #000000;
     border-radius: 4px;
     cursor: pointer;
@@ -164,6 +164,7 @@ p.instructions {
     transition: background-color 0.3s, color 0.3s;
     vertical-align: center;
     text-align: center;
+    font-size: 14px;
 }
 
 .filter-status-btn.green {
