@@ -196,6 +196,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateTable(allRows);
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
+
+        // Initialize the dataTable after the filters are populated
         initializeDataTable();
 
         window.addEventListener('resize', () => {
