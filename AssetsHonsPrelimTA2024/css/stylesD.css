@@ -1,5 +1,4 @@
-/* Global Styles */
-
+/** GLOBAL STYLES */
 html, body {
     height: 100%;
     margin: 0;
@@ -24,22 +23,24 @@ body, table, th, td,
     box-sizing: inherit;
 }
 
-/* Layout Styles */
+
+
+
+/** LAYOUT STYLES */
 .page-wrapper,
 .custom-search-container,
 .fixed-header,
 .content {
-    max-width: 99vw;
-    width: 99vw;
-    margin: 0 auto;
+    max-width: 1200px; /* Set a maximum width */
+    width: 80%; /* Use a percentage for responsive design */
+    margin: 0 auto; /* Center the container */
     text-align: left; /* Ensure left alignment */
     box-sizing: border-box;
 }
 
 .fixed-header {
     flex: 1;
-    width: 99vw; /* Ensure it fits within the viewport */
-    max-width: 99vw; /* Ensure it doesn't exceed the viewport width */
+    width: 100%; /* Ensure it fits within the viewport */
     position: fixed;
     top: 0;
     padding: 12px;
@@ -51,33 +52,33 @@ body, table, th, td,
 
 .content {
     flex: 1;
-    padding: 10px;
-    margin-top: 10px; /* Adjust as needed to create space between the header and the content */
+    padding: 20px; /* Increase padding for better readability */
+    margin-top: 60px; /* Adjust to create space between the header and the content */
     transition: margin-top 0.3s ease;
     text-align: left; /* Ensure left alignment */
 }
 
 .custom-search-container {
     margin-left: 3px;
-    width: 97vw;
-    max-width: 97vw; /* Ensure it doesn't overshoot the screen */
+    width: 100%; /* Ensure it fits within the container */
     text-align: left; /* Align search container to the left */
-    margin-bottom: 2px;
-    padding: 5px;
+    margin-bottom: 10px; /* Increase bottom margin */
+    padding: 10px; /* Increase padding */
     box-sizing: border-box; /* Include padding in width calculation */
-
 }
 
 .custom-search-container input {
     width: 100%;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
-    padding: 8px;
+    padding: 10px; /* Increase padding */
     border-radius: 4px;
     font-size: 16px;
     box-sizing: border-box;
 }
 
-/* DataTables and Filter Styling */
+
+
+
+/**DATATBLES AND FILTER STYLING */
 .dataTables_wrapper {
     text-align: left; /* Ensure DataTables elements are left-aligned */
     padding-left: 0; /* Ensure there's no extra left padding */
@@ -87,20 +88,18 @@ body, table, th, td,
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start; /* Align filters to the left */
-    gap: 5px;
+    gap: 10px; /* Increase gap between filters */
     width: 100%;
-    max-width: 100%;
 }
 
 .filter-group {
     display: flex;
     align-items: center;
     text-align: left; /* Align filter groups to the left */
-    max-width: 100%;
 }
 
 .filter-group label {
-    margin-right: 5px;
+    margin-right: 10px; /* Increase margin */
     font-weight: bold; /* Bold filter labels */
 }
 
@@ -111,7 +110,7 @@ body, table, th, td,
 
 .filter-status-btn {
     margin-left: 0; /* Align button to the left */
-    padding: 3px 10px;
+    padding: 5px 15px; /* Increase padding */
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -132,25 +131,27 @@ body, table, th, td,
 }
 
 .filter-notice {
-    margin-top: 5px;
-    margin-bottom: 2px;
+    margin-top: 10px; /* Increase top margin */
+    margin-bottom: 10px; /* Increase bottom margin */
     margin-left: 0; /* Align the filter notice container to the left */
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
-    padding: 8px;
+    padding: 10px; /* Increase padding */
     border-radius: 4px;
     box-sizing: border-box;
     width: 100%;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
     display: none;
     text-align: left; /* Align filter notice text to the left */
     font-size: 14px;
 }
 
-/* Table Styling */
+
+
+
+/* TABLE STYLING */
 table, th, td {
-    padding: 0;
+    padding: 10px; /* Add padding for better readability */
     border-collapse: collapse;
     border: 1px solid black;
     text-align: left; /* Align table content to the left */
@@ -169,11 +170,14 @@ table.dataTable tbody tr:hover {
 .table-container {
     flex: 1;
     overflow-y: auto;
-    margin-bottom: 10px;
+    margin-bottom: 20px; /* Increase bottom margin */
     text-align: left; /* Align table content to the left */
 }
 
-/* Responsive Design */
+
+
+
+/** RESPONSIVE DESIGN */
 @media (max-width: 600px) {
     .filter-container {
         flex-direction: column;
@@ -181,12 +185,12 @@ table.dataTable tbody tr:hover {
     }
 
     .filter-group {
-        width: 97vw;
+        width: 100%; /* Ensure it fits within the container */
         text-align: left; /* Maintain left alignment on small screens */
     }
 
     .custom-search-container input, .filter-status-btn {
-        width: 97vw;
+        width: 100%; /* Ensure it fits within the container */
         text-align: left; /* Ensure left alignment for input and buttons on small screens */
     }
 }
