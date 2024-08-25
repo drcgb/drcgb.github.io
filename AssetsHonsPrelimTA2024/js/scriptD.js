@@ -2,7 +2,6 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
-let textSizeLevel = 0; // Tracks the number of text size changes
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -248,20 +247,17 @@ function updateFilterNotice() {
     
     adjustContentMargin();  // Recalculate margin after updating notice
 
-    // Reset scroll position to top-left after updating the notice
-    window.scrollTo(0, 0);
 }
 
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const instructionsHeight = $('#instructionsDetails').is(':visible') ? $('#instructionsDetails').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true);
 
-    // Adjust the total margin so that it only adds the filter notice height and instructions height if needed
-    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight;
+    // Adjust the total margin so that it only adds the filter notice height if needed
+    const totalMargin = headerHeight + filterNoticeHeight;
 
     // Set the margin-top for the content area
-    $('.content').css('margin-top', totalMargin);
+    $('.content').css('margin-top', totalMargin - filterNoticeHeight);
 }
 
 function matchNoticeWidth() {
@@ -275,31 +271,24 @@ function matchNoticeWidth() {
 function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
     details.open = !details.open;
-    updateInstructionsIcon(details.open);
-    adjustContentMargin(); // Adjust content margin when instructions are toggled
+    adjustContentMargin(); // Adjust margin based on visibility
 }
 
-// Update instructions icon direction
-function updateInstructionsIcon(isOpen) {
-    const icon = document.getElementById("instructionsIcon");
-    icon.textContent = isOpen ? "▼" : "▶"; // Down arrow when open, right arrow when closed
-}
-
-// Adjust text size in the content table
+// Adjust text size
 function adjustTextSize(increase) {
-    if (increase && textSizeLevel < 2) {
-        textSizeLevel++;
-    } else if (!increase && textSizeLevel > -2) {
-        textSizeLevel--;
-    }
-    const newSize = 15 + textSizeLevel * 2; // Base size 15px, adjust by 2px per level
-    $("#abstractTable").css("font-size", newSize + "px");
+    const contentTable = $('#abstractTable');
+    let currentSize = parseFloat(contentTable.css("font-size"));
+    let newSize = increase ? currentSize * 1.1 : currentSize * 0.9;
+    
+    // Limit text size adjustment to 2 increases and 2 decreases
+    if (newSize > 20 || newSize < 10) return;
+
+    contentTable.css("font-size", newSize + "px");
 }
 
-// Reset text size to default
+// Reset text size
 function resetTextSize() {
-    textSizeLevel = 0;
-    $("#abstractTable").css("font-size", "15px");
+    $('#abstractTable').css("font-size", "14px"); // Reset to default size
 }
 
 $(document).ready(function() {
@@ -309,21 +298,21 @@ $(document).ready(function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Reset scroll position to top-left
+        window.scrollTo(0, 0);
     });
 
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Reset scroll position to top-left
+        window.scrollTo(0, 0);
     });
 
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Reset scroll position to top-left
+        window.scrollTo(0, 0);
     });
 
     $('#filterStatusBtn').on('click', function() {
@@ -335,7 +324,7 @@ $(document).ready(function() {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
-            window.scrollTo(0, 0); // Reset scroll position to top-left
+            window.scrollTo(0, 0);
         }
     });
 
