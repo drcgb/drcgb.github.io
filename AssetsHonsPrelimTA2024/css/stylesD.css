@@ -27,7 +27,6 @@ body, table, th, td,
     box-sizing: inherit;
 }
 
-
 /** LAYOUT STYLES */
 .page-wrapper,
 .custom-search-container,
@@ -79,7 +78,6 @@ p.instructions {
     margin: 0; /* Removes all margins */
 }
 
-
 /**DATATBLES AND FILTER STYLING */
 .dataTables_wrapper {
     text-align: left; /* Ensure DataTables elements are left-aligned */
@@ -107,8 +105,9 @@ p.instructions {
     font-weight: bold; /* Bold filter labels */
 }
 
+/* Set an even width for all dropdown menus */
 .filter-group select {
-    min-width: 150px;
+    width: 200px; /* Set a fixed width */
     max-width: 100%; /* Ensure it doesn't overshoot the screen */
 }
 
@@ -149,7 +148,6 @@ p.instructions {
     font-size: 14px;
 }
 
-
 /* TABLE STYLING */
 table, th, td {
     border-collapse: collapse;
@@ -173,7 +171,6 @@ table.dataTable tbody tr:hover {
     margin-bottom: 20px; /* Increase bottom margin */
     text-align: left; /* Align table content to the left */
 }
-
 
 /** RESPONSIVE DESIGN */
 @media (max-width: 600px) {
@@ -199,5 +196,10 @@ table.dataTable tbody tr:hover {
     .custom-search-container input, .filter-status-btn {
         width: 100%; /* Ensure it fits within the container */
         text-align: left; /* Ensure left alignment for input and buttons on small screens */
+    }
+
+    /* Ensure dropdowns are responsive on small screens */
+    .filter-group select {
+        width: 100%; /* Make sure the select dropdowns take full width on small screens */
     }
 }
