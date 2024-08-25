@@ -4,72 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Searchable and Filterable Table</title>
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="AssetsHonsPrelimTA2024/css/stylesD.css">
+    <link rel="stylesheet" href="stylesD.css">
 </head>
 <body>
-
-    <!-- Page Wrapper -->
-    <div class="page-wrapper">
-
-        <!-- Fixed Header -->
-        <div class="fixed-header">
-            <div class="custom-search-container">
-                <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
-            </div>
-            <div class="options-bar">
-                <div class="instructions-toggle">
-                    <button id="toggleInstructions">Instructions</button>
-                </div>
-                <div class="text-size-controls">
-                    <button id="increaseTextSize">A+</button>
-                    <button id="decreaseTextSize">A-</button>
-                </div>
-            </div>
-            <div class="dataTables_wrapper">
-                <div class="filter-container">
-                    <details id="instructionsDetails">
-                        <summary style="display:none;"></summary>
-                        <p class="instructions">
-                            All preliminary abstracts are shown in the table below. You can filter the abstracts by entering text into the search bar above. You can also filter by <strong>Method</strong> <u>and/or</u> <strong>Research Area</strong> using the dropdown menus below. The corresponding record counts will update dynamically based on your filter options. When filters are active, the green button will turn red, and you can click it to clear the filters.
-                        </p>
-                    </details>
-                    <div class="filter-group">
-                        <label for="methodFilter">Filter(Method):</label>
-                        <select id="methodFilter"><option value="">All</option></select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="areaFilter">Filter(Areas):</label>
-                        <select id="areaFilter"><option value="">All</option></select>
-                    </div>
-                    <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
-                </div>
-                <div class="filter-notice" id="filterNotice"></div>
+    <div class="fixed-header">
+        <div class="custom-search-container">
+            <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
+        </div>
+        <!-- New Blue Bar Below Search Bar -->
+        <div class="blue-bar">
+            <span class="instructions-link" id="toggleInstructions">
+                <span id="instructionsIcon">▶</span> Instructions
+            </span>
+            <div class="text-size-controls">
+                <span class="reset-text-size" id="resetTextSize">Reset Text Size</span>
+                <span id="decreaseTextSize">A-</span>
+                <span id="increaseTextSize">A+</span>
             </div>
         </div>
-
-        <!-- Content Area -->
-        <div class="content">
-            <div class="table-container">
-                <table id="abstractTable" class="display">
-                    <thead>
-                        <tr><th>Preliminary Title and Abstract</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+        <!-- Instructions Details -->
+        <details id="instructionsDetails">
+            <summary style="display:none;">Instructions</summary>
+            <p class="instructions">
+                <!-- Your instructions content here -->
+                <span id="closeInstructions" class="close-instructions">Close instructions</span>
+            </p>
+        </details>
+        <div class="dataTables_wrapper">
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="methodFilter">Filter(Method):</label>
+                    <select id="methodFilter"><option value="">All</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="areaFilter">Filter(Areas):</label>
+                    <select id="areaFilter"><option value="">All</option></select>
+                </div>
+                <button id="filterStatusBtn" class="filter-status-btn green">No filters active</button>
             </div>
+            <div class="filter-notice" id="filterNotice"></div>
         </div>
+    </div>
 
-    </div> <!-- Closing Page Wrapper -->
-
-    <!-- External JavaScript Libraries -->
+    <div class="content">
+        <div class="table-container">
+            <table id="abstractTable" class="display">
+                <thead>
+                    <tr><th>Preliminary Title and Abstract</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-
-    <!-- Custom JavaScript -->
-    <script src="AssetsHonsPrelimTA2024/js/scriptD.js"></script>
-
+    <script src="scriptD.js"></script>
 </body>
 </html>

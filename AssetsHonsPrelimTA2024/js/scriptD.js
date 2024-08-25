@@ -2,6 +2,7 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
+let textSizeLevel = 0; // Tracks the number of text size changes
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -253,13 +254,14 @@ function updateFilterNotice() {
 
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const instructionsHeight = $('#instructionsDetails').is(':visible') ? $('#instructionsDetails').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true);
 
-    // Adjust the total margin so that it only adds the filter notice height if needed
-    const totalMargin = headerHeight + filterNoticeHeight;
+    // Adjust the total margin so that it only adds the filter notice height and instructions height if needed
+    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight;
 
     // Set the margin-top for the content area
-    $('.content').css('margin-top', totalMargin - filterNoticeHeight);
+    $('.content').css('margin-top', totalMargin);
 }
 
 function matchNoticeWidth() {
@@ -273,13 +275,31 @@ function matchNoticeWidth() {
 function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
     details.open = !details.open;
+    updateInstructionsIcon(details.open);
+    adjustContentMargin(); // Adjust content margin when instructions are toggled
 }
 
-// Adjust text size
+// Update instructions icon direction
+function updateInstructionsIcon(isOpen) {
+    const icon = document.getElementById("instructionsIcon");
+    icon.textContent = isOpen ? "▼" : "▶"; // Down arrow when open, right arrow when closed
+}
+
+// Adjust text size in the content table
 function adjustTextSize(increase) {
-    const currentSize = parseFloat($("body").css("font-size"));
-    const newSize = increase ? currentSize * 1.1 : currentSize * 0.9;
-    $("body").css("font-size", newSize + "px");
+    if (increase && textSizeLevel < 2) {
+        textSizeLevel++;
+    } else if (!increase && textSizeLevel > -2) {
+        textSizeLevel--;
+    }
+    const newSize = 15 + textSizeLevel * 2; // Base size 15px, adjust by 2px per level
+    $("#abstractTable").css("font-size", newSize + "px");
+}
+
+// Reset text size to default
+function resetTextSize() {
+    textSizeLevel = 0;
+    $("#abstractTable").css("font-size", "15px");
 }
 
 $(document).ready(function() {
@@ -323,4 +343,5 @@ $(document).ready(function() {
     $('#toggleInstructions').on('click', toggleInstructions);
     $('#increaseTextSize').on('click', function() { adjustTextSize(true); });
     $('#decreaseTextSize').on('click', function() { adjustTextSize(false); });
+    $('#resetTextSize').on('click', resetTextSize);
 });
