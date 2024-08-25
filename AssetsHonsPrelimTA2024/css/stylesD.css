@@ -58,10 +58,8 @@ body, table, th, td,
 }
 
 .custom-search-container {
-    margin-left: 3px;
     width: 100%; /* Ensure it fits within the container */
     text-align: left; /* Align search container to the left */
-    margin-bottom: 10px; /* Increase bottom margin */
     padding: 10px; /* Increase padding */
     box-sizing: border-box; /* Include padding in width calculation */
 }
