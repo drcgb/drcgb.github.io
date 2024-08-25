@@ -129,20 +129,20 @@ html, body {
                         color: white; /* White text color */
                 }
 
-/* Filter Notice */
-.filter-notice {
-    margin: 5px 0 2px 8px; /* Add space around the filter notice */
-    padding: 8px; /* Add padding inside the notice */
-    width: 100%;
-    max-width: 100%;
-    color: #000; /* Set the text color to black */
-    background-color: #ebb6fcd8; /* Set the background color */
-    border: 1px solid #c953ff; /* Add a border with a specific color */
-    border-radius: 4px; /* Round the corners slightly */
-    overflow-wrap: break-word; /* Break words that are too long to fit */
-    word-wrap: break-word; /* Ensure compatibility for word breaking */
-    display: none; /* Hide the filter notice by default */
-}
+                .filter-notice {
+                    margin: 5px 0 2px 8px; /* Add space around the filter notice */
+                    padding: 8px; /* Add padding inside the notice */
+                    color: #000; /* Set the text color to black */
+                    background-color: #ebb6fcd8; /* Set the background color */
+                    border: 1px solid #c953ff; /* Add a border with a specific color */
+                    border-radius: 4px; /* Round the corners slightly */
+                    width: 100%; /* Ensure it fits within its container */
+                    max-width: 100%; /* Prevent it from exceeding the container width */
+                    box-sizing: border-box; /* Include padding and border in width calculation */
+                    overflow-wrap: break-word; /* Break words that are too long to fit */
+                    word-wrap: break-word; /* Ensure compatibility for word breaking */
+                    display: none; /* Hide the filter notice by default */
+                }
 
 /* Table Styling */
 table, th, td {
