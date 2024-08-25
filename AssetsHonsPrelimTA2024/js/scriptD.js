@@ -248,8 +248,10 @@ function updateFilterNotice() {
     }
     
     adjustContentMargin();  // Recalculate margin after updating notice
-    window.scrollTo(0, 0);  // Reset the scroll position to the top of the page
-
+    // Add a slight delay before resetting scroll position
+    setTimeout(() => {
+    window.scrollTo(0, 0);
+    }, 65);  // 65 milliseconds delay
 }
 
 function adjustContentMargin() {
