@@ -96,7 +96,7 @@ body, table, th, td,
     max-width: 100%; /* Prevent expansion */
     flex: 1;
     padding: 5px 10px 1px 10px; /* Adjust padding: top right bottom left */
-    margin-top: 10px; /* Adjust to create space between the header and the content */
+    margin-top: 20px; /* Adjust to create space between the header and the content */
     transition: margin-top 0.3s ease;
     text-align: left; /* Ensure left alignment */
 }
