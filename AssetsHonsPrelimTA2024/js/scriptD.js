@@ -257,10 +257,10 @@ function updateFilterNotice() {
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true) + 24;
+    const headerHeight = $('.fixed-header').outerHeight(true) + 10;
 
     // Adjust the total margin so that it only adds the filter notice height if needed
-    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight - 24;
+    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight;
 
     // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
