@@ -10,7 +10,7 @@ html, body {
     -webkit-text-size-adjust: 99%;
     text-size-adjust: 99%;
     box-sizing: border-box;
-    width: 100vw; /* Prevent width expansion */
+    width: 100%; /* Prevent width expansion */
     max-width: 100%;
 }
 
@@ -31,8 +31,9 @@ body, table, th, td,
 .blue-bar {
     background-color: #0056b3; /* Dark blue background */
     height: 40px; /* Adjust height if needed */
-    width: calc(100vw - 10px); /* Consistent width with scrollbar accounted for */
-    max-width: 100%; /* Prevent expansion */    display: flex;
+    width: 100%; /* Consistent width */
+    max-width: 100%; /* Prevent expansion */
+    display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 5px 25px;
@@ -71,8 +72,8 @@ body, table, th, td,
 .custom-search-container,
 .fixed-header,
 .content {
-    width: calc(100vw - 10px); /* Consistent width with scrollbar accounted for */
-    max-width: 100% /* Prevent expansion */
+    width: 100%; /* Consistent width */
+    max-width: 100%; /* Prevent expansion */
     margin: 0 auto; /* Center the container */
     text-align: left; /* Ensure left alignment */
     box-sizing: border-box;
@@ -91,7 +92,7 @@ body, table, th, td,
 }
 
 .content {
-    width: calc(100vw - 10px); /* Consistent width with scrollbar accounted for */
+    width: 100%; /* Consistent width */
     max-width: 100%; /* Prevent expansion */
     flex: 1;
     padding: 20px; /* Increase padding for better readability */
