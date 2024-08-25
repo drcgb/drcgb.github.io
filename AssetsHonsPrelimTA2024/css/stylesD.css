@@ -142,7 +142,7 @@ p.instructions {
 }
 
 .filter-group select {
-    min-width: 150px;
+    min-width: 135px;
     max-width: 100%; /* Ensure it doesn't overshoot the screen */
 }
 
