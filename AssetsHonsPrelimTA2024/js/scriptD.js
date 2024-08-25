@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateTable(allRows);
         initializeDataTable();
         populateFilters();
+        adjustTableMargin(); // Adjust the table margin on page load
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
@@ -28,7 +29,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Searching for:", searchTerm); // Debugging log
         dataTable.search(searchTerm).draw(); // Apply the search term to DataTables
     });
+
+    window.addEventListener('resize', adjustTableMargin); // Adjust the table margin on window resize
 });
+
+function adjustTableMargin() {
+    const headerHeight = document.querySelector('.fixed-header').offsetHeight;
+    document.querySelector('.table-container').style.marginTop = `${headerHeight}px`;
+    console.log("Adjusted table margin to offset header height:", headerHeight);
+}
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
@@ -45,25 +54,8 @@ function initializeDataTable() {
     console.log("DataTable initialized.");
 
     // Simplified dropdown functionality
-    $('#methodFilter').on('change', function() {
-        const value = $(this).val();
-        console.log("Method Filter selected:", value);
-        if (value) {
-            filterByMethod(value);
-        } else {
-            dataTable.search('').draw(); // Clear the filter if no method is selected
-        }
-    });
-
-    $('#areaFilter').on('change', function() {
-        const value = $(this).val();
-        console.log("Area Filter selected:", value);
-        if (value) {
-            filterByArea(value);
-        } else {
-            dataTable.search('').draw(); // Clear the filter if no area is selected
-        }
-    });
+    $('#methodFilter').on('change', applyFilters);
+    $('#areaFilter').on('change', applyFilters);
 }
 
 function populateTable(rows) {
@@ -117,39 +109,23 @@ function populateAreaFilter() {
     console.log("Area filter populated.");
 }
 
-function filterByMethod(method) {
-    dataTable.columns().every(function() {
-        this.search('').draw(); // Clear existing filters on all columns
-    });
+function applyFilters() {
+    const selectedMethod = $('#methodFilter').val();
+    const selectedArea = $('#areaFilter').val();
 
-    // Adjusted regular expression to match the method correctly
-    const regex = new RegExp(`Method:\\s*${method}`, 'i');
-    
     dataTable.rows().every(function() {
         const row = this.data();
-        if (regex.test(row[0])) {
-            this.nodes().to$().show(); // Show the row if it matches the method
-        } else {
-            this.nodes().to$().hide(); // Hide the row if it doesn't match
-        }
-    });
+        const rowText = row[0];
 
-    dataTable.draw(); // Ensure the table redraws with the updated visibility
-}
+        const methodMatch = selectedMethod ? new RegExp(`Method:\\s*${selectedMethod}`, 'i').test(rowText) : true;
+        const areaMatch = selectedArea ? new RegExp(`Areas:\\s*.*${selectedArea}.*`, 'i').test(rowText) : true;
 
-
-function filterByArea(area) {
-    dataTable.columns().every(function() {
-        this.search('').draw(); // Clear existing filters on all columns
-    });
-
-    const regex = new RegExp(`Areas:\\s*.*${area}.*`, 'i');
-    dataTable.rows().every(function() {
-        const row = this.data();
-        if (regex.test(row[0])) {
+        if (methodMatch && areaMatch) {
             this.nodes().to$().show();
         } else {
             this.nodes().to$().hide();
         }
     });
+
+    dataTable.draw(); // Ensure the table redraws with the updated visibility
 }
