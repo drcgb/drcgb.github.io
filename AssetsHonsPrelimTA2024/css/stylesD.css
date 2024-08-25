@@ -33,8 +33,8 @@ body, table, th, td,
 .custom-search-container,
 .fixed-header,
 .content {
-    width: calc(100vw - 17px); /* Consistent width with scrollbar accounted for */
-    max-width: calc(100vw - 17px); /* Prevent expansion */
+    width: calc(100vw - 1px); /* Consistent width with scrollbar accounted for */
+    max-width: calc(100vw - 1px); /* Prevent expansion */
     margin: 0 auto; /* Center the container */
     text-align: left; /* Ensure left alignment */
     box-sizing: border-box;
