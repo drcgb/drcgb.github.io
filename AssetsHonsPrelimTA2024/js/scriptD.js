@@ -15,8 +15,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Data loaded:", allRows);
 
         populateTable(allRows);
-        populateMethodFilter(allRows);
-        populateAreaFilter(allRows);
+       /* populateMethodFilter(allRows);
+        populateAreaFilter(allRows);*/
 
         // Initialize the dataTable after the filters are populated
         initializeDataTable();
