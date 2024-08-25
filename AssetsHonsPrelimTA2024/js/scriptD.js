@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 let lastWindowWidth = window.innerWidth;
+let lastWindowHeight = window.innerHeight;
 
 function adjustTableMargin() {
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
@@ -43,11 +44,14 @@ function adjustTableMargin() {
     // Calculate the total height of the elements above the table
     const totalHeight = headerHeight + filterNoticeHeight;
 
-    // Adjust the margin only if the window has been resized
-    if (window.innerWidth !== lastWindowWidth) {
+    // Adjust the margin only if the window has been resized (width or height)
+    if (window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight) {
         document.querySelector('.table-container').style.marginTop = `${totalHeight}px`;
         console.log("Adjusted table margin to:", totalHeight, "px");
-        lastWindowWidth = window.innerWidth; // Update the last window width
+
+        // Update the last known window width and height
+        lastWindowWidth = window.innerWidth;
+        lastWindowHeight = window.innerHeight;
     }
 }
 
