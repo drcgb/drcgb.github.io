@@ -259,7 +259,7 @@ function adjustContentMargin() {
     const headerHeight = $('.fixed-header').outerHeight(true) + blueBarHeight;
 
     // Adjust the total margin so that it only adds the filter notice height if needed
-    const totalMargin = headerHeight + blueBarHeight;
+    const totalMargin = headerHeight + blueBarHeight - blueBarHeight;
 
    // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
