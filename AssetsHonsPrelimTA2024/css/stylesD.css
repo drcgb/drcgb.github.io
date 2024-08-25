@@ -29,14 +29,15 @@ body, table, th, td,
 .custom-search-container,
 .fixed-header,
 .content {
-    max-width: 100%;
-    width: 100vw;
+    max-width: 99vw;
+    width: 99vw;
     margin: 0 auto;
     text-align: left; /* Ensure left alignment */
     box-sizing: border-box;
 }
 
 .fixed-header {
+    flex: 1;
     width: 99vw; /* Ensure it fits within the viewport */
     max-width: 99vw; /* Ensure it doesn't exceed the viewport width */
     position: fixed;
