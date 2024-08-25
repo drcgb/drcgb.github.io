@@ -62,7 +62,7 @@ html, body {
 
                 .custom-search-container input {
                         width: 100%;
-                        max-width: calc(100% - 30px); /* Adjust for padding */
+                        max-width: 100%; /* DON'T Adjust for padding */
                         padding: 8px; /* Add padding inside the input */
                         border-radius: 4px; /* Round the corners slightly */
                         font-size: 16px; /* Set the font size */
