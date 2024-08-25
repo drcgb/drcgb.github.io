@@ -58,7 +58,7 @@ body {
 .content {
     flex: 1;
     padding: 10px;
-    margin-top: 100px; /* Adjust this to account for the header height */
+    margin-top: 10px; /* Adjust this to account for the header height */
     transition: margin-top 0.3s ease;
 }
 
@@ -101,6 +101,7 @@ body {
 /* Filter Status Button */
 .filter-status-btn {
     margin: 2.5px 1.5px 0 2px;
+    max-width: 100%; /* Stay within container */
     padding: 3px;
     border: none;
     border-radius: 4px;
