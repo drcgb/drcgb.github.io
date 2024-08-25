@@ -129,9 +129,7 @@ body, table, th, td,
 }
 
 .filter-notice {
-    margin-top: 10px; /* Increase top margin */
-    margin-bottom: 10px; /* Increase bottom margin */
-    margin-left: 0; /* Align the filter notice container to the left */
+    margin-top: 5px; /* Increase top margin */
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
