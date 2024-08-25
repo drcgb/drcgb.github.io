@@ -1,6 +1,6 @@
 /* Global Styles */
 
-/*html, body {
+html, body {
     height: 100%;
     margin: 0;
     padding: 0;
@@ -9,7 +9,7 @@
     -webkit-text-size-adjust: 99%;
     text-size-adjust: 99%;
     box-sizing: border-box;
-}*/
+}
 
 body, table, th, td, 
 .dataTables_wrapper .dataTables_filter input, 
