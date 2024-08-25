@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
+/*
 function adjustTableMargin() {
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
     const filterNotice = document.querySelector('.filter-notice');
@@ -56,7 +57,7 @@ function adjustTableMargin() {
     document.querySelector('.table-container').style.marginTop = `${totalHeight}px`;
     console.log("Adjusted table margin to:", totalHeight, "px");
 }
-
+*/
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");

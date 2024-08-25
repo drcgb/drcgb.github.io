@@ -104,10 +104,10 @@ html, body {
                 .filter-group select {
                         min-width: 150px;
                         width: 100%;
-                        max-width: calc(100% - 30px); /* Adjust for padding */
+                        max-width: 100%; /* DON't Adjust for padding */
                         padding: 8px; /* Add padding inside the select elements */
                         border-radius: 4px; /* Round the corners slightly */
-                        font-size: 16px; /* Set the font size */
+                        font-size: 14px; /* Set the font size */
                 }
 
         .filter-status-btn {
