@@ -276,19 +276,22 @@ function toggleInstructions() {
 
 // Adjust text size
 function adjustTextSize(increase) {
-    const contentTable = $('#abstractTable');
-    let currentSize = parseFloat(contentTable.css("font-size"));
-    let newSize = increase ? currentSize * 1.1 : currentSize * 0.9;
-    
-    // Limit text size adjustment to 2 increases and 2 decreases
-    if (newSize > 20 || newSize < 10) return;
+    const contentTable = $("#abstractTable tbody td"); // Select all table cells
+    const currentSize = parseFloat(contentTable.css("font-size")); // Get current size of table text
+    let newSize;
+
+    if (increase) {
+        newSize = Math.min(currentSize * 1.1, 24); // Limit the max increase to 24px
+    } else {
+        newSize = Math.max(currentSize * 0.9, 10); // Limit the minimum decrease to 10px
+    }
 
     contentTable.css("font-size", newSize + "px");
 }
 
 // Reset text size
 function resetTextSize() {
-    $('#abstractTable').css("font-size", "14px"); // Reset to default size
+    $('#abstractTable tbody td').css("font-size", "14px"); // Reset to default size
 }
 
 $(document).ready(function() {
