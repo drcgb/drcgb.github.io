@@ -32,7 +32,7 @@ body, table, th, td,
     background-color: #0056b3; /* Dark blue background */
     height: 40px; /* Adjust height if needed */
     width: calc(100vw - 1px); /* Consistent width with scrollbar accounted for */
-    max-width: calc(100vw - 1px); /* Prevent expansion */    display: flex;
+    max-width: 100%; /* Prevent expansion */    display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 5px 25px;
