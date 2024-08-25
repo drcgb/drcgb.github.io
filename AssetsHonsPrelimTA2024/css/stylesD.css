@@ -43,61 +43,36 @@ body, table, th, td,
 .blue-bar {
     background-color: #0056b3; /* Dark blue background */
     height: 20px; /* Half the height of the search bar */
-    width: 100%; /* Full width */
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 5px 10px;
     box-sizing: border-box;
     color: white;
-    position: fixed;
+    position: fixed; /* Fix the position at the top */
     top: 0;
-    left: 0;
-    z-index: 1001; /* Above other elements */
+    z-index: 1001; /* Ensure it is above other elements */
 }
 
-.blue-bar .instructions-link {
-    cursor: pointer;
-}
-
-.blue-bar .text-size-controls {
-    display: flex;
-    align-items: center;
-}
-
-.blue-bar .text-size-controls span {
-    margin-left: 10px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.blue-bar .reset-text-size {
-    margin-right: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #ffffff;
-    text-decoration: underline;
+#instructionsDetails {
+    margin-top: 20px; /* Add margin below the blue bar */
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #f9f9f9; /* Light background for instructions */
 }
 
 .fixed-header {
-    flex: 1;
-    width: 100%; /* Ensure it fits within the viewport */
-    position: fixed;
-    top: 25px; /* Adjust to account for the blue bar */
-    padding: 12px;
-    background-color: white;
+    margin-top: 60px; /* Adjust to create space between the header and the content */
+    padding-top: 30px; /* Add space below the instructions */
     z-index: 1000;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: left; /* Align fixed header content to the left */
 }
 
 .content {
-    flex: 1;
-    padding: 20px; /* Increase padding for better readability */
-    margin-top: 85px; /* Adjust to create space between the header and the content */
+    margin-top: 80px; /* Adjust to create space for both the blue bar and instructions */
     transition: margin-top 0.3s ease;
-    text-align: left; /* Ensure left alignment */
 }
+
 
 .custom-search-container {
     width: 100%; /* Ensure it fits within the container */
