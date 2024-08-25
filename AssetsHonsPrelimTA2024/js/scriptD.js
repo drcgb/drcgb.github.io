@@ -253,11 +253,13 @@ function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true);
 
-    // Calculate total margin only considering visible elements
-    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight : 0);
+    // Adjust the total margin so that it only adds the filter notice height if needed
+    const totalMargin = headerHeight + filterNoticeHeight;
 
-    $('.content').css('margin-top', totalMargin - 1);
+    // Set the margin-top for the content area
+    $('.content').css('margin-top', totalMargin - filterNoticeHeight);
 }
+
 
 function matchNoticeWidth() {
     const searchInput = document.querySelector('.custom-search-container input');
