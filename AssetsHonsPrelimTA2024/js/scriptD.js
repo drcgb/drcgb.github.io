@@ -312,9 +312,7 @@ function updateAreaFilterCounts() {
         <option value="Communication Psychology">Communication Psychology [${areaCounts['Communication Psychology'] || 0} record(s)]</option>
         <option value="Community Psychology">Community Psychology [${areaCounts['Community Psychology'] || 0} record(s)]</option>
         <option value="Criminology">Criminology [${areaCounts['Criminology'] || 0} record(s)]</option>
-        <option value="Cultural Psychology">Cultural Psychology [${areaCounts
-
-['Cultural Psychology'] || 0} record(s)]</option>
+        <option value="Cultural Psychology">Cultural Psychology [${areaCounts['Cultural Psychology'] || 0} record(s)]</option>
         <option value="Cyberpsychology">Cyberpsychology [${areaCounts['Cyberpsychology'] || 0} record(s)]</option>
         <option value="Developmental Psychology">Developmental Psychology [${areaCounts['Developmental Psychology'] || 0} record(s)]</option>
         <option value="Educational Psychology">Educational Psychology [${areaCounts['Educational Psychology'] || 0} record(s)]</option>
