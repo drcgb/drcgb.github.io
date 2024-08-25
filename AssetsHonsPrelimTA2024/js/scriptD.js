@@ -2,8 +2,6 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
-let areaCounts = {};
-let methodCounts = {};
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -19,11 +17,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
 
+        // Initialize the dataTable after the filters are populated
         initializeDataTable();
 
         window.addEventListener('resize', () => {
-            adjustContentMargin();
-            matchNoticeWidth();
+            adjustContentMargin(); // Adjust margin on window resize
+            matchNoticeWidth(); // Match filter notice width to search input
         });
 
     } catch (err) {
@@ -31,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-window.onload = function () {
+window.onload = function() {
     adjustContentMargin();
     matchNoticeWidth();
 };
@@ -50,7 +49,7 @@ function initializeDataTable() {
             lengthMenu: 'Show up to _MENU_ records per page',
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function (settings) {
+        drawCallback: function(settings) {
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
@@ -59,12 +58,14 @@ function initializeDataTable() {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
 
+            // Update filter counts dynamically
             updateMethodFilterCounts();
             updateAreaFilterCounts();
         }
     });
 
-    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+    // Custom filtering logic
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
@@ -104,22 +105,13 @@ function initializeDataTable() {
         return methodMatch && areaMatch;
     });
 
-    dataTable.draw();
+    dataTable.draw(); // Apply filters initially
 }
 
 function populateTable(rows) {
     console.log("Populating table...");
     methodData = [];
     researchAreasData = [];
-    methodCounts = {
-        quantitative: 0,
-        metaAnalysis: 0,
-        mixedMethodsQuantitative: 0,
-        qualitative: 0,
-        metaSynthesis: 0,
-        mixedMethodsQualitative: 0
-    };
-    areaCounts = {};
 
     const tbody = document.querySelector("#abstractTable tbody");
     tbody.innerHTML = rows.map(row => {
@@ -130,8 +122,28 @@ function populateTable(rows) {
         methodData.push(mainMethod.toLowerCase().trim());
         researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
 
+        return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+    }).join('');
+
+    tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
+    console.log("Table populated.");
+}
+
+function populateMethodFilter(rows) {
+    console.log("Populating method filter...");
+    const methodCounts = {
+        quantitative: 0,
+        metaAnalysis: 0,
+        mixedMethodsQuantitative: 0,
+        qualitative: 0,
+        metaSynthesis: 0,
+        mixedMethodsQualitative: 0
+    };
+
+    rows.forEach(row => {
+        const mainMethod = row[1]?.trim().toLowerCase();
         if (mainMethod) {
-            switch (mainMethod.toLowerCase().trim()) {
+            switch (mainMethod) {
                 case 'quantitative':
                     methodCounts.quantitative += 1;
                     break;
@@ -150,23 +162,8 @@ function populateTable(rows) {
                     break;
             }
         }
+    });
 
-        researchAreas.forEach(area => {
-            if (area) {
-                const areaLower = area.trim().toLowerCase();
-                areaCounts[areaLower] = (areaCounts[areaLower] || 0) + 1;
-            }
-        });
-
-        return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
-    }).join('');
-
-    tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
-    console.log("Table populated.");
-}
-
-function populateMethodFilter() {
-    console.log("Populating method filter...");
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
@@ -182,58 +179,116 @@ function populateMethodFilter() {
     console.log("Method filter populated.");
 }
 
-function populateAreaFilter() {
+function populateAreaFilter(rows) {
     console.log("Populating area filter...");
+    const areaCounts = {};
+    rows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area] = (areaCounts[area] || 0) + 1;
+            }
+        });
+    });
+
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Research Areas</option>
-        <option value="applied psychology">Applied Psychology [~${areaCounts['applied psychology'] || 0} record(s)]</option>
-        <option value="artificial intelligence (ai) & automation">Artificial Intelligence (AI) & Automation [~${areaCounts['artificial intelligence (ai) & automation'] || 0} record(s)]</option>
-        <option value="behavioural addictions">Behavioural Addictions [~${areaCounts['behavioural addictions'] || 0} record(s)]</option>
-        <option value="biological psychology">Biological Psychology [~${areaCounts['biological psychology'] || 0} record(s)]</option>
-        <option value="child development">Child Development [~${areaCounts['child development'] || 0} record(s)]</option>
-        <option value="child neglect">Child Neglect [~${areaCounts['child neglect'] || 0} record(s)]</option>
-        <option value="climate psychology">Climate Psychology [~${areaCounts['climate psychology'] || 0} record(s)]</option>
-        <option value="clinical neuropsychology">Clinical Neuropsychology [~${areaCounts['clinical neuropsychology'] || 0} record(s)]</option>
-        <option value="clinical psychology">Clinical Psychology [~${areaCounts['clinical psychology'] || 0} record(s)]</option>
-        <option value="cognitive psychology">Cognitive Psychology [~${areaCounts['cognitive psychology'] || 0} record(s)]</option>
-        <option value="communication psychology">Communication Psychology [~${areaCounts['communication psychology'] || 0} record(s)]</option>
-        <option value="community psychology">Community Psychology [~${areaCounts['community psychology'] || 0} record(s)]</option>
-        <option value="criminology">Criminology [~${areaCounts['criminology'] || 0} record(s)]</option>
-        <option value="cultural psychology">Cultural Psychology [~${areaCounts['cultural psychology'] || 0} record(s)]</option>
-        <option value="cyberpsychology">Cyberpsychology [~${areaCounts['cyberpsychology'] || 0} record(s)]</option>
-        <option value="developmental psychology">Developmental Psychology [~${areaCounts['developmental psychology'] || 0} record(s)]</option>
-        <option value="educational psychology">Educational Psychology [~${areaCounts['educational psychology'] || 0} record(s)]</option>
-        <option value="environmental psychology">Environmental Psychology [~${areaCounts['environmental psychology'] || 0} record(s)]</option>
-        <option value="experimental psychology">Experimental Psychology [~${areaCounts['experimental psychology'] || 0} record(s)]</option>
-        <option value="forensic psychology">Forensic Psychology [~${areaCounts['forensic psychology'] || 0} record(s)]</option>
-        <option value="genetics">Genetics [~${areaCounts['genetics'] || 0} record(s)]</option>
-        <option value="health psychology">Health Psychology [~${areaCounts['health psychology'] || 0} record(s)]</option>
-        <option value="human factors">Human Factors [~${areaCounts['human factors'] || 0} record(s)]</option>
-        <option value="individual differences">Individual Differences [~${areaCounts['individual differences'] || 0} record(s)]</option>
-        <option value="journalism psychology">Journalism Psychology [~${areaCounts['journalism psychology'] || 0} record(s)]</option>
-        <option value="learning & behaviour">Learning & Behaviour [~${areaCounts['learning & behaviour'] || 0} record(s)]</option>
-        <option value="organisational psychology">Organisational Psychology [~${areaCounts['organisational psychology'] || 0} record(s)]</option>
-        <option value="perception">Perception [~${areaCounts['perception'] || 0} record(s)]</option>
-        <option value="performing arts psychology">Performing Arts Psychology [~${areaCounts['performing arts psychology'] || 0} record(s)]</option>
-        <option value="personality psychology">Personality Psychology [~${areaCounts['personality psychology'] || 0} record(s)]</option>
-        <option value="political psychology">Political Psychology [~${areaCounts['political psychology'] || 0} record(s)]</option>
-        <option value="positive psychology">Positive Psychology [~${areaCounts['positive psychology'] || 0} record(s)]</option>
-        <option value="psychometrics">Psychometrics [~${areaCounts['psychometrics'] || 0} record(s)]</option>
-        <option value="public health">Public Health [~${areaCounts['public health'] || 0} record(s)]</option>
-        <option value="sex research">Sex Research [~${areaCounts['sex research'] || 0} record(s)]</option>
-        <option value="social psychology">Social Psychology [~${areaCounts['social psychology'] || 0} record(s)]</option>
-        <option value="sport & exercise psychology">Sport & Exercise Psychology [~${areaCounts['sport & exercise psychology'] || 0} record(s)]</option>
+        ${generateAreaOptions(areaCounts)}
     `;
     console.log("Area filter populated.");
 }
 
+function generateAreaOptions(areaCounts) {
+    const areaOptions = [
+        'Applied Psychology', 'Artificial Intelligence (AI) & Automation', 'Behavioural Addictions', 'Biological Psychology',
+        'Child Development', 'Child Neglect', 'Climate Psychology', 'Clinical Neuropsychology', 'Clinical Psychology',
+        'Cognitive Psychology', 'Communication Psychology', 'Community Psychology', 'Criminology', 'Cultural Psychology',
+        'Cyberpsychology', 'Developmental Psychology', 'Educational Psychology', 'Environmental Psychology', 
+        'Experimental Psychology', 'Forensic Psychology', 'Genetics', 'Health Psychology', 'Human Factors', 
+        'Individual Differences', 'Journalism Psychology', 'Learning & Behaviour', 'Organisational Psychology', 
+        'Perception', 'Performing Arts Psychology', 'Personality Psychology', 'Political Psychology', 
+        'Positive Psychology', 'Psychometrics', 'Public Health', 'Sex Research', 'Social Psychology', 
+        'Sport & Exercise Psychology'
+    ];
+    return areaOptions.map(area => {
+        const lowerCaseArea = area.toLowerCase();
+        const count = areaCounts[lowerCaseArea] || 0;
+        return `<option value="${lowerCaseArea}">${area} [~${count} record(s)]</option>`;
+    }).join('');
+}
+
 function updateMethodFilterCounts() {
-    populateMethodFilter();
+    if (!dataTable) return;
+
+    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const methodCounts = {
+        quantitative: 0,
+        metaAnalysis: 0,
+        mixedMethodsQuantitative: 0,
+        qualitative: 0,
+        metaSynthesis: 0,
+        mixedMethodsQualitative: 0
+    };
+
+    visibleRows.forEach(row => {
+        const mainMethod = row[1]?.trim().toLowerCase();
+        if (mainMethod) {
+            switch (mainMethod) {
+                case 'quantitative':
+                    methodCounts.quantitative += 1;
+                    break;
+                case 'meta-analysis':
+                    methodCounts.metaAnalysis += 1;
+                    break;
+                case 'mixed-methods':
+                    methodCounts.mixedMethodsQuantitative += 1;
+                    methodCounts.mixedMethodsQualitative += 1;
+                    break;
+                case 'qualitative':
+                    methodCounts.qualitative += 1;
+                    break;
+                case 'meta-synthesis':
+                    methodCounts.metaSynthesis += 1;
+                    break;
+            }
+        }
+    });
+
+    const methodFilter = document.getElementById("methodFilter");
+    methodFilter.innerHTML = `
+        <option value="" style="font-weight: bold;">All Methods</option>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">ALL Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
+            <option value="meta-analysis">↘ Meta-Analysis [~${methodCounts.metaAnalysis} record(s)]</option>
+            <option value="mixed-methods-quantitative">↘ Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} record(s)]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">ALL Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
+            <option value="meta-synthesis">↘ Meta-Synthesis [~${methodCounts.metaSynthesis} record(s)]</option>
+            <option value="mixed-methods-qualitative">↘ Mixed-Methods [~${methodCounts.mixedMethodsQualitative} record(s)]</option>
+    `;
 }
 
 function updateAreaFilterCounts() {
-    populateAreaFilter();
+    if (!dataTable) return;
+
+    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const areaCounts = {};
+
+    visibleRows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area] = (areaCounts[area] || 0) + 1;
+            }
+        });
+    });
+
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `
+        <option value="" style="font-weight: bold;">All Research Areas</option>
+        ${generateAreaOptions(areaCounts)}
+    `;
 }
 
 function updateFilterStatus() {
@@ -274,7 +329,7 @@ function updateFilterNotice() {
             alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
             notice.html(alertMessage).show();
 
-            $('#clearAllFiltersLink').on('click', function (e) {
+            $('#clearAllFiltersLink').on('click', function(e) {
                 e.preventDefault();
                 $('#filterStatusBtn').trigger('click');
             });
@@ -282,14 +337,18 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-
-    adjustContentMargin();
+    
+    adjustContentMargin();  // Recalculate margin after updating notice
 }
 
 function adjustContentMargin() {
-    const blueBarHeight = $('.blue-bar').outerHeight(true);
+    const blueBarHeight = $('.blue-bar').outerHeight(true); // Get the height of the blue bar
     const headerHeight = $('.fixed-header').outerHeight(true) + 5;
+
+    // Adjust the total margin so that it only adds the filter notice height if needed
     const totalMargin = headerHeight + blueBarHeight;
+
+    // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
 }
 
@@ -300,31 +359,48 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-$(document).ready(function () {
+// Scroll to top when filter changes
+function scrollToTop() {
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
+}
+
+$(document).ready(function() {
+    // Adjust content margin initially
     adjustContentMargin();
 
-    $('#customSearch').on('input', function () {
+    // Event listeners for instructions toggle
+    $('#instructionsToggle').on('click', function() {
+        toggleInstructions();
+    });
+
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault(); // Prevent the default action of the link
+        toggleInstructions(); // Call the function to toggle instructions
+    });
+
+    // Other event listeners
+    $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0);
+        scrollToTop();
     });
-
-    $('#methodFilter').on('change', function () {
+    
+    $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0);
+        scrollToTop();
     });
-
-    $('#areaFilter').on('change', function () {
+    
+    $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0);
+        scrollToTop();
     });
-
-    $('#filterStatusBtn').on('click', function () {
+ 
+    $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
             $('#areaFilter').val('');
@@ -333,35 +409,59 @@ $(document).ready(function () {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
-            window.scrollTo(0, 0);
+            scrollToTop();
         }
     });
 
+    // Event listeners for text size controls
     document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
     document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
     document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
 });
 
+// Function to toggle instructions
+function toggleInstructions() {
+    const details = document.getElementById("instructionsDetails");
+    details.open = !details.open; // Toggle the 'open' attribute
+    console.log('Instructions toggled:', details.open);
+    
+    const toggleLink = document.getElementById("instructionsToggle");
+    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
+    adjustContentMargin(); // Recalculate margin after toggling
+}
+
+// Variables to track the current adjustment level
+let adjustmentLevel = 0;
+const maxIncrease = 3;
+const maxDecrease = -2;
+
+// Adjust text size for the entire page
 function adjustTextSize(increase) {
     if (increase && adjustmentLevel < maxIncrease) {
         adjustmentLevel += 1;
     } else if (!increase && adjustmentLevel > maxDecrease) {
         adjustmentLevel -= 1;
     } else {
-        return;
+        return; // No adjustment needed
     }
 
-    const baseSize = 15;
-    const newSize = baseSize + adjustmentLevel * 1.5;
+    // Calculate the new font size based on adjustment level
+    const baseSize = 15; // Default font size in px
+    const newSize = baseSize + adjustmentLevel * 1.5; // Adjust by 1.5px per step
+
+    // Apply the new font size to all relevant elements
     document.querySelector('body').style.fontSize = `${newSize}px`;
     document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
         el.style.fontSize = `${newSize}px`;
     });
 }
 
+// Reset text size to default
 function resetTextSize() {
-    adjustmentLevel = 0;
-    const baseSize = 15;
+    adjustmentLevel = 0; // Reset adjustment level
+    const baseSize = 15; // Default font size in px
+
+    // Reset font size for all relevant elements
     document.querySelector('body').style.fontSize = `${baseSize}px`;
     document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
         el.style.fontSize = `${baseSize}px`;
