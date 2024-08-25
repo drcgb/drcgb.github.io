@@ -122,16 +122,21 @@ function filterByMethod(method) {
         this.search('').draw(); // Clear existing filters on all columns
     });
 
+    // Adjusted regular expression to match the method correctly
     const regex = new RegExp(`Method:\\s*${method}`, 'i');
+    
     dataTable.rows().every(function() {
         const row = this.data();
         if (regex.test(row[0])) {
-            this.nodes().to$().show();
+            this.nodes().to$().show(); // Show the row if it matches the method
         } else {
-            this.nodes().to$().hide();
+            this.nodes().to$().hide(); // Hide the row if it doesn't match
         }
     });
+
+    dataTable.draw(); // Ensure the table redraws with the updated visibility
 }
+
 
 function filterByArea(area) {
     dataTable.columns().every(function() {
