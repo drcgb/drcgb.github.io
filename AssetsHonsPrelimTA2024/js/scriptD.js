@@ -293,15 +293,28 @@ function adjustTextSize(increase) {
     }
 
     // Calculate the new font size based on adjustment level
-    const newSize = 15 + adjustmentLevel * 1.5; // Assuming each step changes font size by 1.5px
+    const baseSize = 15; // Default font size in px
+    const newSize = baseSize + adjustmentLevel * 1.5; // Adjust by 1.5px per step
+
+    // Apply the new font size to all relevant elements
     document.querySelector('body').style.fontSize = `${newSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${newSize}px`;
+    });
 }
 
 // Reset text size to default
 function resetTextSize() {
     adjustmentLevel = 0; // Reset adjustment level
-    document.querySelector('body').style.fontSize = '15px'; // Default font size
+    const baseSize = 15; // Default font size in px
+
+    // Reset font size for all relevant elements
+    document.querySelector('body').style.fontSize = `${baseSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+    });
 }
+
 
 $(document).ready(function() {
     adjustContentMargin();
@@ -340,11 +353,10 @@ $(document).ready(function() {
         }
     });
 
-    // Event listeners for the new buttons
-    $('#instructionsToggle').on('click', toggleInstructions);
-    $('#increaseTextSize').on('click', function() { adjustTextSize(true); });
-    $('#decreaseTextSize').on('click', function() { adjustTextSize(false); });
-    $('#resetTextSize').on('click', resetTextSize);
+    // Event listeners for text size controls
+    document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
+    document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
+    document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
     $('#closeInstructions').on('click', function(e) {
         e.preventDefault();
         toggleInstructions();
