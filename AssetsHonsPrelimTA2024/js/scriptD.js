@@ -263,8 +263,8 @@ function adjustContentMargin() {
     // Adjust the total margin so that it only adds the filter notice height if needed
     const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight;
 
-    // Set the margin-top for the content area
-    $('.content').css('margin-top', totalMargin);
+   /* // Set the margin-top for the content area
+    $('.content').css('margin-top', totalMargin); */
 }
 
 function matchNoticeWidth() {
