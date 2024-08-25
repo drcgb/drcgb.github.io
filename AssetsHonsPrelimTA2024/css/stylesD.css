@@ -133,6 +133,8 @@ html, body {
 .filter-notice {
     margin: 5px 0 2px 8px; /* Add space around the filter notice */
     padding: 8px; /* Add padding inside the notice */
+    width: 100%;
+    max-width: 100%;
     color: #000; /* Set the text color to black */
     background-color: #ebb6fcd8; /* Set the background color */
     border: 1px solid #c953ff; /* Add a border with a specific color */
