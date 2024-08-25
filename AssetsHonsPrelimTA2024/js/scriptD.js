@@ -268,14 +268,31 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-// Toggle instructions visibility
+$(document).ready(function() {
+    // Adjust content margin initially
+    adjustContentMargin();
+
+    // Event listeners for instructions toggle
+    $('#instructionsToggle').on('click', function() {
+        toggleInstructions();
+    });
+
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault();
+        toggleInstructions();
+    });
+});
+
+// Function to toggle instructions
 function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
     details.open = !details.open;
+    console.log('Instructions toggled:', details.open);
     const toggleLink = document.getElementById("instructionsToggle");
     toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
     adjustContentMargin();
 }
+
 
 // Variables to track the current adjustment level
 let adjustmentLevel = 0;
