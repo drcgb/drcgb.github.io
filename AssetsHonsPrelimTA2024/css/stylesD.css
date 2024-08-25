@@ -132,7 +132,6 @@ body, table, th, td,
     margin-top: 5px;
     margin-bottom: 2px;
     margin-left: 0; /* Align the filter notice container to the left */
-    font-style: italic;
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
@@ -143,6 +142,7 @@ body, table, th, td,
     max-width: 100%; /* Ensure it doesn't overshoot the screen */
     display: none;
     text-align: left; /* Align filter notice text to the left */
+    font-size: 14px;
 }
 
 /* Table Styling */
