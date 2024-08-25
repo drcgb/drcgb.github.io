@@ -3,6 +3,47 @@ let dataTable;
 let methodData = [];
 let researchAreasData = [];
 
+// Full list of possible options for the research areas dropdown
+const researchAreasOptions = [
+    'Applied Psychology',
+    'Artificial Intelligence (AI) & Automation',
+    'Behavioural Addictions',
+    'Biological Psychology',
+    'Child Development',
+    'Child Neglect',
+    'Climate Psychology',
+    'Clinical Neuropsychology',
+    'Clinical Psychology',
+    'Cognitive Psychology',
+    'Communication Psychology',
+    'Community Psychology',
+    'Criminology',
+    'Cultural Psychology',
+    'Cyberpsychology',
+    'Developmental Psychology',
+    'Educational Psychology',
+    'Environmental Psychology',
+    'Experimental Psychology',
+    'Forensic Psychology',
+    'Genetics',
+    'Health Psychology',
+    'Human Factors',
+    'Individual Differences',
+    'Journalism Psychology',
+    'Learning & Behaviour',
+    'Organisational Psychology',
+    'Perception',
+    'Performing Arts Psychology',
+    'Personality Psychology',
+    'Political Psychology',
+    'Positive Psychology',
+    'Psychometrics',
+    'Public Health',
+    'Sex Research',
+    'Social Psychology',
+    'Sport & Exercise Psychology'
+];
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         console.log("Loading XLSX data...");
@@ -191,13 +232,15 @@ function populateAreaFilter(rows) {
         });
     });
 
-    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
+    const sortedAreas = researchAreasOptions.map(option => {
+        const lowerOption = option.toLowerCase();
+        return [option, areaCounts[lowerOption] || 0];
+    }).sort(([a], [b]) => a.localeCompare(b));
 
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
+        return `<option value="${area.toLowerCase()}">${area} [≈${count} record(s)]</option>`;
     }).join('');
 
     console.log("Area filter populated.");
@@ -272,14 +315,16 @@ function updateAreaFilterCounts() {
         });
     });
 
-    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
+    const sortedAreas = researchAreasOptions.map(option => {
+        const lowerOption = option.toLowerCase();
+        return [option, areaCounts[lowerOption] || 0];
+    }).sort(([a], [b]) => a.localeCompare(b));
 
     // Clear and repopulate the area filter dropdown
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
+        return `<option value="${area.toLowerCase()}">${area} [≈${count} record(s)]</option>`;
     }).join('');
 }
 
@@ -380,9 +425,6 @@ $(document).ready(function() {
     });
     
     $('#methodFilter').on('change', function() {
-        const value = $(this).val();
-        updateMethodFilterCounts();  // Update counts
-        $('#methodFilter').val(value);  // Re-select the chosen value
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
@@ -390,9 +432,6 @@ $(document).ready(function() {
     });
     
     $('#areaFilter').on('change', function() {
-        const value = $(this).val();
-        updateAreaFilterCounts();  // Update counts
-        $('#areaFilter').val(value);  // Re-select the chosen value
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
