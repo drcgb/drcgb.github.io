@@ -14,30 +14,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Data loaded:", allRows);
 
         populateTable(allRows);
+        populateMethodFilter(allRows);
+        populateAreaFilter(allRows);
         initializeDataTable();
-        populateFilters();
-        adjustTableMargin(); // Adjust the table margin on page load
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
-
-    const searchInput = document.querySelector('#customSearch');
-
-    // Link the custom search bar to DataTables' search method
-    searchInput.addEventListener('input', function () {
-        const searchTerm = this.value;
-        console.log("Searching for:", searchTerm); // Debugging log
-        dataTable.search(searchTerm).draw(); // Apply the search term to DataTables
-    });
-
-    window.addEventListener('resize', adjustTableMargin); // Adjust the table margin on window resize
 });
-
-function adjustTableMargin() {
-    const headerHeight = document.querySelector('.fixed-header').offsetHeight;
-    document.querySelector('.table-container').style.marginTop = `${headerHeight}px`;
-    console.log("Adjusted table margin to offset header height:", headerHeight);
-}
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
@@ -48,16 +31,67 @@ function initializeDataTable() {
         info: true,
         autoWidth: false,
         ordering: false,
+        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+        language: {
+            lengthMenu: 'Show up to _MENU_ records per page',
+        },
         dom: '<"top"l>rt<"bottom"p><"clear">',
+        drawCallback: function(settings) {
+            const api = this.api();
+            const rows = api.rows({ search: 'applied' }).data().length;
+
+            $('#abstractTable tbody .end-of-records').remove();
+            if (rows === 0 || rows > 0) {
+                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+            }
+        }
     });
 
-    console.log("DataTable initialized.");
+    // Reintroduce custom filtering logic
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const methodValue = $('#methodFilter').val().toLowerCase().trim();
+        const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-    // Simplified dropdown functionality
-    $('#methodFilter').on('change', applyFilters);
-    $('#areaFilter').on('change', applyFilters);
+        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
+        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+
+        let methodMatch = false;
+
+        switch (methodValue) {
+            case '':
+                methodMatch = true;
+                break;
+            case 'all-quantitative':
+                methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
+                break;
+            case 'quantitative':
+            case 'meta-analysis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-quantitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+            case 'all-qualitative':
+                methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
+                break;
+            case 'qualitative':
+            case 'meta-synthesis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-qualitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+        }
+
+        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+
+        return methodMatch && areaMatch;
+    });
+
+    dataTable.draw(); // Apply filters initially
 }
 
+// Populate the table with rows
 function populateTable(rows) {
     console.log("Populating table...");
     methodData = [];
@@ -79,53 +113,173 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
-function populateFilters() {
-    console.log("Populating filters...");
-    populateMethodFilter();
-    populateAreaFilter();
-}
+// Populate the method filter dropdown
+function populateMethodFilter(rows) {
+    console.log("Populating method filter...");
+    const methodCounts = {
+        quantitative: 0,
+        metaAnalysis: 0,
+        mixedMethodsQuantitative: 0,
+        qualitative: 0,
+        metaSynthesis: 0,
+        mixedMethodsQualitative: 0
+    };
 
-function populateMethodFilter() {
-    const uniqueMethods = [...new Set(methodData)];
-    const methodFilter = document.getElementById("methodFilter");
-
-    methodFilter.innerHTML = `<option value="">All Methods</option>`;
-    uniqueMethods.forEach(method => {
-        methodFilter.innerHTML += `<option value="${method}" style="text-transform: capitalize;">${method.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`;
+    rows.forEach(row => {
+        const mainMethod = row[1]?.trim().toLowerCase();
+        if (mainMethod) {
+            switch (mainMethod) {
+                case 'quantitative':
+                    methodCounts.quantitative += 1;
+                    break;
+                case 'meta-analysis':
+                    methodCounts.metaAnalysis += 1;
+                    break;
+                case 'mixed-methods':
+                    methodCounts.mixedMethodsQuantitative += 1;
+                    methodCounts.mixedMethodsQualitative += 1;
+                    break;
+                case 'qualitative':
+                    methodCounts.qualitative += 1;
+                    break;
+                case 'meta-synthesis':
+                    methodCounts.metaSynthesis += 1;
+                    break;
+            }
+        }
     });
+
+    const methodFilter = document.getElementById("methodFilter");
+    methodFilter.innerHTML = `
+        <option value="" style="font-weight: bold;">All Methods</option>
+        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
+        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
+    `;
 
     console.log("Method filter populated.");
 }
 
-function populateAreaFilter() {
-    const uniqueAreas = [...new Set(researchAreasData.join('; ').split('; ').map(area => area.trim()))];
-    const areaFilter = document.getElementById("areaFilter");
-
-    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
-    uniqueAreas.forEach(area => {
-        areaFilter.innerHTML += `<option value="${area}" style="text-transform: capitalize;">${area.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`;
+// Populate the area filter dropdown
+function populateAreaFilter(rows) {
+    console.log("Populating area filter...");
+    const areaCounts = {};
+    rows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area] = (areaCounts[area] || 0) + 1;
+            }
+        });
     });
 
+    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
+
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
+    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
+        return `<option value="${area}">${area} [~${count} matches]</option>`;
+    }).join('');
     console.log("Area filter populated.");
 }
 
-function applyFilters() {
-    const selectedMethod = $('#methodFilter').val();
-    const selectedArea = $('#areaFilter').val();
+function updateFilterStatus() {
+    const searchValue = $('#customSearch').val().trim();
+    const methodValue = $('#methodFilter').val();
+    const areaValue = $('#areaFilter').val();
 
-    dataTable.rows().every(function() {
-        const row = this.data();
-        const rowText = row[0];
+    const filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
 
-        const methodMatch = selectedMethod ? new RegExp(`Method:\\s*${selectedMethod}`, 'i').test(rowText) : true;
-        const areaMatch = selectedArea ? new RegExp(`Areas:\\s*.*${selectedArea}.*`, 'i').test(rowText) : true;
+    const button = $('#filterStatusBtn');
+    if (filterActive) {
+        button.removeClass('green').addClass('red').text('Click to clear all filters');
+    } else {
+        button.removeClass('red').addClass('green').text('No filters active');
+    }
+}
 
-        if (methodMatch && areaMatch) {
-            this.nodes().to$().show();
+function updateFilterNotice() {
+    const searchValue = $('#customSearch').val().trim();
+    const methodValue = $('#methodFilter').val();
+    const areaValue = $('#areaFilter').val();
+
+    let activeFilters = [];
+    if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
+    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
+    if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
+
+    const notice = $('#filterNotice');
+    const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+
+    const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
+
+    if (activeFilters.length > 0) {
+        if (filteredRowCount > 0) {
+            notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
-            this.nodes().to$().hide();
+            let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
+            alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
+            notice.html(alertMessage).show();
+
+            $('#clearAllFiltersLink').on('click', function(e) {
+                e.preventDefault();
+
+                $('#filterStatusBtn').trigger('click');
+            });
         }
+    } else {
+        notice.hide();
+    }
+    adjustContentMargin();
+}
+
+function adjustContentMargin() {
+    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const headerHeight = $('.fixed-header').outerHeight(true);
+    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
+
+    $('.content').css('margin-top', totalMargin);
+}
+
+$(document).ready(function() {
+    adjustContentMargin();
+
+    $('#customSearch').on('input', function() {
+        dataTable.search($(this).val()).draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        window.scrollTo(0, 0);
     });
 
-    dataTable.draw(); // Ensure the table redraws with the updated visibility
-}
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        window.scrollTo(0, 0);
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        window.scrollTo(0, 0);
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+
+            dataTable.search('').draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            window.scrollTo(0, 0);
+        }
+    });
+});

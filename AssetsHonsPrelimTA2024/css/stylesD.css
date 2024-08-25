@@ -39,7 +39,7 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
     flex-direction: column;
     padding: 10px;
     box-sizing: border-box;
-    margin-top: 100px; /* Adjust this to account for the header height */
+    margin-top: 10px; /* Adjust this to account for the header height */
     transition: margin-top 0.3s ease;
 }
 
