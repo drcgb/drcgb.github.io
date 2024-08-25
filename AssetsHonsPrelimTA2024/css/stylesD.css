@@ -150,7 +150,6 @@ body, table, th, td,
 
 /* TABLE STYLING */
 table, th, td {
-    padding: 10px; /* Add padding for better readability */
     border-collapse: collapse;
     border: 1px solid black;
     text-align: left; /* Align table content to the left */
