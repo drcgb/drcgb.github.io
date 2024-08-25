@@ -131,6 +131,7 @@ body, table, th, td,
 
 .filter-notice {
     margin-top: 5px; /* Increase top margin */
+    margin-left: 10px; /* Nudge to the right by 10px */
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
@@ -184,6 +185,11 @@ table.dataTable tbody tr:hover {
         width: 100%; /* Ensure it fits within the container */
         text-align: left; /* Maintain left alignment on small screens */
     }
+
+    .filter-status-btn {
+        margin-left: 0; /* Align button to the left */
+        text-align: center; /* Center the text */
+}
 
     .custom-search-container input, .filter-status-btn {
         width: 100%; /* Ensure it fits within the container */
