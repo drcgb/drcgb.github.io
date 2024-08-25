@@ -256,7 +256,7 @@ function adjustContentMargin() {
     // Calculate total margin only considering visible elements
     const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight : 0);
 
-    $('.content').css('margin-top', totalMargin);
+    $('.content').css('margin-top', totalMargin - 20);
 }
 
 function matchNoticeWidth() {
