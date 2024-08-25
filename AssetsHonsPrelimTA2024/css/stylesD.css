@@ -31,7 +31,7 @@ body, table, th, td,
 .blue-bar {
     background-color: #0056b3; /* Dark blue background */
     height: 40px; /* Adjust height if needed */
-    width: calc(100vw - 1px); /* Consistent width with scrollbar accounted for */
+    width: calc(100vw - 10px); /* Consistent width with scrollbar accounted for */
     max-width: 100%; /* Prevent expansion */    display: flex;
     justify-content: space-between;
     align-items: center;
@@ -71,7 +71,7 @@ body, table, th, td,
 .custom-search-container,
 .fixed-header,
 .content {
-    width: calc(100vw - 1px); /* Consistent width with scrollbar accounted for */
+    width: calc(100vw - 10px); /* Consistent width with scrollbar accounted for */
     max-width: 100% /* Prevent expansion */
     margin: 0 auto; /* Center the container */
     text-align: left; /* Ensure left alignment */
