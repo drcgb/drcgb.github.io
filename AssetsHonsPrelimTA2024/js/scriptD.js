@@ -17,10 +17,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
         initializeDataTable();
-/*
+
         adjustTableMargin(); // Initial adjustment
 
-        window.addEventListener('resize', adjustTableMargin); // Adjust margin on window resize */
+        window.addEventListener('resize', adjustTableMargin); // Adjust margin on window resize 
 
 
     } catch (err) {
