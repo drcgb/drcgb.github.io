@@ -18,9 +18,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateAreaFilter(allRows);
         initializeDataTable();
 
-        adjustContentMargin(); // Adjust margin initially
-        matchNoticeWidth(); // Ensure filter notice matches search input width
-
         window.addEventListener('resize', () => {
             adjustContentMargin(); // Adjust margin on window resize
             matchNoticeWidth(); // Match filter notice width to search input
@@ -30,6 +27,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error('Error loading XLSX data:', err);
     }
 });
+
+window.onload = function() {
+    adjustContentMargin();
+    matchNoticeWidth();
+};
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
