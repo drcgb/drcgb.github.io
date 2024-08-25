@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-/*
+
 let lastWindowWidth = window.innerWidth;
 let lastWindowHeight = window.innerHeight;
 
@@ -58,7 +58,7 @@ function adjustTableMargin() {
 }
 
 window.addEventListener('resize', adjustTableMargin);
-*/
+
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
