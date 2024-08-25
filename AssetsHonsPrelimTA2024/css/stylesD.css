@@ -211,7 +211,6 @@ table.dataTable tbody tr:hover {
 
 .table-container {
     flex: 1;
-    overflow-y: auto;
     margin-bottom: 20px; /* Increase bottom margin */
     text-align: left; /* Align table content to the left */
 }
