@@ -274,14 +274,14 @@ function updateFilterNotice() {
     }
     adjustContentMargin();
 }
-
+/*
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true);
     const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
 
     $('.content').css('margin-top', totalMargin);
-}
+} */
 
 $(document).ready(function() {
     adjustContentMargin();
