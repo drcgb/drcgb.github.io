@@ -250,7 +250,7 @@ function updateFilterNotice() {
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true);
-    const totalMargin = headerHeight + filterNoticeHeight;
+    const totalMargin = headerHeight + filterNoticeHeight - 40;
 
     $('.content').css('margin-top', totalMargin);
 }
