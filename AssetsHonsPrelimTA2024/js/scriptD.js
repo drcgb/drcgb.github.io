@@ -14,9 +14,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Data loaded:", allRows);
 
         populateTable(allRows);
+        initializeDataTable();
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
-        initializeDataTable();
 
         window.addEventListener('resize', () => {
             adjustContentMargin(); // Adjust margin on window resize
@@ -55,6 +55,9 @@ function initializeDataTable() {
             if (rows === 0 || rows > 0) {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
+
+            updateMethodFilterCounts();  // Ensure filters are updated based on current data
+            updateAreaFilterCounts();  // Ensure filters are updated based on current data
         }
     });
 
@@ -275,7 +278,6 @@ function updateAreaFilterCounts() {
         return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
 }
-
 
 function updateFilterStatus() {
     const searchValue = $('#customSearch').val().trim();
