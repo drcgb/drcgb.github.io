@@ -28,7 +28,7 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
 }
 
 .fixed-header {
-    width: 100%;
+    width: 100vw;
     position: fixed;
     top: 0;
     background-color: white;
@@ -40,19 +40,19 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
 .content {
     flex: 1;
     padding: 10px;
-    margin-top: 50px; /* Adjusted to reduce space between header and table */
+    margin-top: 10px; /* Adjusted to reduce space between header and table */
     transition: margin-top 0.3s ease;
 }
 
 .custom-search-container {
-    width: 97vw;
+    width: 100vw;
     text-align: center;
     margin-bottom: 2px;
     padding: 5px;
 }
 
 .custom-search-container input {
-    width: 100%;
+    width: 100vw;
     padding: 8px;
     border-radius: 4px;
     font-size: 16px;
@@ -67,7 +67,7 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
 }
 
 .instructions {
-    width: 100%; /* Ensures the text spans the full width of the container */
+    width: 100vw; /* Ensures the text spans the full width of the container */
     margin-bottom: 10px; /* Adds space below the instructions */
 }
 
@@ -84,7 +84,7 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
 
 .filter-group select {
     min-width: 150px;
-    max-width: 100%;
+    max-width: 100vw;
 }
 
 .filter-status-btn {
@@ -114,8 +114,8 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
     border-radius: 4px;
-    width: 97vw;
-    max-width: 100%;
+    width: 100vw;
+    max-width: 100vw;
     box-sizing: border-box;
     overflow-wrap: break-word;
     word-wrap: break-word;
@@ -161,6 +161,6 @@ table.dataTable tbody tr:hover {
     }
 
     .filter-group select {
-        width: 100%;
+        width: 100vw;
     }
 }
