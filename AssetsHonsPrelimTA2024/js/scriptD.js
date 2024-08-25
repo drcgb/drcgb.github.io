@@ -29,20 +29,34 @@ document.addEventListener("DOMContentLoaded", async () => {
 function adjustTableMargin() {
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
     const filterNotice = document.querySelector('.filter-notice');
+    const filterContainer = document.querySelector('.filter-container');
 
     let filterNoticeHeight = 0;
+    let filterContainerHeight = 0;
 
     // If filterNotice is visible, consider its height
     if (filterNotice && filterNotice.style.display !== 'none') {
         filterNoticeHeight = filterNotice.offsetHeight;
     }
 
+    // Only add filterContainer height if it doesn't include filterNotice
+    if (filterContainer) {
+        // Check if filterNotice is part of filterContainer
+        if (!filterContainer.contains(filterNotice)) {
+            filterContainerHeight = filterContainer.offsetHeight;
+        } else {
+            // If filterNotice is inside filterContainer, calculate the height difference
+            filterContainerHeight = filterContainer.offsetHeight - filterNoticeHeight;
+        }
+    }
+
     // Calculate the total height of the elements above the table
-    const totalHeight = headerHeight + filterNoticeHeight;
+    const totalHeight = headerHeight + filterContainerHeight;
 
     document.querySelector('.table-container').style.marginTop = `${totalHeight}px`;
     console.log("Adjusted table margin to:", totalHeight, "px");
 }
+
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
