@@ -277,25 +277,30 @@ function toggleInstructions() {
     adjustContentMargin();
 }
 
-// Adjust text size within the table only
-function adjustTextSize(increase) {
-    const table = document.querySelector('#abstractTable');
-    let currentSize = parseFloat(window.getComputedStyle(table).fontSize);
-    const maxSize = 20; // maximum font size in pixels
-    const minSize = 10; // minimum font size in pixels
+// Variables to track the current adjustment level
+let adjustmentLevel = 0;
+const maxIncrease = 3;
+const maxDecrease = -2;
 
-    if (increase && currentSize < maxSize) {
-        currentSize *= 1.1;
-    } else if (!increase && currentSize > minSize) {
-        currentSize /= 1.1;
+// Adjust text size for the entire page
+function adjustTextSize(increase) {
+    if (increase && adjustmentLevel < maxIncrease) {
+        adjustmentLevel += 1;
+    } else if (!increase && adjustmentLevel > maxDecrease) {
+        adjustmentLevel -= 1;
+    } else {
+        return; // No adjustment needed
     }
-    
-    table.style.fontSize = `${currentSize}px`;
+
+    // Calculate the new font size based on adjustment level
+    const newSize = 15 + adjustmentLevel * 1.5; // Assuming each step changes font size by 1.5px
+    document.querySelector('body').style.fontSize = `${newSize}px`;
 }
 
 // Reset text size to default
 function resetTextSize() {
-    document.querySelector('#abstractTable').style.fontSize = '15px';
+    adjustmentLevel = 0; // Reset adjustment level
+    document.querySelector('body').style.fontSize = '15px'; // Default font size
 }
 
 $(document).ready(function() {
