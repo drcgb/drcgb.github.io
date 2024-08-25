@@ -2,18 +2,45 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
-let researchAreaOptions = [
-    "Applied Psychology", "Artificial Intelligence (AI) & Automation", "Behavioural Addictions", 
-    "Biological Psychology", "Child Development", "Child Neglect", "Climate Psychology", 
-    "Clinical Neuropsychology", "Clinical Psychology", "Cognitive Psychology", 
-    "Communication Psychology", "Community Psychology", "Criminology", "Cultural Psychology", 
-    "Cyberpsychology", "Developmental Psychology", "Educational Psychology", 
-    "Environmental Psychology", "Experimental Psychology", "Forensic Psychology", 
-    "Genetics", "Health Psychology", "Human Factors", "Individual Differences", 
-    "Journalism Psychology", "Learning & Behaviour", "Organisational Psychology", "Perception", 
-    "Performing Arts Psychology", "Personality Psychology", "Political Psychology", 
-    "Positive Psychology", "Psychometrics", "Public Health", "Sex Research", 
-    "Social Psychology", "Sport & Exercise Psychology"
+
+const researchAreasOptions = [
+    'Applied Psychology',
+    'Artificial Intelligence (AI) & Automation',
+    'Behavioural Addictions',
+    'Biological Psychology',
+    'Child Development',
+    'Child Neglect',
+    'Climate Psychology',
+    'Clinical Neuropsychology',
+    'Clinical Psychology',
+    'Cognitive Psychology',
+    'Communication Psychology',
+    'Community Psychology',
+    'Criminology',
+    'Cultural Psychology',
+    'Cyberpsychology',
+    'Developmental Psychology',
+    'Educational Psychology',
+    'Environmental Psychology',
+    'Experimental Psychology',
+    'Forensic Psychology',
+    'Genetics',
+    'Health Psychology',
+    'Human Factors',
+    'Individual Differences',
+    'Journalism Psychology',
+    'Learning & Behaviour',
+    'Organisational Psychology',
+    'Perception',
+    'Performing Arts Psychology',
+    'Personality Psychology',
+    'Political Psychology',
+    'Positive Psychology',
+    'Psychometrics',
+    'Public Health',
+    'Sex Research',
+    'Social Psychology',
+    'Sport & Exercise Psychology'
 ];
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -42,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-window.onload = function () {
+window.onload = function() {
     adjustContentMargin();
     matchNoticeWidth();
 };
@@ -61,7 +88,7 @@ function initializeDataTable() {
             lengthMenu: 'Show up to _MENU_ records per page',
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function (settings) {
+        drawCallback: function(settings) {
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
@@ -75,7 +102,7 @@ function initializeDataTable() {
         }
     });
 
-    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
@@ -115,7 +142,7 @@ function initializeDataTable() {
         return methodMatch && areaMatch;
     });
 
-    dataTable.draw();
+    dataTable.draw(); // Apply filters initially
 }
 
 function populateTable(rows) {
@@ -191,28 +218,29 @@ function populateMethodFilter(rows) {
 
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
-    const areaCounts = {};
 
-    researchAreaOptions.forEach(area => {
-        areaCounts[area.toLowerCase()] = 0; // Initialize with zero count
-    });
+    const areaCounts = researchAreasOptions.reduce((acc, area) => {
+        acc[area.toLowerCase()] = 0;
+        return acc;
+    }, {});
 
     rows.forEach(row => {
         const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
         researchAreas.forEach(area => {
             if (area) {
-                areaCounts[area] = (areaCounts[area] || 0) + 1;
+                areaCounts[area] += 1;
             }
         });
     });
 
-    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
-    }).join('');
+    researchAreas
+
+Options.forEach(area => {
+        const areaKey = area.toLowerCase();
+        areaFilter.innerHTML += `<option value="${areaKey}">${area} [≈${areaCounts[areaKey]} record(s)]</option>`;
+    });
 
     console.log("Area filter populated.");
 }
@@ -272,28 +300,26 @@ function updateAreaFilterCounts() {
     if (!dataTable) return;
 
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
-    const areaCounts = {};
-
-    researchAreaOptions.forEach(area => {
-        areaCounts[area.toLowerCase()] = 0;
-    });
+    const areaCounts = researchAreasOptions.reduce((acc, area) => {
+        acc[area.toLowerCase()] = 0;
+        return acc;
+    }, {});
 
     visibleRows.forEach(row => {
         const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
         researchAreas.forEach(area => {
             if (area) {
-                areaCounts[area] = (areaCounts[area] || 0) + 1;
+                areaCounts[area] += 1;
             }
         });
     });
 
-    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
-
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
-    }).join('');
+    researchAreasOptions.forEach(area => {
+        const areaKey = area.toLowerCase();
+        areaFilter.innerHTML += `<option value="${areaKey}">${area} [≈${areaCounts[areaKey]} record(s)]</option>`;
+    });
 }
 
 function updateFilterStatus() {
@@ -334,7 +360,7 @@ function updateFilterNotice() {
             alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
             notice.html(alertMessage).show();
 
-            $('#clearAllFiltersLink').on('click', function (e) {
+            $('#clearAllFiltersLink').on('click', function(e) {
                 e.preventDefault();
                 $('#filterStatusBtn').trigger('click');
             });
@@ -342,7 +368,7 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-
+    
     adjustContentMargin();
 }
 
@@ -362,28 +388,31 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
     adjustContentMargin();
 
-    $('#customSearch').on('input', function () {
+    $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
+        scrollToTop();
     });
-
-    $('#methodFilter').on('change', function () {
+    
+    $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
+        scrollToTop();
     });
-
-    $('#areaFilter').on('change', function () {
+    
+    $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
+        scrollToTop();
     });
-
-    $('#filterStatusBtn').on('click', function () {
+ 
+    $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
             $('#areaFilter').val('');
@@ -392,6 +421,43 @@ $(document).ready(function () {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
+            scrollToTop();
         }
     });
+
+    document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
+    document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
+    document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
 });
+
+function adjustTextSize(increase) {
+    if (increase && adjustmentLevel < maxIncrease) {
+        adjustmentLevel += 1;
+    } else if (!increase && adjustmentLevel > maxDecrease) {
+        adjustmentLevel -= 1;
+    } else {
+        return;
+    }
+
+    const baseSize = 15;
+    const newSize = baseSize + adjustmentLevel * 1.5;
+
+    document.querySelector('body').style.fontSize = `${newSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${newSize}px`;
+    });
+}
+
+function resetTextSize() {
+    adjustmentLevel = 0;
+    const baseSize = 15;
+
+    document.querySelector('body').style.fontSize = `${baseSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+    });
+}
+
+function scrollToTop() {
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
+}
