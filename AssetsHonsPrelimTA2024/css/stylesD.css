@@ -96,7 +96,7 @@ body, table, th, td,
     max-width: 100%; /* Prevent expansion */
     flex: 1;
     padding: 20px; /* Increase padding for better readability */
-    margin-top: 120px; /* Adjust to create space between the header and the content */
+    margin-top: 10px; /* Adjust to create space between the header and the content */
     transition: margin-top 0.3s ease;
     text-align: left; /* Ensure left alignment */
 }
@@ -214,7 +214,7 @@ table.dataTable tbody tr:hover {
 
 .table-container {
     flex: 1;
-    margin-bottom: 20px; /* Increase bottom margin */
+    margin-bottom: 2px; /* Increase bottom margin */
     text-align: left; /* Align table content to the left */
 }
 
