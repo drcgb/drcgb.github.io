@@ -1,33 +1,45 @@
-/* Global Styles */
-html, body {
-    height: 100%;
+/* Global Box-Sizing Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Global Font and Body Settings */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.2;
     margin: 0;
     padding: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
     -webkit-text-size-adjust: 99%; /* Prevent font size adjustment on iOS */
     text-size-adjust: 99%; /* Prevent font size adjustment on Android */
 }
 
-body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
-.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
-    font-family: Arial, sans-serif;
-    font-size: 14px; /* Set the base font size */
-    line-height: 1.2;
-}
-
 /* Prevent font size changes when the phone is flipped to landscape */
-@media (orientation: landscape) {
-    body, table, th, td, .dataTables_wrapper .dataTables_filter input, 
-    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info {
-        font-size: 14px; /* Ensure the font size stays the same in landscape mode */
+@media (orientation: landscape), (max-width: 600px) {
+    body, table, th, td, .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_info,
+    .custom-search-container input, .filter-status-btn {
+        font-size: 14px;
+        width: 97vw;
+    }
+
+    .filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filter-group {
+        width: 97vw;
     }
 }
 
 /* Page Wrapper */
 .page-wrapper {
-    max-width: 1200px; /* Set a maximum width for the page content */
-    margin: 0 auto; /* Center the content horizontally */
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 0;
 }
 
@@ -38,101 +50,63 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
     top: 0;
     background-color: white;
     z-index: 1000;
-    padding: 8px 0; /* Adjusted padding */
+    padding: 8px 0;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Content Area */
 .content {
     flex: 1;
-    display: flex;
-    flex-direction: column;
     padding: 10px;
-    box-sizing: border-box;
     margin-top: 100px; /* Adjust this to account for the header height */
     transition: margin-top 0.3s ease;
 }
 
 /* Custom Search Container */
 .custom-search-container {
-    margin-left: 3px;
     width: 97vw;
-    max-width: 97vw; /* Ensure it doesn't overshoot the screen */
     text-align: center;
-    margin-bottom: 2px; /* Reduced margin */
-    padding: 5px; /* Reduced padding */
-    box-sizing: border-box; /* Include padding in width calculation */
+    margin-bottom: 2px;
+    padding: 5px;
 }
 
 .custom-search-container input {
     width: 100%;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
-    padding: 8px; /* Reduced padding */
+    padding: 8px;
     border-radius: 4px;
     font-size: 16px;
-    box-sizing: border-box;
 }
 
-/* Filter Container */
-.dataTables_wrapper .filter-container {
+/* Filter Container and Groups */
+.filter-container, .filter-group {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     justify-content: flex-start;
     gap: 5px;
     width: 100%;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
-    padding: 5px; /* Reduced padding */
-    box-sizing: border-box; /* Include padding in width calculation */
-}
-
-/* Filter Groups */
-.filter-group {
-    display: flex;
-    align-items: center;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
+    max-width: 97vw;
+    padding: 5px;
 }
 
 .filter-group label {
     margin-right: 1px;
     margin-left: 3px;
-    font-weight: bold; /* Bold filter labels */
+    font-weight: bold;
 }
 
 .filter-group select {
     min-width: 150px;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
-}
-
-/* Responsive Adjustments */
-@media (max-width: 600px) {
-    .filter-container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .filter-group {
-        width: 97vw;
-    }
-    .filter-group select {
-        width: 97vw; /* Ensures select boxes take full width on mobile */
-    }
-    .custom-search-container input, .filter-status-btn {
-        width: 97vw; /* Ensures search box and buttons take full width on mobile */
-        font-size: 14px; /* Adjust this value to increase the text size */
-        font-weight: bold; /* Makes the font bold */
-    }
 }
 
 /* Filter Status Button */
 .filter-status-btn {
-    margin-left: 2px;
-    margin-right: 1.5px;
-    margin-top: 2.5px;
-    padding: 3px 3px;
+    margin: 2.5px 1.5px 0 2px;
+    padding: 3px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-weight: bold;
     transition: background-color 0.3s, color 0.3s;
-    font-weight: bold; /* Makes the font bold */
 }
 
 .filter-status-btn.green {
@@ -147,24 +121,20 @@ body, table, th, td, .dataTables_wrapper .dataTables_filter input,
 
 /* Filter Notice */
 .filter-notice {
-    margin-top: 5px;
-    margin-bottom: 2px;
-    margin-left: 8px; /* Nudge the filter notice 8px to the right */
+    margin: 5px 0 2px 8px;
+    padding: 8px;
     font-style: italic;
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
-    padding: 8px;
     border-radius: 4px;
-    box-sizing: border-box;
     width: 97vw;
-    max-width: 97vw; /* Ensure it doesn't overshoot the screen */
     display: none;
 }
 
 /* Table Styling */
 table, th, td {
-    padding: 0px;
+    padding: 0;
     border-collapse: collapse;
     border: 1px solid black;
 }
@@ -183,7 +153,7 @@ table.dataTable tbody tr:hover {
 .table-container {
     flex: 1;
     overflow-y: auto;
-    margin-bottom: 10px; /* Reduced margin */
+    margin-bottom: 10px;
 }
 
 /* End of Records Styling */
