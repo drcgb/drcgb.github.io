@@ -3,85 +3,6 @@ let dataTable;
 let methodData = [];
 let researchAreasData = [];
 
-document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        console.log("Loading XLSX data...");
-        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-        const data = await response.arrayBuffer();
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-        console.log("Data loaded:", allRows);
-
-        populateTable(allRows);
-        populateMethodFilter(allRows);
-        populateAreaFilter(allRows);
-        initializeDataTable();
-
-        window.addEventListener('resize', () => {
-            adjustContentMargin(); // Adjust margin on window resize
-            matchNoticeWidth(); // Match filter notice width to search input
-        });
-
-    } catch (err) {
-        console.error('Error loading XLSX data:', err);
-    }
-});
-
-window.onload = function() {
-    adjustContentMargin();
-    matchNoticeWidth();
-};
-
-function initializeDataTable() {
-    console.log("Initializing DataTable...");
-
-    dataTable = $('#abstractTable').DataTable({
-        paging: false,
-        searching: true,
-        info: true,
-        autoWidth: false,
-        ordering: false,
-        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-        language: {
-            lengthMenu: 'Show up to _MENU_ records per page',
-        },
-        dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function(settings) {
-            const api = this.api();
-            const rows = api.rows({ search: 'applied' }).data().length;
-
-            $('#abstractTable tbody .end-of-records').remove();
-            if (rows === 0 || rows > 0) {
-                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
-            }
-
-            // Update dropdown counts after drawing the table
-            if (dataTable) {
-                updateMethodFilterCounts();
-                updateAreaFilterCounts();
-            }
-        }
-    });
-
-    // Custom filtering logic
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const methodValue = $('#methodFilter').val().toLowerCase().trim();
-        const areaValue = $('#areaFilter').val().toLowerCase().trim();
-
-        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
-        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
-
-        let methodMatch = methodValue === '' || mainMethod.includes(methodValue);
-        let areaMatch = areaValue === '' || researchAreasContent.includes(areaValue);
-
-        return methodMatch && areaMatch;
-    });
-
-    dataTable.draw(); // Apply filters initially
-}
-
-// Populate the table with rows
 function populateTable(rows) {
     console.log("Populating table...");
     methodData = [];
@@ -103,7 +24,6 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
-// Populate the method filter dropdown
 function populateMethodFilter(rows) {
     console.log("Populating method filter...");
     const methodCounts = {
@@ -151,6 +71,30 @@ function populateMethodFilter(rows) {
             <option value="meta-synthesis">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
             <option value="mixed-methods-qualitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
     `;
+}
+
+function populateAreaFilter(rows) {
+    console.log("Populating area filter...");
+    const areaCounts = {};
+    rows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area] = (areaCounts[area] || 0) + 1;
+            }
+        });
+    });
+
+    const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
+
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
+    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
+    areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
+        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
+    }).join('');
+
+    console.log("Area filter populated.");
 }
 
 function updateMethodFilterCounts() {
@@ -239,6 +183,108 @@ function updateAreaFilterCounts() {
     }).join('');
 }
 
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        console.log("Loading XLSX data...");
+        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+        const data = await response.arrayBuffer();
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+        console.log("Data loaded:", allRows);
+
+        populateTable(allRows);
+        populateMethodFilter(allRows);
+        populateAreaFilter(allRows);
+        initializeDataTable();
+
+        window.addEventListener('resize', () => {
+            adjustContentMargin(); // Adjust margin on window resize
+            matchNoticeWidth(); // Match filter notice width to search input
+        });
+
+    } catch (err) {
+        console.error('Error loading XLSX data:', err);
+    }
+});
+
+window.onload = function() {
+    adjustContentMargin();
+    matchNoticeWidth();
+};
+
+function initializeDataTable() {
+    console.log("Initializing DataTable...");
+
+    dataTable = $('#abstractTable').DataTable({
+        paging: false,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        ordering: false,
+        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+        language: {
+            lengthMenu: 'Show up to _MENU_ records per page',
+        },
+        dom: '<"top"l>rt<"bottom"p><"clear">',
+        drawCallback: function(settings) {
+            const api = this.api();
+            const rows = api.rows({ search: 'applied' }).data().length;
+
+            $('#abstractTable tbody .end-of-records').remove();
+            if (rows === 0 || rows > 0) {
+                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+            }
+
+            // Update filter counts dynamically
+            updateMethodFilterCounts();
+            updateAreaFilterCounts();
+        }
+    });
+
+    // Custom filtering logic
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const methodValue = $('#methodFilter').val().toLowerCase().trim();
+        const areaValue = $('#areaFilter').val().toLowerCase().trim();
+
+        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
+        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+
+        let methodMatch = false;
+
+        switch (methodValue) {
+            case '':
+                methodMatch = true;
+                break;
+            case 'all-quantitative':
+                methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
+                break;
+            case 'quantitative':
+            case 'meta-analysis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-quantitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+            case 'all-qualitative':
+                methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
+                break;
+            case 'qualitative':
+            case 'meta-synthesis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-qualitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+        }
+
+        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+
+        return methodMatch && areaMatch;
+    });
+
+    dataTable.draw(); // Apply filters initially
+}
 
 function updateFilterStatus() {
     const searchValue = $('#customSearch').val().trim();
