@@ -91,6 +91,8 @@ body, table, th, td,
 }
 
 .content {
+    width: calc(100vw - 10px); /* Consistent width with scrollbar accounted for */
+    max-width: 100% /* Prevent expansion */
     flex: 1;
     padding: 20px; /* Increase padding for better readability */
     margin-top: 120px; /* Adjust to create space between the header and the content */
