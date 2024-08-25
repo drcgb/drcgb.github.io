@@ -260,12 +260,24 @@ function adjustContentMargin() {
     $('.content').css('margin-top', totalMargin - filterNoticeHeight);
 }
 
-
 function matchNoticeWidth() {
     const searchInput = document.querySelector('.custom-search-container input');
     const filterNotice = document.querySelector('.filter-notice');
     const searchWidth = searchInput.offsetWidth;
     filterNotice.style.width = `${searchWidth}px`;
+}
+
+// Toggle instructions visibility
+function toggleInstructions() {
+    const details = document.getElementById("instructionsDetails");
+    details.open = !details.open;
+}
+
+// Adjust text size
+function adjustTextSize(increase) {
+    const currentSize = parseFloat($("body").css("font-size"));
+    const newSize = increase ? currentSize * 1.1 : currentSize * 0.9;
+    $("body").css("font-size", newSize + "px");
 }
 
 $(document).ready(function() {
@@ -304,4 +316,9 @@ $(document).ready(function() {
             window.scrollTo(0, 0);
         }
     });
+
+    // Event listeners for the new buttons
+    $('#toggleInstructions').on('click', toggleInstructions);
+    $('#increaseTextSize').on('click', function() { adjustTextSize(true); });
+    $('#decreaseTextSize').on('click', function() { adjustTextSize(false); });
 });

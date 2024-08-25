@@ -78,7 +78,39 @@ p.instructions {
     margin: 0; /* Removes all margins */
 }
 
-/**DATATBLES AND FILTER STYLING */
+/* Options Bar Styling */
+.options-bar {
+    background-color: #003366; /* Dark blue background */
+    color: white;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 50%;
+    box-sizing: border-box;
+}
+
+.instructions-toggle button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.text-size-controls button {
+    background-color: white;
+    border: none;
+    color: #003366;
+    padding: 3px 10px;
+    margin-left: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/** DATATBLES AND FILTER STYLING */
 .dataTables_wrapper {
     text-align: left; /* Ensure DataTables elements are left-aligned */
     padding-left: 0; /* Ensure there's no extra left padding */
@@ -107,7 +139,7 @@ p.instructions {
 
 /* Set an even width for all dropdown menus */
 .filter-group select {
-    width: 130px; /* Set a fixed width */
+    width: 137px; /* Set a fixed width */
     max-width: 100%; /* Ensure it doesn't overshoot the screen */
 }
 
