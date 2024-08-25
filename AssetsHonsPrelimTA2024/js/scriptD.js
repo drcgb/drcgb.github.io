@@ -27,23 +27,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
+let lastWindowWidth = window.innerWidth;
+
 function adjustTableMargin() {
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
     const filterNotice = document.querySelector('.filter-notice');
 
     let filterNoticeHeight = 0;
 
-    // If filterNotice is visible, consider its height
+    // Only add filterNotice height if it is visible
     if (filterNotice && filterNotice.style.display !== 'none') {
         filterNoticeHeight = filterNotice.offsetHeight;
     }
 
-    // Calculate the total height of the header (including filter-container) and the filter notice
+    // Calculate the total height of the elements above the table
     const totalHeight = headerHeight + filterNoticeHeight;
 
-    document.querySelector('.table-container').style.marginTop = `${totalHeight}px`;
-    console.log("Adjusted table margin to:", totalHeight, "px");
+    // Adjust the margin only if the window has been resized
+    if (window.innerWidth !== lastWindowWidth) {
+        document.querySelector('.table-container').style.marginTop = `${totalHeight}px`;
+        console.log("Adjusted table margin to:", totalHeight, "px");
+        lastWindowWidth = window.innerWidth; // Update the last window width
+    }
 }
+
+window.addEventListener('resize', adjustTableMargin);
 
 
 function initializeDataTable() {
