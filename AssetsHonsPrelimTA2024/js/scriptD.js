@@ -234,8 +234,7 @@ function updateFilterNotice() {
         if (filteredRowCount > 0) {
             notice.html(`${filterText}<strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
-            notice.html(`${filterText}<strong>No results found with this filter combination.</strong> Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`).show();
-
+            notice.html(`${filterText}<strong>No results found with this filter combination.</strong> Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`).show();
             $('#clearAllFiltersLink').on('click', function(e) {
                 e.preventDefault();
                 $('#filterStatusBtn').trigger('click');
