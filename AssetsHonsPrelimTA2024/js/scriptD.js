@@ -254,7 +254,7 @@ function updateFilterNotice() {
 
 function adjustContentMargin() {
    /* const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;*/
-    const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0; 
+   /* const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0; */
     const blueBarHeight = $('.blue-bar').outerHeight(true); // Get the height of the blue bar
     const headerHeight = $('.fixed-header').outerHeight(true) + blueBarHeight;
 
