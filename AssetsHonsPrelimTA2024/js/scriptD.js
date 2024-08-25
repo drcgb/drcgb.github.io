@@ -49,19 +49,22 @@ function initializeDataTable() {
             lengthMenu: 'Show up to _MENU_ records per page',
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-     /*   drawCallback: function(settings) {
+        drawCallback: function(settings) {
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
-            $('#abstractTable tbody .end-of-records').remove();
-            if (rows === 0 || rows > 0) {
-                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+            // Only update counts if there are changes to the visible rows
+            if (rows !== this.prevRowCount) {
+                updateMethodFilterCounts();
+                updateAreaFilterCounts();
+                this.prevRowCount = rows;
             }
 
-            // Update filter counts dynamically
-            updateMethodFilterCounts();
-            updateAreaFilterCounts();
-        }* / */
+            $('#abstractTable tbody .end-of-records').remove();
+            if (rows > 0) {
+                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
+            }
+        }
     });
 
     // Custom filtering logic
