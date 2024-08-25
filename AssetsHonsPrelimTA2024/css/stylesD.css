@@ -107,7 +107,7 @@ p.instructions {
 
 /* Set an even width for all dropdown menus */
 .filter-group select {
-    width: 200px; /* Set a fixed width */
+    width: 130px; /* Set a fixed width */
     max-width: 100%; /* Ensure it doesn't overshoot the screen */
 }
 
