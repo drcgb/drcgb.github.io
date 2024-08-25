@@ -268,11 +268,10 @@ function updateFilterNotice() {
 function adjustContentMargin() {
     const blueBarHeight = $('.blue-bar').outerHeight(true); // Get the height of the blue bar
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true) + 15;
 
     // Adjust the total margin so that it only adds the filter notice height if needed
-    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight + blueBarHeight;
+    const totalMargin = headerHeight + filterNoticeHeight + blueBarHeight;
 
     // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
