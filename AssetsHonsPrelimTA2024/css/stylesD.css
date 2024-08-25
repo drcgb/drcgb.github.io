@@ -115,7 +115,7 @@ html, body {
                 border: none; /* Remove the default border */
                 border-radius: 4px; /* Round the corners slightly */
                 cursor: pointer; /* Change cursor to pointer on hover */
-                font-weight: bold; /* Make the button text bold */
+                font-weight: 550; /* Make the button text semibold */
                 transition: background-color 0.3s, color 0.3s; /* Smoothly transition the background and text color */
         }
 
