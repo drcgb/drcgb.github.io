@@ -30,20 +30,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 function adjustMargin() {
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
     const filterNotice = document.querySelector('.filter-notice');
-    
-    let filterNoticeHeight = 0;
-    
+
     // Only add filterNotice height if it is visible
-    if (filterNotice && filterNotice.style.display !== 'none') {
-        filterNoticeHeight = filterNotice.offsetHeight;
-    }
-    
+    const filterNoticeHeight = (filterNotice && filterNotice.style.display !== 'none') ? filterNotice.offsetHeight : 0;
+
     // Calculate the total height of the elements above the table
     const totalMargin = headerHeight + filterNoticeHeight;
 
-    // Apply the margin to both the content and table container
+    // Apply the margin to the content and table container
     document.querySelector('.content').style.marginTop = `${totalMargin}px`;
-    document.querySelector('.table-container').style.marginTop = `${totalMargin}px`;
+    document.querySelector('.table-container').style.marginTop = `${headerHeight}px`; // This ensures the table starts just below the header
     
     console.log("Adjusted margins to:", totalMargin, "px");
 }
