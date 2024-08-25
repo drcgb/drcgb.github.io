@@ -49,7 +49,7 @@ function initializeDataTable() {
             lengthMenu: 'Show up to _MENU_ records per page',
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function(settings) {
+     /*   drawCallback: function(settings) {
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
@@ -61,7 +61,7 @@ function initializeDataTable() {
             // Update filter counts dynamically
             updateMethodFilterCounts();
             updateAreaFilterCounts();
-        }
+        }* / */
     });
 
     // Custom filtering logic
