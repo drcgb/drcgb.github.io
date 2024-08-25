@@ -142,9 +142,12 @@ p.instructions {
 }
 
 .filter-group select {
-    min-width: 135px;
-    max-width: 100%; /* Ensure it doesn't overshoot the screen */
+    width: 135px; /* Set a fixed width */
+    max-width: 135px; /* Ensure the width doesn't exceed this value */
+    min-width: 135px; /* Ensure the width doesn't go below this value */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
+
 
 .filter-status-btn {
     margin-left: 0; /* Align button to the left */
