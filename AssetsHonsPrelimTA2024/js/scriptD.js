@@ -163,14 +163,14 @@ function populateMethodFilter(rows) {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
-            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
-            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
-            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
-            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;↘ Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
     `;
 
     console.log("Method filter populated.");
@@ -192,9 +192,9 @@ function populateAreaFilter(rows) {
     const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
     const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
+    areaFilter.innerHTML = `<option value="">All Research Areas</option><optgroup label="*Listed A-Z*" style="font-weight: bold; color: grey;" disabled></optgroup>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}">${area} [~${count} matches]</option>`;
+        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
     }).join('');
     console.log("Area filter populated.");
 }
@@ -221,7 +221,7 @@ function updateFilterNotice() {
 
     let activeFilters = [];
     if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
-    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
+    if (methodValue) activeFilters.push(`Method: "${methodValue.replace(/↘ /g, '')}"`);
     if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
 
     const notice = $('#filterNotice');
@@ -233,7 +233,7 @@ function updateFilterNotice() {
         if (filteredRowCount > 0) {
             notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
-            let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
+            let alertMessage = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>No results found with this filter combination.</strong> `;
             alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
             notice.html(alertMessage).show();
 
@@ -248,19 +248,16 @@ function updateFilterNotice() {
     }
     
     adjustContentMargin();  // Recalculate margin after updating notice
-    // Add a slight delay before resetting scroll position
-    setTimeout(() => {
-    window.scrollTo(0, 0);
-    }, 65);  // 65 milliseconds delay
+    setTimeout(() => window.scrollTo(0, 0), 10); // Reset scroll with a slight delay
 }
 
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true) + 24;
+    const headerHeight = $('.fixed-header').outerHeight(true) + 40; // Adding 40px to account for the blue bar height
 
     // Adjust the total margin so that it only adds the filter notice height if needed
-    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight - 24;
+    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight;
 
     // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
