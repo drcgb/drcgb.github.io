@@ -35,6 +35,8 @@ window.onload = function() {
     matchNoticeWidth();
 };
 
+let updateCountsTimeout;
+
 function initializeDataTable() {
     console.log("Initializing DataTable...");
 
@@ -53,19 +55,21 @@ function initializeDataTable() {
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
-            // Only update counts if there are changes to the visible rows
-            if (rows !== this.prevRowCount) {
-                updateMethodFilterCounts();
-                updateAreaFilterCounts();
-                this.prevRowCount = rows;
-            }
-
             $('#abstractTable tbody .end-of-records').remove();
             if (rows > 0) {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
+
+            clearTimeout(updateCountsTimeout);
+            updateCountsTimeout = setTimeout(() => {
+                updateMethodFilterCounts();
+                updateAreaFilterCounts();
+            }, 200); // Update counts with a slight delay
         }
     });
+
+    // Custom filtering logic remains the same
+}
 
     // Custom filtering logic
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
