@@ -254,7 +254,7 @@ function updateFilterNotice() {
 
 function adjustContentMargin() {
    /* const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;*/
-    const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0;
+   /* const  const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0; */
     const blueBarHeight = $('.blue-bar').outerHeight(true); // Get the height of the blue bar
     const headerHeight = $('.fixed-header').outerHeight(true) + blueBarHeight;
 
@@ -378,8 +378,8 @@ $(document).ready(function() {
     document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
     document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
     document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
-    $('#closeInstructions').on('click', function(e) {
-        e.preventDefault();
-        toggleInstructions();
+    document.getElementById('closeInstructions').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.querySelector('.instructions').style.display = 'none';
     });
 });
