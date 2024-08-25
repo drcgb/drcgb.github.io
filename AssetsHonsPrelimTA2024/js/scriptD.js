@@ -113,7 +113,7 @@ function initializeDataTable() {
     });
 
     dataTable.draw(); // Apply filters initially
-}
+
 
 function populateTable(rows) {
     console.log("Populating table...");
