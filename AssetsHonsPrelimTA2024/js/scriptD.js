@@ -17,16 +17,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
         initializeDataTable();
-
+/*
         adjustTableMargin(); // Initial adjustment
 
-        window.addEventListener('resize', adjustTableMargin); // Adjust margin on window resize
+        window.addEventListener('resize', adjustTableMargin); // Adjust margin on window resize */
+
+
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 });
 
-
+/*
 let lastWindowWidth = window.innerWidth;
 let lastWindowHeight = window.innerHeight;
 
@@ -56,7 +58,7 @@ function adjustTableMargin() {
 }
 
 window.addEventListener('resize', adjustTableMargin);
-
+*/
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
