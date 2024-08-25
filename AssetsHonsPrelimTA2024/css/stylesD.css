@@ -39,56 +39,21 @@ body, table, th, td,
     box-sizing: border-box;
 }
 
-.fixed-header {
-    flex: 1;
-    width: 100%; /* Ensure it fits within the viewport */
-    position: fixed;
-    top: 0;
-    padding: 12px;
-    background-color: white;
-    z-index: 1000;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: left; /* Align fixed header content to the left */
-}
-
-.content {
-    flex: 1;
-    padding: 20px; /* Increase padding for better readability */
-    margin-top: 60px; /* Adjust to create space between the header and the content */
-    transition: margin-top 0.3s ease;
-    text-align: left; /* Ensure left alignment */
-}
-
-.custom-search-container {
-    width: 100%; /* Ensure it fits within the container */
-    text-align: left; /* Align search container to the left */
-    padding: 10px; /* Increase padding */
-    box-sizing: border-box; /* Include padding in width calculation */
-}
-
-.custom-search-container input {
-    width: 100%;
-    padding: 10px; /* Increase padding */
-    border-radius: 4px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-
-p.instructions {
-    margin: 0; /* Removes all margins */
-}
-
 /* Blue bar styling */
 .blue-bar {
     background-color: #0056b3; /* Dark blue background */
     height: 20px; /* Half the height of the search bar */
-    width: 100%;
+    width: 100%; /* Full width */
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 5px 10px;
     box-sizing: border-box;
     color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1001; /* Above other elements */
 }
 
 .blue-bar .instructions-link {
@@ -112,6 +77,45 @@ p.instructions {
     font-weight: bold;
     color: #ffffff;
     text-decoration: underline;
+}
+
+.fixed-header {
+    flex: 1;
+    width: 100%; /* Ensure it fits within the viewport */
+    position: fixed;
+    top: 25px; /* Adjust to account for the blue bar */
+    padding: 12px;
+    background-color: white;
+    z-index: 1000;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: left; /* Align fixed header content to the left */
+}
+
+.content {
+    flex: 1;
+    padding: 20px; /* Increase padding for better readability */
+    margin-top: 85px; /* Adjust to create space between the header and the content */
+    transition: margin-top 0.3s ease;
+    text-align: left; /* Ensure left alignment */
+}
+
+.custom-search-container {
+    width: 100%; /* Ensure it fits within the container */
+    text-align: left; /* Align search container to the left */
+    padding: 10px; /* Increase padding */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.custom-search-container input {
+    width: 100%;
+    padding: 10px; /* Increase padding */
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+p.instructions {
+    margin: 0; /* Removes all margins */
 }
 
 /**DATATBLES AND FILTER STYLING */
@@ -142,12 +146,9 @@ p.instructions {
 }
 
 .filter-group select {
-    width: 135px; /* Set a fixed width */
-    max-width: 135px; /* Ensure the width doesn't exceed this value */
-    min-width: 135px; /* Ensure the width doesn't go below this value */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    min-width: 135px;
+    max-width: 100%; /* Ensure it doesn't overshoot the screen */
 }
-
 
 .filter-status-btn {
     margin-left: 0; /* Align button to the left */
