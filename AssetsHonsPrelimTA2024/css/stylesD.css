@@ -86,10 +86,14 @@ html, body {
 }
 
         .instructions {
-                margin-bottom: 10px; /* Add space below the instructions */
-                width: 100%; /* Ensure the instructions take up the full width */
+            margin-bottom: 10px;
+            width: 100%;
+            font-size: 14px;
+            color: inherit;
+            font-weight: normal;
+            text-align: left;
         }
-
+     
         .filter-group {
                 display: flex; /* Use flexbox for layout */
                 align-items: center; /* Align items vertically in the center */
@@ -111,7 +115,7 @@ html, body {
                 }
 
         .filter-status-btn {
-                padding: 3px 10px; /* Add padding inside the button */
+                padding: 8px 15px; /* Add padding inside the button */
                 border: none; /* Remove the default border */
                 border-radius: 4px; /* Round the corners slightly */
                 cursor: pointer; /* Change cursor to pointer on hover */
@@ -136,13 +140,17 @@ html, body {
                     background-color: #ebb6fcd8; /* Set the background color */
                     border: 1px solid #c953ff; /* Add a border with a specific color */
                     border-radius: 4px; /* Round the corners slightly */
-                    width: 100%; /* Ensure it fits within its container */
-                    max-width: 98vw;
+                    width: calc(100% - 20px); /* Ensure it fits within its container */
+                    max-width: calc(100vw - 40px);
                     box-sizing: border-box; /* Include padding and border in width calculation */
                     overflow-wrap: break-word; /* Break words that are too long to fit */
                     word-wrap: break-word; /* Ensure compatibility for word breaking */
                     display: none; /* Hide the filter notice by default */
                 }
+
+                                
+
+
 
 /* Table Styling */
 table, th, td {
