@@ -2,6 +2,7 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
+let initialContainerWidth = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -13,6 +14,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
         console.log("Data loaded:", allRows);
 
+        // Set the initial container width and lock it
+        initialContainerWidth = document.querySelector('.page-wrapper').offsetWidth;
+        document.querySelector('.page-wrapper').style.width = `${initialContainerWidth}px`;
+
         populateTable(allRows);
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
@@ -20,12 +25,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         adjustMargin(); // Initial adjustment
 
-        window.addEventListener('resize', adjustMargin); // Adjust margin on window resize 
-
+        window.addEventListener('resize', handleResize); // Adjust margin and container width on window resize
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 });
+
+function handleResize() {
+    const currentWidth = window.innerWidth;
+
+    if (currentWidth !== lastWindowWidth) {
+        // Update container width only when the window width changes
+        initialContainerWidth = document.querySelector('.page-wrapper').offsetWidth;
+        document.querySelector('.page-wrapper').style.width = `${initialContainerWidth}px`;
+    }
+
+    adjustMargin(); // Adjust the margin after resizing
+}
 
 function adjustMargin() {
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
@@ -39,9 +55,8 @@ function adjustMargin() {
 
     // Apply the margin to the content and table container
     document.querySelector('.content').style.marginTop = `${totalMargin}px`;
-    document.querySelector('.table-container').style.marginTop = `${headerHeight}px`; // This ensures the table starts just below the header
-    
-    console.log("Adjusted margins to:", totalMargin, "px");
+
+    console.log("Adjusted margin to:", totalMargin, "px");
 }
 
 function initializeDataTable() {
@@ -257,12 +272,9 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-    adjustMargin();
 }
 
 $(document).ready(function() {
-    adjustMargin();
-
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
@@ -296,4 +308,7 @@ $(document).ready(function() {
             window.scrollTo(0, 0);
         }
     });
+
+    adjustMargin(); // Initial adjustment
+    window.addEventListener('resize', handleResize); // Adjust margin on window resize
 });
