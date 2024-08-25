@@ -15,7 +15,7 @@ body, table, th, td,
 .dataTables_wrapper .dataTables_length, 
 .dataTables_wrapper .dataTables_info {
     font-family: Arial, sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.2;
 }
 
@@ -40,9 +40,9 @@ body, table, th, td,
     max-width: 100vw; /* Ensure it doesn't exceed the viewport width */
     position: fixed;
     top: 0;
+    padding: 10px;
     background-color: white;
     z-index: 1000;
-    padding: 8px 0; /* Adjust padding as needed */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     text-align: left; /* Align fixed header content to the left */
 }
@@ -83,7 +83,6 @@ body, table, th, td,
     flex-wrap: wrap;
     justify-content: flex-start; /* Align filters to the left */
     gap: 5px;
-    padding-left: 0; /* Remove any extra left padding */
     width: 100%;
     max-width: 100%;
 }
