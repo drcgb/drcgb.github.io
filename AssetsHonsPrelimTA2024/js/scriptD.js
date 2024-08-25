@@ -13,32 +13,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         populateTable(allRows);
         initializeDataTable();
-        populateFilters(allRows);
+        populateFilters();
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 
     const searchInput = document.querySelector('#customSearch');
-    const filterContainer = document.querySelector('.filter-container');
-    const filterNotice = document.querySelector('.filter-notice');
 
-    function matchWidths() {
-        const searchWidth = searchInput.offsetWidth;
-        filterContainer.style.width = `${searchWidth}px`;
-        filterNotice.style.width = `${searchWidth}px`;
-    }
-
-    matchWidths();
-    window.addEventListener('resize', matchWidths);
-
-    // Ensure the search bar uses DataTables native search
+    // Link the custom search bar to DataTables' search method
     searchInput.addEventListener('input', function () {
-        dataTable.search(this.value).draw();
-        updateFilterStatus();
-        updateFilterNotice();
+        const searchTerm = this.value;
+        console.log("Searching for:", searchTerm); // Debugging log
+        dataTable.search(searchTerm).draw(); // Apply the search term to DataTables
     });
-
-    console.log("DataTable initialized.");
 });
 
 function initializeDataTable() {
@@ -50,43 +37,7 @@ function initializeDataTable() {
         info: true,
         autoWidth: false,
         ordering: false,
-        language: {
-            lengthMenu: 'Show up to _MENU_ records per page',
-        },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function(settings) {
-            const api = this.api();
-            const rows = api.rows({ search: 'applied' }).data().length;
-
-            $('#abstractTable tbody .end-of-records').remove();
-
-            if (rows === 0 || rows > 0) {
-                $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
-            }
-
-            updateFilters(api);
-        }
-    });
-
-    dataTable.draw();
-
-    // Simplified dropdown functionality
-    $('#methodFilter').on('change', function() {
-        const value = $(this).val();
-        if (value) {
-            dataTable.column(0).search(value, true, false).draw();
-        } else {
-            dataTable.column(0).search('').draw();
-        }
-    });
-
-    $('#areaFilter').on('change', function() {
-        const value = $(this).val();
-        if (value) {
-            dataTable.column(0).search(value, true, false).draw();
-        } else {
-            dataTable.column(0).search('').draw();
-        }
     });
 
     console.log("DataTable initialized.");
@@ -116,7 +67,7 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
-function populateFilters(rows) {
+function populateFilters() {
     console.log("Populating filters...");
     populateMethodFilter();
     populateAreaFilter();
@@ -146,99 +97,3 @@ function populateAreaFilter() {
     console.log("Area filter populated.");
 }
 
-function updateFilters(api) {
-    updateMethodFilter(api);
-    updateAreaFilter(api);
-}
-
-function updateMethodFilter(api) {
-    const uniqueMethods = new Set(api.column(0).data().map(row => row.match(/Method:\s([^\s]+)/)?.[1]?.toLowerCase()).filter(Boolean));
-    const methodFilter = $('#methodFilter');
-
-    methodFilter.html(`<option value="">All Methods</option>`);
-    uniqueMethods.forEach(method => {
-        methodFilter.append(`<option value="${method}" style="text-transform: capitalize;">${method.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`);
-    });
-}
-
-function updateAreaFilter(api) {
-    const uniqueAreas = new Set();
-
-    api.column(0).data().each(row => {
-        const areaMatch = row.match(/Areas:\s(.+)$/);
-        if (areaMatch) {
-            areaMatch[1].split('; ').forEach(area => {
-                if (area) {
-                    uniqueAreas.add(area.toLowerCase());
-                }
-            });
-        }
-    });
-
-    const areaFilter = $('#areaFilter');
-    areaFilter.html(`<option value="">All Research Areas</option>`);
-    uniqueAreas.forEach(area => {
-        areaFilter.append(`<option value="${area}" style="text-transform: capitalize;">${area.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`);
-    });
-}
-
-function updateFilterStatus() {
-    const searchValue = $('#customSearch').val().trim();
-    const methodValue = $('#methodFilter').val();
-    const areaValue = $('#areaFilter').val();
-
-    const filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
-
-    const button = $('#filterStatusBtn');
-    if (filterActive) {
-        button.removeClass('green').addClass('red').text('Click to clear all filters');
-    } else {
-        button.removeClass('red').addClass('green').text('No filters active');
-    }
-}
-
-function updateFilterNotice() {
-    const searchValue = $('#customSearch').val().trim();
-    const methodValue = $('#methodFilter').val();
-    const areaValue = $('#areaFilter').val();
-
-    let activeFilters = [];
-    if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
-    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
-    if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
-
-    const notice = $('#filterNotice');
-    const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
-
-    const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
-
-    if (activeFilters.length > 0) {
-        if (filteredRowCount > 0) {
-            notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
-        } else {
-            let alertMessage = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | No results were found with this filter combination. Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
-            notice.html(alertMessage).show();
-
-            $('#clearAllFiltersLink').on('click', function(e) {
-                e.preventDefault();
-
-                $('#filterStatusBtn').trigger('click');
-            });
-        }
-    } else {
-        notice.hide();
-    }
-    adjustContentMargin();
-}
-
-function adjustContentMargin() {
-    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true);
-    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
-
-    $('.content').css('margin-top', totalMargin);
-}
-
-$(document).ready(function() {
-    adjustContentMargin();
-});
