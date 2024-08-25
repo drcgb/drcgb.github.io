@@ -1,5 +1,7 @@
 let allRows = [];
 let dataTable;
+let methodData = [];
+let researchAreasData = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -41,10 +43,28 @@ function initializeDataTable() {
     });
 
     console.log("DataTable initialized.");
-}
 
-let methodData = [];
-let researchAreasData = [];
+    // Simplified dropdown functionality
+    $('#methodFilter').on('change', function() {
+        const value = $(this).val();
+        console.log("Method Filter selected:", value);
+        if (value) {
+            filterByMethod(value);
+        } else {
+            dataTable.search('').draw(); // Clear the filter if no method is selected
+        }
+    });
+
+    $('#areaFilter').on('change', function() {
+        const value = $(this).val();
+        console.log("Area Filter selected:", value);
+        if (value) {
+            filterByArea(value);
+        } else {
+            dataTable.search('').draw(); // Clear the filter if no area is selected
+        }
+    });
+}
 
 function populateTable(rows) {
     console.log("Populating table...");
@@ -97,3 +117,34 @@ function populateAreaFilter() {
     console.log("Area filter populated.");
 }
 
+function filterByMethod(method) {
+    dataTable.columns().every(function() {
+        this.search('').draw(); // Clear existing filters on all columns
+    });
+
+    const regex = new RegExp(`Method:\\s*${method}`, 'i');
+    dataTable.rows().every(function() {
+        const row = this.data();
+        if (regex.test(row[0])) {
+            this.nodes().to$().show();
+        } else {
+            this.nodes().to$().hide();
+        }
+    });
+}
+
+function filterByArea(area) {
+    dataTable.columns().every(function() {
+        this.search('').draw(); // Clear existing filters on all columns
+    });
+
+    const regex = new RegExp(`Areas:\\s*.*${area}.*`, 'i');
+    dataTable.rows().every(function() {
+        const row = this.data();
+        if (regex.test(row[0])) {
+            this.nodes().to$().show();
+        } else {
+            this.nodes().to$().hide();
+        }
+    });
+}
