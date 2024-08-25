@@ -251,13 +251,14 @@ function updateFilterNotice() {
 
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true);
 
     // Adjust the total margin so that it only adds the filter notice height if needed
-    const totalMargin = headerHeight + filterNoticeHeight;
+    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight;
 
     // Set the margin-top for the content area
-    $('.content').css('margin-top', totalMargin - filterNoticeHeight);
+    $('.content').css('margin-top', totalMargin);
 }
 
 function matchNoticeWidth() {
@@ -267,68 +268,34 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-$(document).ready(function() {
-    // Toggle instructions visibility
-    $('#instructionsToggle').on('click', function() {
-        const details = $('#instructionsDetails');
-        details.toggle();
-        const isOpen = details.is(':visible');
-        $('#instructionsToggle').text(isOpen ? "▼ Instructions" : "► Instructions");
-        adjustContentMargin(); // Adjust margin when instructions visibility changes
-    });
-
-    $('#closeInstructions').on('click', function(e) {
-        e.preventDefault();
-        $('#instructionsDetails').hide();
-        $('#instructionsToggle').text("► Instructions");
-        adjustContentMargin(); // Adjust margin when instructions visibility changes
-    });
-});
-
-// Adjust text size
-function adjustTextSize(increase) {
-    const adjustmentFactor = increase ? 1.1 : 0.9;
-
-    // Adjust text size for table content (td)
-    $('#abstractTable td').each(function() {
-        const currentSize = parseFloat($(this).css('font-size'));
-        const newSize = currentSize * adjustmentFactor;
-        $(this).css('font-size', newSize + 'px');
-    });
-
-    // Adjust text size for table headers (th)
-    $('#abstractTable th').each(function() {
-        const currentSize = parseFloat($(this).css('font-size'));
-        const newSize = currentSize * adjustmentFactor;
-        $(this).css('font-size', newSize + 'px');
-    });
-
-    // Adjust text size for filter notices and instructions
-    $('.filter-notice, .instructions').each(function() {
-        const currentSize = parseFloat($(this).css('font-size'));
-        const newSize = currentSize * adjustmentFactor;
-        $(this).css('font-size', newSize + 'px');
-    });
-
-    // Adjust text size for filter dropdown options
-    $('.filter-group select').each(function() {
-        const currentSize = parseFloat($(this).css('font-size'));
-        const newSize = currentSize * adjustmentFactor;
-        $(this).css('font-size', newSize + 'px');
-    });
-
-    // Adjust text size for buttons
-    $('.text-size-controls span, .reset-text-size, #filterStatusBtn').each(function() {
-        const currentSize = parseFloat($(this).css('font-size'));
-        const newSize = currentSize * adjustmentFactor;
-        $(this).css('font-size', newSize + 'px');
-    });
+// Toggle instructions visibility
+function toggleInstructions() {
+    const details = document.getElementById("instructionsDetails");
+    details.open = !details.open;
+    const toggleLink = document.getElementById("instructionsToggle");
+    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
+    adjustContentMargin();
 }
 
+// Adjust text size within the table only
+function adjustTextSize(increase) {
+    const table = document.querySelector('#abstractTable');
+    let currentSize = parseFloat(window.getComputedStyle(table).fontSize);
+    const maxSize = 20; // maximum font size in pixels
+    const minSize = 10; // minimum font size in pixels
 
-// Reset text size
+    if (increase && currentSize < maxSize) {
+        currentSize *= 1.1;
+    } else if (!increase && currentSize > minSize) {
+        currentSize /= 1.1;
+    }
+    
+    table.style.fontSize = `${currentSize}px`;
+}
+
+// Reset text size to default
 function resetTextSize() {
-    $('#abstractTable tbody td th ').css("font-size", "14px"); // Reset to default size
+    document.querySelector('#abstractTable').style.fontSize = '15px';
 }
 
 $(document).ready(function() {
@@ -369,8 +336,12 @@ $(document).ready(function() {
     });
 
     // Event listeners for the new buttons
-    $('#toggleInstructions').on('click', toggleInstructions);
+    $('#instructionsToggle').on('click', toggleInstructions);
     $('#increaseTextSize').on('click', function() { adjustTextSize(true); });
     $('#decreaseTextSize').on('click', function() { adjustTextSize(false); });
     $('#resetTextSize').on('click', resetTextSize);
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault();
+        toggleInstructions();
+    });
 });

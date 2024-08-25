@@ -1,33 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searchable and Filterable Table</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="AssetsHonsPrelimTA2024/css/stylesD.css">
+</head>
 <body>
+
+    <!-- Blue Bar -->
+    <div class="blue-bar">
+        <span id="instructionsToggle" class="instructions-link">► Instructions</span>
+        <div class="text-size-controls">
+            <span id="resetTextSize" class="reset-text-size">Reset Text Size</span>
+            <span id="decreaseTextSize">A-</span>
+            <span id="increaseTextSize">A+</span>
+        </div>
+    </div>
+
     <!-- Page Wrapper -->
     <div class="page-wrapper">
-
-        <!-- Blue Bar -->
-        <div class="blue-bar">
-            <div class="instructions-link">
-                <span id="instructionsToggle">► Instructions</span>
-            </div>
-            <div class="text-size-controls">
-                <span class="reset-text-size" id="resetTextSize">Reset Text Size</span>
-                <span id="increaseTextSize">A+</span>
-                <span id="decreaseTextSize">A-</span>
-            </div>
-        </div>
-
-        <!-- Instructions -->
-        <details id="instructionsDetails">
-            <summary style="display:none;"></summary>
-            <p class="instructions">
-                All preliminary abstracts are shown in the table below. You can filter the abstracts by entering text into the search bar above. You can also filter by <strong>Method</strong> <u>and/or</u> <strong>Research Area</strong> using the dropdown menus below. The corresponding record counts will update dynamically based on your filter options. When filters are active, the green button will turn red, and you can click it to clear the filters.
-                <br><br><a id="closeInstructions" href="#">Close instructions</a>
-            </p>
-        </details>
 
         <!-- Fixed Header -->
         <div class="fixed-header">
             <div class="custom-search-container">
                 <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
             </div>
+            <details id="instructionsDetails">
+                <summary style="display:none;"></summary>
+                <p class="instructions">
+                    All preliminary abstracts are shown in the table below. You can filter the abstracts by entering text into the search bar above. You can also filter by <strong>Method</strong> <u>and/or</u> <strong>Research Area</strong> using the dropdown menus below. The corresponding record counts will update dynamically based on your filter options. When filters are active, the green button will turn red, and you can click it to clear the filters.
+                    <a href="#" id="closeInstructions" style="display: block; margin-top: 10px;">Close Instructions</a>
+                </p>
+            </details>
             <div class="dataTables_wrapper">
                 <div class="filter-container">
                     <div class="filter-group">
@@ -67,3 +74,4 @@
     <script src="AssetsHonsPrelimTA2024/js/scriptD.js"></script>
 
 </body>
+</html>
