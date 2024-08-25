@@ -1,23 +1,71 @@
+/* Page Wrapper */
+.page-wrapper {
+    max-width: 1200px; /* Set a maximum width for the page content */
+    margin: 0 auto; /* Center the content horizontally */
+    padding: 0 20px; /* Optional padding to add space inside the wrapper */
+}
+
+/* Fixed Header */
 .fixed-header {
-    width: 100%; /* Match the header width to the viewport or wrapper */
+    width: 100%; /* Ensure the header spans the full width of the page-wrapper */
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #fff; /* Background color to ensure visibility */
+    background-color: #fff; /* Background color for the header */
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
+    padding: 10px 0; /* Padding for the header */
 }
 
+/* Content Area */
 .content {
-    padding-top: 70px; /* Adjust this padding to match the height of the fixed header */
+    padding-top: 100px; /* Adjust this padding to match the height of the fixed header */
 }
 
+/* Table Container */
 .table-container {
-    width: 100%;
-    padding: 0 20px; /* Optional: padding to match the header and content widths */
-    overflow-x: auto; /* Ensure table is responsive */
+    width: 100%; /* Ensure the table spans the full width of the content area */
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
 }
 
+/* DataTables Wrapper */
 .dataTables_wrapper {
     width: 100%; /* Ensure the DataTables wrapper matches the content width */
+}
+
+/* Filter Container */
+.filter-container {
+    margin-bottom: 20px; /* Add some space below the filters */
+}
+
+/* Filter Notice */
+.filter-notice {
+    margin-top: 10px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Custom Search Container */
+.custom-search-container {
+    margin-bottom: 10px;
+}
+
+/* Filter Status Button */
+.filter-status-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Adjustments for Dropdowns */
+.filter-group {
+    margin-right: 15px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Ensure text inside table headers is aligned */
+#abstractTable th {
+    text-align: left;
+    padding: 10px;
 }

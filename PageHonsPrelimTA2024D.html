@@ -1,35 +1,64 @@
-<div class="page-wrapper">
-    <div class="fixed-header">
-        <div class="custom-search-container">
-            <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
-        </div>
-        <div class="dataTables_wrapper">
-            <div class="filter-container">
-                <p style="padding-left: 7px; margin-top: 0px; margin-bottom: 5px;">
-                    All preliminary abstracts are shown in the table below. You can filter the abstracts by entering text into the search bar above. You can also filter by <strong>Method</strong> <u>and/or</u> <strong>Research Area</strong> using the dropdown menus below. The corresponding record counts will update dynamically based on your filter options. When filters are active, the green button will turn red, and you can click it to clear the filters.
-                </p>
-                <div class="filter-group">
-                    <label for="methodFilter">Filter(Method):</label>
-                    <select id="methodFilter"><option value="">All</option></select>
-                </div>
-                <div class="filter-group">
-                    <label for="areaFilter">Filter(Areas):</label>
-                    <select id="areaFilter"><option value="">All</option></select>
-                </div>
-                <button id="filterStatusBtn" class="filter-status-btn green" style="padding-right: 3px;">No filters active</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searchable and Filterable Table</title>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="AssetsHonsPrelimTA2024/css/stylesD.css">
+</head>
+<body>
+
+    <!-- Page Wrapper -->
+    <div class="page-wrapper">
+
+        <!-- Fixed Header -->
+        <div class="fixed-header">
+            <div class="custom-search-container">
+                <input type="text" id="customSearch" placeholder="🔍 Search abstracts...">
             </div>
-            <div class="filter-notice" id="filterNotice"></div>
+            <div class="dataTables_wrapper">
+                <div class="filter-container">
+                    <p style="padding-left: 7px; margin-top: 0px; margin-bottom: 5px;">
+                        All preliminary abstracts are shown in the table below. You can filter the abstracts by entering text into the search bar above. You can also filter by <strong>Method</strong> <u>and/or</u> <strong>Research Area</strong> using the dropdown menus below. The corresponding record counts will update dynamically based on your filter options. When filters are active, the green button will turn red, and you can click it to clear the filters.
+                    </p>
+                    <div class="filter-group">
+                        <label for="methodFilter">Filter(Method):</label>
+                        <select id="methodFilter"><option value="">All</option></select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="areaFilter">Filter(Areas):</label>
+                        <select id="areaFilter"><option value="">All</option></select>
+                    </div>
+                    <button id="filterStatusBtn" class="filter-status-btn green" style="padding-right: 3px;">No filters active</button>
+                </div>
+                <div class="filter-notice" id="filterNotice"></div>
+            </div>
         </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <div class="table-container">
+                <table id="abstractTable" class="display">
+                    <thead>
+                        <tr><th>Preliminary Title and Abstract</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
-    <div class="content">
-        <div class="table-container">
-            <table id="abstractTable" class="display">
-                <thead>
-                    <tr><th>Preliminary Title and Abstract</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+    <!-- External JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="AssetsHonsPrelimTA2024/js/scriptD.js"></script>
+
+</body>
+</html>
