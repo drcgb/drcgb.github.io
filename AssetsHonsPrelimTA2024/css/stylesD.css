@@ -88,6 +88,7 @@ body, table, th, td,
     gap: 10px; /* Increase gap between filters */
     width: 100%;
     padding: 10px; /* Increase padding */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .filter-group {
@@ -109,7 +110,7 @@ body, table, th, td,
 .filter-status-btn {
     margin-left: 0; /* Align button to the left */
     padding: 5px 15px; /* Increase padding */
-    border: none;
+    border: 1px solid #000000;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold; /* Makes the font bold */
