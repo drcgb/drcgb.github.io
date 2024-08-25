@@ -83,7 +83,7 @@ body, table, th, td,
     width: 100%; /* Ensure it fits within the viewport */
     position: fixed;
     top: 40px; /* Adjust based on blue bar height */
-    padding: 0px 12px 12px 8px;
+    padding: 0px 12px 4px 8px; /* Adjust padding: top right bottom left */
     background-color: white;
     z-index: 999;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -101,7 +101,7 @@ body, table, th, td,
 .custom-search-container {
     width: 100%; /* Ensure it fits within the container */
     text-align: left; /* Align search container to the left */
-    padding: 10px; /* Increase padding */
+    padding: 10px 10px 5px 10px; /* Adjust padding: top right bottom left */
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
@@ -156,7 +156,7 @@ p.instructions {
 
 .filter-status-btn {
     margin-left: 0; /* Align button to the left */
-    padding: 5px 7px; /* Increase padding */
+    padding: 5px 6px; /* Increase padding */
     border: 1px solid #000000;
     border-radius: 4px;
     cursor: pointer;
@@ -164,7 +164,7 @@ p.instructions {
     transition: background-color 0.3s, color 0.3s;
     vertical-align: center;
     text-align: center;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .filter-status-btn.green {
