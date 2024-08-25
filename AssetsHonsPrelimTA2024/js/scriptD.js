@@ -16,14 +16,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateTable(allRows);
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
+
+        // Initialize the dataTable after the filters are populated
         initializeDataTable();
 
-        window.addEventListener('resize', matchNoticeWidth);
+        window.addEventListener('resize', () => {
+            adjustContentMargin(); // Adjust margin on window resize
+            matchNoticeWidth(); // Match filter notice width to search input
+        });
 
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 });
+
+window.onload = function() {
+    adjustContentMargin();
+    matchNoticeWidth();
+};
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
@@ -48,12 +58,13 @@ function initializeDataTable() {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
 
-            // Update the dropdown filters dynamically
+            // Update filter counts dynamically
             updateMethodFilterCounts();
             updateAreaFilterCounts();
         }
     });
 
+    // Custom filtering logic
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -94,7 +105,7 @@ function initializeDataTable() {
         return methodMatch && areaMatch;
     });
 
-    dataTable.draw();
+    dataTable.draw(); // Apply filters initially
 }
 
 function populateTable(rows) {
@@ -192,6 +203,8 @@ function populateAreaFilter(rows) {
 }
 
 function updateMethodFilterCounts() {
+    if (!dataTable) return;
+
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const methodCounts = {
         quantitative: 0,
@@ -241,6 +254,8 @@ function updateMethodFilterCounts() {
 }
 
 function updateAreaFilterCounts() {
+    if (!dataTable) return;
+
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const areaCounts = {};
 
