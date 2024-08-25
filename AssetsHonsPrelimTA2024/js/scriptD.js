@@ -283,7 +283,6 @@ $(document).ready(function() {
         $('#instructionsToggle').text("► Instructions");
         adjustContentMargin(); // Adjust margin when instructions visibility changes
     });
-
 });
 
 // Adjust text size
@@ -329,7 +328,7 @@ function adjustTextSize(increase) {
 
 // Reset text size
 function resetTextSize() {
-    $('#abstractTable tbody td th .filter-notice, .instructions, .filter-group select, .text-size-controls span, .reset-text-size, #filterStatusBtn').css("font-size", "14px"); // Reset to default size
+    $('#abstractTable tbody td th ').css("font-size", "14px"); // Reset to default size
 }
 
 $(document).ready(function() {
