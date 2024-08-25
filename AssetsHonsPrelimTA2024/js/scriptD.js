@@ -44,7 +44,7 @@ function adjustTableMargin() {
     }
 
     // Calculate the total height of the elements above the table
-    const totalHeight = filterNoticeHeight;
+    const totalHeight = headerHeight + filterNoticeHeight;
 
     // Adjust the margin only if the window has been resized (width or height)
     if (window.innerWidth !== lastWindowWidth || window.innerHeight !== lastWindowHeight) {

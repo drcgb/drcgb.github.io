@@ -63,7 +63,7 @@ html, body {
                 .custom-search-container input {
                         width: 100%;
                         max-width: 100%; /* DON'T Adjust for padding */
-                        padding: 8px; /* Add padding inside the input */
+                        padding: 4px; /* Add padding inside the input */
                         border-radius: 4px; /* Round the corners slightly */
                         font-size: 16px; /* Set the font size */
                 }
@@ -130,7 +130,7 @@ html, body {
                 }
 
                 .filter-notice {
-                    margin: 5px 0 2px 8px; /* Add space around the filter notice */
+                    margin: 5px 0px 2px 8px; /* Add space around the filter notice */
                     padding: 8px; /* Add padding inside the notice */
                     color: #000; /* Set the text color to black */
                     background-color: #ebb6fcd8; /* Set the background color */
