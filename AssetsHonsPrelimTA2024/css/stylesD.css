@@ -187,9 +187,13 @@ table.dataTable tbody tr:hover {
     }
 
     .filter-status-btn {
+        width: 100%; /* Make the button take full width */
         margin-left: 0; /* Align button to the left */
         text-align: center; /* Center the text */
-}
+        display: flex; /* Use flexbox for vertical centering */
+        justify-content: center; /* Center the text horizontally */
+        align-items: center; /* Center the text vertically */
+    }
 
     .custom-search-container input, .filter-status-btn {
         width: 100%; /* Ensure it fits within the container */
