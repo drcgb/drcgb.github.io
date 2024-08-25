@@ -19,18 +19,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const searchInput = document.querySelector('.custom-search-container input');
+    const filterContainer = document.querySelector('.filter-container');
     const filterNotice = document.querySelector('.filter-notice');
 
-    function matchNoticeWidth() {
+    function matchWidths() {
         const searchWidth = searchInput.offsetWidth;
+        filterContainer.style.width = `${searchWidth}px`;
         filterNotice.style.width = `${searchWidth}px`;
     }
 
-    matchNoticeWidth();
-    window.addEventListener('resize', matchNoticeWidth);
+    matchWidths();
+    window.addEventListener('resize', matchWidths);
 
     console.log("DataTable initialized.");
-
 });
 
 function initializeDataTable() {
@@ -256,7 +257,7 @@ function updateMethodFilter(api) {
     };
 
     api.rows({ search: 'applied' }).data().each(row => {
-        const mainMethod = row[0] ? row[0].toLowerCase().trim() : '';
+        const mainMethod = row[1] ? row[1].toLowerCase().trim() : '';
         if (mainMethod) {
             switch (mainMethod) {
                 case 'quantitative':
