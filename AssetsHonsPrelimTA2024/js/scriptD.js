@@ -214,12 +214,6 @@ function updateAreaFilterCounts() {
     // Update the area dropdown with the new counts
 }
 
-dataTable.on('draw', function() {
-    updateMethodFilterCounts();
-    updateAreaFilterCounts();
-});
-
-
 function updateFilterStatus() {
     const searchValue = $('#customSearch').val().trim();
     const methodValue = $('#methodFilter').val();
@@ -242,7 +236,7 @@ function updateFilterNotice() {
 
     let activeFilters = [];
     if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
-    if (methodValue) activeFilters.push(`Method: "${methodValue.replace('↘ ', '')}"`); // Remove the arrow for display
+    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
     if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
 
     const notice = $('#filterNotice');
@@ -251,11 +245,13 @@ function updateFilterNotice() {
     const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
 
     if (activeFilters.length > 0) {
-        let filterText = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | `;
         if (filteredRowCount > 0) {
-            notice.html(`${filterText}<strong>${filteredRowCount} record(s) found.</strong>`).show();
+            notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
-            notice.html(`${filterText}<strong>No results found with this filter combination.</strong> Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`).show();
+            let alertMessage = `<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>No results found with this filter combination.</strong> `;
+            alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
+            notice.html(alertMessage).show();
+
             $('#clearAllFiltersLink').on('click', function(e) {
                 e.preventDefault();
                 $('#filterStatusBtn').trigger('click');
@@ -264,25 +260,21 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-
+    
     adjustContentMargin();  // Recalculate margin after updating notice
 
-    // Add a slight delay before resetting scroll position
-    setTimeout(() => {
-    content.scrollTo(0, 0);
-    }, 65);  // 65 milliseconds delay
 }
 
 function adjustContentMargin() {
-   /* const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;*/
-   /* const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0; */
     const blueBarHeight = $('.blue-bar').outerHeight(true); // Get the height of the blue bar
-    const headerHeight = $('.fixed-header').outerHeight(true) + blueBarHeight;
+    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0;
+    const headerHeight = $('.fixed-header').outerHeight(true) + 15;
 
     // Adjust the total margin so that it only adds the filter notice height if needed
-    const totalMargin = headerHeight + blueBarHeight - blueBarHeight;
+    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight + blueBarHeight;
 
-   // Set the margin-top for the content area
+    // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
 }
 
@@ -291,6 +283,11 @@ function matchNoticeWidth() {
     const filterNotice = document.querySelector('.filter-notice');
     const searchWidth = searchInput.offsetWidth;
     filterNotice.style.width = `${searchWidth}px`;
+}
+
+// Scroll to top when filter changes
+function scrollToTop() {
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
 }
 
 $(document).ready(function() {
@@ -302,10 +299,61 @@ $(document).ready(function() {
         toggleInstructions();
     });
 
-   /* $('#closeInstructions').on('click', function(e) {
+    $('#closeInstructions').on('click', function(e) {
         e.preventDefault();
         toggleInstructions();
-    });*/
+    });
+
+    $('#customSearch').on('input', function() {
+        dataTable.search($(this).val()).draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
+        scrollToTop();
+    });
+
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
+        scrollToTop();
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
+        scrollToTop();
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+
+            dataTable.search('').draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            updateMethodFilterCounts();
+            updateAreaFilterCounts();
+            scrollToTop();
+        }
+    });
+
+    // Event listeners for text size controls
+    document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
+    document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
+    document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault();
+        toggleInstructions();
+    });
 });
 
 // Function to toggle instructions
@@ -317,7 +365,6 @@ function toggleInstructions() {
     toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
     adjustContentMargin();
 }
-
 
 // Variables to track the current adjustment level
 let adjustmentLevel = 0;
@@ -356,54 +403,3 @@ function resetTextSize() {
         el.style.fontSize = `${baseSize}px`;
     });
 }
-
-
-$(document).ready(function() {
-    adjustContentMargin();
-
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
-    });
-
-    $('#methodFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
-    });
-
-    $('#methodFilter').on('change', function() {
-        let selectedText = $(this).find("option:selected").text();
-        selectedText = selectedText.replace('↘ ', '').trim(); // Remove the arrow and trim spaces
-        $(this).find("option:selected").text(selectedText);
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
-    });
-    
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-
-            dataTable.search('').draw();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        }
-    });
-
-    // Event listeners for text size controls
-    document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
-    document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
-    document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
-    document.getElementById('closeInstructions').addEventListener('click', function(event) {
-        event.preventDefault();
-        document.querySelector('.instructions').style.display = 'none';
-    });
-});
