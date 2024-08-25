@@ -122,15 +122,18 @@ body {
 
 /* Filter Notice */
 .filter-notice {
-    margin: 5px 0 2px 8px;
-    padding: 8px;
+    margin: 5px 0 2px 8px; /* Adjusted margins to position the notice properly */
+    padding: 8px; /* Reasonable padding to avoid overflow */
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
     border-radius: 4px;
-    width: 97vw;
-    max-width: 100%; /* Stay within container */
-    display: none;
+    width: 97vw; /* Ensures it adjusts to the viewport width */
+    max-width: 100%; /* Ensures it stays within the container */
+    box-sizing: border-box; /* Includes padding and border within the width */
+    overflow-wrap: break-word; /* Prevents overflow by breaking long words */
+    word-wrap: break-word; /* Ensures compatibility with older browsers */
+    display: none; /* Initially hidden, can be shown via JavaScript */
 }
 
 /* Table Styling */
