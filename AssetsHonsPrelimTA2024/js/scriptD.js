@@ -3,6 +3,7 @@ let dataTable;
 let methodData = [];
 let researchAreasData = [];
 
+// Load the XLSX data and initialize everything
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         console.log("Loading XLSX data...");
@@ -30,6 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
+// Adjust content margin and notice width on page load
 window.onload = function() {
     adjustContentMargin();
     matchNoticeWidth();
@@ -49,10 +51,6 @@ function initializeDataTable() {
             lengthMenu: 'Show up to _MENU_ records per page',
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-        initComplete: function() {
-            updateMethodFilterCounts(); // Initial update of method filter counts
-            updateAreaFilterCounts(); // Initial update of area filter counts
-        }
     });
 
     // Custom filtering logic
@@ -96,26 +94,10 @@ function initializeDataTable() {
         return methodMatch && areaMatch;
     });
 
-    // Event listeners for updating counts on filter changes
-    $('#methodFilter').on('change', function() {
-        dataTable.draw(); // Trigger the DataTable to redraw
-        updateMethodFilterCounts(); // Manually update method filter counts
-        updateAreaFilterCounts(); // Manually update area filter counts
-    });
-
-    $('#areaFilter').on('change', function() {
-        dataTable.draw(); // Trigger the DataTable to redraw
-        updateMethodFilterCounts(); // Manually update method filter counts
-        updateAreaFilterCounts(); // Manually update area filter counts
-    });
-
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw(); // Apply the search
-        updateMethodFilterCounts(); // Manually update method filter counts
-        updateAreaFilterCounts(); // Manually update area filter counts
-    });
-
-    dataTable.draw(); // Apply filters initially
+    // Initial draw and count updates
+    dataTable.draw();
+    updateMethodFilterCounts();
+    updateAreaFilterCounts();
 }
 
 function populateTable(rows) {
@@ -339,7 +321,7 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-
+    
     adjustContentMargin();  // Recalculate margin after updating notice
 }
 
@@ -385,23 +367,29 @@ $(document).ready(function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
         scrollToTop();
     });
-
+    
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
         scrollToTop();
     });
-
+    
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
         scrollToTop();
     });
-
+ 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
@@ -411,6 +399,8 @@ $(document).ready(function() {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
+            updateMethodFilterCounts();
+            updateAreaFilterCounts();
             scrollToTop();
         }
     });
@@ -426,7 +416,7 @@ function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
     details.open = !details.open; // Toggle the 'open' attribute
     console.log('Instructions toggled:', details.open);
-
+    
     const toggleLink = document.getElementById("instructionsToggle");
     toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
     adjustContentMargin(); // Recalculate margin after toggling
