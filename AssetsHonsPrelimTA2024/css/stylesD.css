@@ -72,8 +72,9 @@ body, table, th, td,
     box-sizing: border-box;
 }
 
-
-
+p.instructions {
+    margin: 0; /* Removes all margins */
+}
 
 /**DATATBLES AND FILTER STYLING */
 .dataTables_wrapper {
