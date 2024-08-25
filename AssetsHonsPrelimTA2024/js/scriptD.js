@@ -18,31 +18,34 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateAreaFilter(allRows);
         initializeDataTable();
 
-        adjustTableMargin(); // Initial adjustment
+        adjustMargin(); // Initial adjustment
 
-        window.addEventListener('resize', adjustTableMargin); // Adjust margin on window resize
+        window.addEventListener('resize', adjustMargin); // Adjust margin on window resize 
 
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 });
 
-function adjustTableMargin() {
+function adjustMargin() {
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
     const filterNotice = document.querySelector('.filter-notice');
     
-    // Calculate the total height of the elements above the table
-    const filterNoticeHeight = filterNotice && filterNotice.style.display !== 'none' ? filterNotice.offsetHeight : 0;
-    const totalHeight = headerHeight + filterNoticeHeight;
-
-    // Apply the calculated margin-top only if it’s different from the current margin-top
-    const tableContainer = document.querySelector('.table-container');
-    const currentMarginTop = parseInt(window.getComputedStyle(tableContainer).marginTop);
+    let filterNoticeHeight = 0;
     
-    if (currentMarginTop !== totalHeight) {
-        tableContainer.style.marginTop = `${totalHeight}px`;
-        console.log("Adjusted table margin to:", totalHeight, "px");
+    // Only add filterNotice height if it is visible
+    if (filterNotice && filterNotice.style.display !== 'none') {
+        filterNoticeHeight = filterNotice.offsetHeight;
     }
+    
+    // Calculate the total height of the elements above the table
+    const totalMargin = headerHeight + filterNoticeHeight;
+
+    // Apply the margin to both the content and table container
+    document.querySelector('.content').style.marginTop = `${totalMargin}px`;
+    document.querySelector('.table-container').style.marginTop = `${totalMargin}px`;
+    
+    console.log("Adjusted margins to:", totalMargin, "px");
 }
 
 function initializeDataTable() {
@@ -59,11 +62,12 @@ function initializeDataTable() {
             lengthMenu: 'Show up to _MENU_ records per page',
         },
         dom: '<"top"l>rt<"bottom"p><"clear">',
-        drawCallback: function() {
-            const rows = this.api().rows({ search: 'applied' }).data().length;
-            $('#abstractTable tbody .end-of-records').remove();
+        drawCallback: function(settings) {
+            const api = this.api();
+            const rows = api.rows({ search: 'applied' }).data().length;
 
-            if (rows > 0) {
+            $('#abstractTable tbody .end-of-records').remove();
+            if (rows === 0 || rows > 0) {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
         }
@@ -73,15 +77,37 @@ function initializeDataTable() {
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
-        const mainMethod = methodData[dataIndex]?.toLowerCase().trim() || '';
-        const researchAreasContent = researchAreasData[dataIndex]?.toLowerCase().trim() || '';
 
-        let methodMatch = methodValue === '' || 
-                          (methodValue === 'all-quantitative' && 
-                          (mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods')) ||
-                          (methodValue === 'all-qualitative' && 
-                          (mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods')) ||
-                          mainMethod === methodValue;
+        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
+        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+
+        let methodMatch = false;
+
+        switch (methodValue) {
+            case '':
+                methodMatch = true;
+                break;
+            case 'all-quantitative':
+                methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
+                break;
+            case 'quantitative':
+            case 'meta-analysis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-quantitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+            case 'all-qualitative':
+                methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
+                break;
+            case 'qualitative':
+            case 'meta-synthesis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-qualitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+        }
 
         const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
@@ -91,6 +117,7 @@ function initializeDataTable() {
     dataTable.draw(); // Apply filters initially
 }
 
+// Populate the table with rows
 function populateTable(rows) {
     console.log("Populating table...");
     methodData = [];
@@ -112,6 +139,7 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
+// Populate the method filter dropdown
 function populateMethodFilter(rows) {
     console.log("Populating method filter...");
     const methodCounts = {
@@ -127,11 +155,22 @@ function populateMethodFilter(rows) {
         const mainMethod = row[1]?.trim().toLowerCase();
         if (mainMethod) {
             switch (mainMethod) {
-                case 'quantitative': methodCounts.quantitative++; break;
-                case 'meta-analysis': methodCounts.metaAnalysis++; break;
-                case 'mixed-methods': methodCounts.mixedMethodsQuantitative++; methodCounts.mixedMethodsQualitative++; break;
-                case 'qualitative': methodCounts.qualitative++; break;
-                case 'meta-synthesis': methodCounts.metaSynthesis++; break;
+                case 'quantitative':
+                    methodCounts.quantitative += 1;
+                    break;
+                case 'meta-analysis':
+                    methodCounts.metaAnalysis += 1;
+                    break;
+                case 'mixed-methods':
+                    methodCounts.mixedMethodsQuantitative += 1;
+                    methodCounts.mixedMethodsQualitative += 1;
+                    break;
+                case 'qualitative':
+                    methodCounts.qualitative += 1;
+                    break;
+                case 'meta-synthesis':
+                    methodCounts.metaSynthesis += 1;
+                    break;
             }
         }
     });
@@ -152,6 +191,7 @@ function populateMethodFilter(rows) {
     console.log("Method filter populated.");
 }
 
+// Populate the area filter dropdown
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
     const areaCounts = {};
@@ -221,19 +261,11 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-    adjustContentMargin();
-}
-
-function adjustContentMargin() {
-    const headerHeight = $('.fixed-header').outerHeight(true);
-    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const totalMargin = headerHeight + filterNoticeHeight;
-
-    $('.content').css('margin-top', totalMargin);
+    adjustMargin();
 }
 
 $(document).ready(function() {
-    adjustContentMargin();
+    adjustMargin();
 
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
