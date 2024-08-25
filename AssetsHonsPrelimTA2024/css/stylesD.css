@@ -31,8 +31,7 @@ body, table, th, td,
 .custom-search-container,
 .fixed-header,
 .content {
-    max-width: 1200px; /* Set a maximum width */
-    width: 80%; /* Use a percentage for responsive design */
+    width: 100%; /* Use a percentage for responsive design */
     margin: 0 auto; /* Center the container */
     text-align: left; /* Ensure left alignment */
     box-sizing: border-box;
