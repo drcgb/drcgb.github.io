@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error('Error loading XLSX data:', err);
     }
 
-    const searchInput = document.querySelector('.custom-search-container input');
+    const searchInput = document.querySelector('#customSearch');
     const filterContainer = document.querySelector('.filter-container');
     const filterNotice = document.querySelector('.filter-notice');
 
@@ -30,6 +30,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     matchWidths();
     window.addEventListener('resize', matchWidths);
+
+    // Ensure the search bar uses DataTables native search
+    searchInput.addEventListener('input', function () {
+        dataTable.search(this.value).draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
 
     console.log("DataTable initialized.");
 });
@@ -63,13 +70,23 @@ function initializeDataTable() {
 
     dataTable.draw();
 
-    // Simplified dropdown functionality: no event listeners for now.
+    // Simplified dropdown functionality
     $('#methodFilter').on('change', function() {
-        dataTable.column(0).search(this.value).draw();
+        const value = $(this).val();
+        if (value) {
+            dataTable.column(0).search(value, true, false).draw();
+        } else {
+            dataTable.column(0).search('').draw();
+        }
     });
 
     $('#areaFilter').on('change', function() {
-        dataTable.column(0).search(this.value).draw();
+        const value = $(this).val();
+        if (value) {
+            dataTable.column(0).search(value, true, false).draw();
+        } else {
+            dataTable.column(0).search('').draw();
+        }
     });
 
     console.log("DataTable initialized.");
@@ -101,36 +118,28 @@ function populateTable(rows) {
 
 function populateFilters(rows) {
     console.log("Populating filters...");
-    populateMethodFilter(rows);
-    populateAreaFilter(rows);
+    populateMethodFilter();
+    populateAreaFilter();
 }
 
-function populateMethodFilter(rows) {
-    const methods = new Set(rows.map(row => row[1]?.trim().toLowerCase()).filter(Boolean));
+function populateMethodFilter() {
+    const uniqueMethods = [...new Set(methodData)];
     const methodFilter = document.getElementById("methodFilter");
 
     methodFilter.innerHTML = `<option value="">All Methods</option>`;
-    methods.forEach(method => {
+    uniqueMethods.forEach(method => {
         methodFilter.innerHTML += `<option value="${method}" style="text-transform: capitalize;">${method.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`;
     });
 
     console.log("Method filter populated.");
 }
 
-function populateAreaFilter(rows) {
-    const areas = new Set();
-    rows.forEach(row => {
-        row.slice(5, 11).forEach(area => {
-            if (area?.trim()) {
-                areas.add(area.trim().toLowerCase());
-            }
-        });
-    });
-
+function populateAreaFilter() {
+    const uniqueAreas = [...new Set(researchAreasData.join('; ').split('; ').map(area => area.trim()))];
     const areaFilter = document.getElementById("areaFilter");
 
     areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
-    areas.forEach(area => {
+    uniqueAreas.forEach(area => {
         areaFilter.innerHTML += `<option value="${area}" style="text-transform: capitalize;">${area.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`;
     });
 
@@ -143,32 +152,32 @@ function updateFilters(api) {
 }
 
 function updateMethodFilter(api) {
+    const uniqueMethods = new Set(api.column(0).data().map(row => row.match(/Method:\s([^\s]+)/)?.[1]?.toLowerCase()).filter(Boolean));
     const methodFilter = $('#methodFilter');
-    const methods = new Set(api.column(0).data().map(row => row.match(/Method:\s([^\s]+)/)?.[1]?.toLowerCase()).filter(Boolean));
-    
+
     methodFilter.html(`<option value="">All Methods</option>`);
-    methods.forEach(method => {
+    uniqueMethods.forEach(method => {
         methodFilter.append(`<option value="${method}" style="text-transform: capitalize;">${method.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`);
     });
 }
 
 function updateAreaFilter(api) {
-    const areaFilter = $('#areaFilter');
-    const areas = new Set();
+    const uniqueAreas = new Set();
 
     api.column(0).data().each(row => {
         const areaMatch = row.match(/Areas:\s(.+)$/);
         if (areaMatch) {
             areaMatch[1].split('; ').forEach(area => {
                 if (area) {
-                    areas.add(area.toLowerCase());
+                    uniqueAreas.add(area.toLowerCase());
                 }
             });
         }
     });
 
+    const areaFilter = $('#areaFilter');
     areaFilter.html(`<option value="">All Research Areas</option>`);
-    areas.forEach(area => {
+    uniqueAreas.forEach(area => {
         areaFilter.append(`<option value="${area}" style="text-transform: capitalize;">${area.replace(/(?:^|\s)\S/g, a => a.toUpperCase())}</option>`);
     });
 }
@@ -232,11 +241,4 @@ function adjustContentMargin() {
 
 $(document).ready(function() {
     adjustContentMargin();
-
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
-    });
 });
