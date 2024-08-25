@@ -16,24 +16,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateTable(allRows);
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
-
-        // Initialize the dataTable after the filters are populated
         initializeDataTable();
 
-        window.addEventListener('resize', () => {
-            adjustContentMargin(); // Adjust margin on window resize
-            matchNoticeWidth(); // Match filter notice width to search input
-        });
+        window.addEventListener('resize', matchNoticeWidth);
 
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 });
-
-window.onload = function() {
-    adjustContentMargin();
-    matchNoticeWidth();
-};
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
@@ -58,13 +48,12 @@ function initializeDataTable() {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
 
-            // Update filter counts dynamically
+            // Update the dropdown filters dynamically
             updateMethodFilterCounts();
             updateAreaFilterCounts();
         }
     });
 
-    // Custom filtering logic
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -105,7 +94,7 @@ function initializeDataTable() {
         return methodMatch && areaMatch;
     });
 
-    dataTable.draw(); // Apply filters initially
+    dataTable.draw();
 }
 
 function populateTable(rows) {
@@ -167,15 +156,16 @@ function populateMethodFilter(rows) {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
-            <option value="meta-analysis">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
-            <option value="mixed-methods-quantitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
-        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
-            <option value="meta-synthesis">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
-            <option value="mixed-methods-qualitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
+        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
+        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
     `;
+
     console.log("Method filter populated.");
 }
 
@@ -194,18 +184,14 @@ function populateAreaFilter(rows) {
     const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
     const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
+    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
+        return `<option value="${area}">${area} [~${count} matches]</option>`;
     }).join('');
-
     console.log("Area filter populated.");
 }
 
 function updateMethodFilterCounts() {
-    if (!dataTable) return;
-
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const methodCounts = {
         quantitative: 0,
@@ -216,7 +202,6 @@ function updateMethodFilterCounts() {
         mixedMethodsQualitative: 0
     };
 
-    // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
         const mainMethod = row[1]?.trim().toLowerCase();
         if (mainMethod) {
@@ -241,28 +226,24 @@ function updateMethodFilterCounts() {
         }
     });
 
-    // Clear and repopulate the method filter dropdown
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">ALL Quantitative [≈${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
-            <option value="meta-analysis">↘ Meta-Analysis [≈${methodCounts.metaAnalysis} record(s)]</option>
-            <option value="mixed-methods-quantitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQuantitative} record(s)]</option>
-        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">ALL Qualitative [≈${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
-            <option value="meta-synthesis">↘ Meta-Synthesis [≈${methodCounts.metaSynthesis} record(s)]</option>
-            <option value="mixed-methods-qualitative">↘ Mixed-Methods [≈${methodCounts.mixedMethodsQualitative} record(s)]</option>
+        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
+        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
     `;
 }
 
 function updateAreaFilterCounts() {
-    if (!dataTable) return;
-
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const areaCounts = {};
 
-    // Recalculate counts based on visibleRows
     visibleRows.forEach(row => {
         const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
         researchAreas.forEach(area => {
@@ -274,12 +255,10 @@ function updateAreaFilterCounts() {
 
     const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
-    // Clear and repopulate the area filter dropdown
     const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += `<option disabled style="color: grey;">*Listed A-Z*</option>`;
+    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
     areaFilter.innerHTML += sortedAreas.map(([area, count]) => {
-        return `<option value="${area}">${area.charAt(0).toUpperCase() + area.slice(1)} [≈${count} record(s)]</option>`;
+        return `<option value="${area}">${area} [~${count} matches]</option>`;
     }).join('');
 }
 
@@ -329,19 +308,15 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-    
-    adjustContentMargin();  // Recalculate margin after updating notice
 
+    adjustContentMargin();
 }
 
 function adjustContentMargin() {
-    const blueBarHeight = $('.blue-bar').outerHeight(true); // Get the height of the blue bar
-    const headerHeight = $('.fixed-header').outerHeight(true) + 5;
+    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const headerHeight = $('.fixed-header').outerHeight(true);
+    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
 
-    // Adjust the total margin so that it only adds the filter notice height if needed
-    const totalMargin = headerHeight + blueBarHeight;
-
-    // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
 }
 
@@ -352,47 +327,30 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-// Scroll to top when filter changes
-function scrollToTop() {
-    $('html, body').animate({ scrollTop: 0 }, 'fast');
-}
-
 $(document).ready(function() {
-    // Adjust content margin initially
     adjustContentMargin();
 
-    // Event listeners for instructions toggle
-    $('#instructionsToggle').on('click', function() {
-        toggleInstructions();
-    });
-
-    $('#closeInstructions').on('click', function(e) {
-        e.preventDefault(); // Prevent the default action of the link
-        toggleInstructions(); // Call the function to toggle instructions
-    });
-
-    // Other event listeners
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
-        scrollToTop();
+        window.scrollTo(0, 0);
     });
-    
+
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        scrollToTop();
+        window.scrollTo(0, 0);
     });
-    
+
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        scrollToTop();
+        window.scrollTo(0, 0);
     });
- 
+
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
@@ -402,61 +360,7 @@ $(document).ready(function() {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
-            scrollToTop();
+            window.scrollTo(0, 0);
         }
     });
-
-    // Event listeners for text size controls
-    document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
-    document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
-    document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
 });
-
-// Function to toggle instructions
-function toggleInstructions() {
-    const details = document.getElementById("instructionsDetails");
-    details.open = !details.open; // Toggle the 'open' attribute
-    console.log('Instructions toggled:', details.open);
-    
-    const toggleLink = document.getElementById("instructionsToggle");
-    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
-    adjustContentMargin(); // Recalculate margin after toggling
-}
-
-// Variables to track the current adjustment level
-let adjustmentLevel = 0;
-const maxIncrease = 3;
-const maxDecrease = -2;
-
-// Adjust text size for the entire page
-function adjustTextSize(increase) {
-    if (increase && adjustmentLevel < maxIncrease) {
-        adjustmentLevel += 1;
-    } else if (!increase && adjustmentLevel > maxDecrease) {
-        adjustmentLevel -= 1;
-    } else {
-        return; // No adjustment needed
-    }
-
-    // Calculate the new font size based on adjustment level
-    const baseSize = 15; // Default font size in px
-    const newSize = baseSize + adjustmentLevel * 1.5; // Adjust by 1.5px per step
-
-    // Apply the new font size to all relevant elements
-    document.querySelector('body').style.fontSize = `${newSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
-        el.style.fontSize = `${newSize}px`;
-    });
-}
-
-// Reset text size to default
-function resetTextSize() {
-    adjustmentLevel = 0; // Reset adjustment level
-    const baseSize = 15; // Default font size in px
-
-    // Reset font size for all relevant elements
-    document.querySelector('body').style.fontSize = `${baseSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
-        el.style.fontSize = `${baseSize}px`;
-    });
-}
