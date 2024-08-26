@@ -154,8 +154,8 @@ p.instructions {
 }
 
 .filter-group select {
-    width: 155px; /* Set a fixed width */
-    max-width: 160px; /* Ensure the width doesn't exceed this value */
+    width: 165px; /* Set a fixed width */
+    max-width: 180px; /* Ensure the width doesn't exceed this value */
     min-width: 135px; /* Ensure the width doesn't go below this value */
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
