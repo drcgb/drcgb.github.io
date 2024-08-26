@@ -133,9 +133,9 @@ p.instructions {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start; /* Align filters to the left */
-    gap: 10px; /* Increase gap between filters */
+    gap: 18x; /* Increase gap between filters */
     width: 100%;
-    padding: 10px; /* Increase padding */
+    padding: 8x; /* Increase padding */
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
