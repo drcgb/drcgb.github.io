@@ -114,14 +114,14 @@ function initializeDataTable() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        await updateAreaFilterCounts(); // Ensure Area filter counts update sequentially
+        await updateAreaFilterCounts(); // Update Area filter counts based on the current method filter
     });
 
     $('#areaFilter').on('change', async function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        await updateMethodFilterCounts(); // Ensure Method filter counts update sequentially
+        await updateMethodFilterCounts(); // Update Method filter counts based on the current area filter
     });
 
     $('#filterStatusBtn').on('click', function() {
@@ -247,7 +247,7 @@ async function updateMethodFilterCounts() {
     if (!dataTable) return;
 
     // Get the visible rows after applying the current area filter
-    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const visibleRows = getFilteredRows();
     const methodCounts = {
         quantitative: 0,
         metaAnalysis: 0,
@@ -299,7 +299,7 @@ async function updateAreaFilterCounts() {
     if (!dataTable) return;
 
     // Get the visible rows after applying the current method filter
-    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const visibleRows = getFilteredRows();
     const areaCounts = {};
 
     allAreas.forEach(area => {
@@ -321,6 +321,22 @@ async function updateAreaFilterCounts() {
         const lowerCaseArea = area.toLowerCase();
         return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
     }).join('');
+}
+
+// Helper function to get filtered rows based on current dropdown selections
+function getFilteredRows() {
+    const methodValue = $('#methodFilter').val().toLowerCase().trim();
+    const areaValue = $('#areaFilter').val().toLowerCase().trim();
+
+    return dataTable.rows().data().toArray().filter(row => {
+        const mainMethod = $(row[0]).find('.method-section').text().trim().toLowerCase();
+        const researchAreas = $(row[0]).find('.areas-section').text().split(';').map(area => area.trim().toLowerCase());
+
+        const methodMatch = !methodValue || mainMethod.includes(methodValue);
+        const areaMatch = !areaValue || researchAreas.includes(areaValue);
+
+        return methodMatch && areaMatch;
+    });
 }
 
 // Filter status and notice updates
@@ -350,9 +366,9 @@ function updateFilterNotice() {
     if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
 
     const notice = $('#filterNotice');
-    const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const filteredRows = getFilteredRows();
 
-    const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
+    const filteredRowCount = filteredRows.filter(row => !$(row[0]).text().includes("End of records")).length;
 
     if (activeFilters.length > 0) {
         if (filteredRowCount > 0) {
@@ -426,6 +442,6 @@ function resetTextSize() {
     const baseSize = 15;
     document.querySelector('body').style.fontSize = `${baseSize}px`;
     document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
-        el.style.fontSize = `${baseSize}px`;
+        el.style.font
     });
 }
