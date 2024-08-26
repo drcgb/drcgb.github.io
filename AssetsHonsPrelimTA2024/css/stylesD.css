@@ -162,7 +162,7 @@ p.instructions {
 
 .filter-status-btn {
     margin-left: 6px; /* Align button to the left */
-    padding: 5px 6px; /* Increase padding */
+    padding: 5px 5px; /* Increase padding */
     border: 1px solid #000000;
     border-radius: 4px;
     cursor: pointer;
