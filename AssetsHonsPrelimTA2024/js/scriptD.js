@@ -509,42 +509,41 @@ $(document).ready(function() {
 
     // Initial filtering
     dataTable.draw();
-
-    // Attach events
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw(); // Use DataTables native search
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#methodFilter').on('change', function() {
-        updateDropdowns();
-    });
-
-    $('#areaFilter').on('change', function() {
-        updateDropdowns();
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            // Clear all filter inputs
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-
-            // Clear DataTables native search and redraw
-            dataTable.search('').draw(); 
-
-            // Update filter status and notice
+    
+        $('#customSearch').on('input', function() {
+            dataTable.search($(this).val()).draw(); // Use DataTables native search
             updateFilterStatus();
             updateFilterNotice();
+        });
 
-            // Scroll the window to the top instantly
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 0);
-        }
-    });
+        $('#methodFilter').on('change', function() {
+            updateDropdowns();
+        });
+
+        $('#areaFilter').on('change', function() {
+            updateDropdowns();
+        });
+
+        $('#filterStatusBtn').on('click', function() {
+            if ($(this).hasClass('red')) {
+                // Clear all filter inputs
+                $('#methodFilter').val('');
+                $('#areaFilter').val('');
+                $('#customSearch').val('');
+
+                // Clear DataTables native search and redraw
+                dataTable.search('').draw(); 
+
+                // Update filter status and notice
+                updateFilterStatus();
+                updateFilterNotice();
+
+                // Scroll the window to the top instantly
+                setTimeout(function() {
+                    window.scrollTo(0, 0);
+                }, 0);
+            }
+        });
 
     console.log("DataTable initialized.");
 });
