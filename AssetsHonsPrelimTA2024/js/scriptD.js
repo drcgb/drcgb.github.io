@@ -303,13 +303,17 @@ $(document).ready(function() {
             $('#methodFilter').val('');
             $('#areaFilter').val('');
             $('#customSearch').val('');
-
+    
+            // Reset the research area filter counts to default
+            populateAreaFilter(allRows);  // Re-populate the area filter with default counts
+    
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
         }
     });
+  
 
     // Event listeners for text size controls
     document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
