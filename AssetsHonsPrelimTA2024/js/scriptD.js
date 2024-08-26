@@ -456,4 +456,3 @@ function adjustContentMargin() {
 
     $('.content').css('margin-top', totalMargin);
 }
-
