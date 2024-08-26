@@ -146,19 +146,20 @@ p.instructions {
 }
 
 .filter-group label {
-    margin-right: 10px; /* Increase margin */
+    margin-right: 5px; /* Increase margin */
+    margin-left: 8px;
     font-weight: bold; /* Bold filter labels */
 }
 
 .filter-group select {
-    width: 135px; /* Set a fixed width */
-    max-width: 135px; /* Ensure the width doesn't exceed this value */
+    width: 155px; /* Set a fixed width */
+    max-width: 160px; /* Ensure the width doesn't exceed this value */
     min-width: 135px; /* Ensure the width doesn't go below this value */
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .filter-status-btn {
-    margin-left: 0; /* Align button to the left */
+    margin-left: 5; /* Align button to the left */
     padding: 5px 6px; /* Increase padding */
     border: 1px solid #000000;
     border-radius: 4px;
