@@ -29,59 +29,41 @@ body, table, th, td,
 
 /* Blue Bar Styling */
 .blue-bar {
-    background-color: #007bff; /* Blue color */
-    color: white;
-    padding: 10px;
-    position: relative;
+    background-color: #0056b3; /* Dark blue background */
+    height: 40px; /* Adjust height if needed */
+    width: 100%; /* Consistent width */
+    max-width: 100%; /* Prevent expansion */
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-#instructionsToggle {
-    background-color: transparent;
-    border: none;
+    padding: 5px 25px;
+    box-sizing: border-box;
     color: white;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.blue-bar .instructions-link {
     cursor: pointer;
-    font-weight: bold;
 }
 
-#instructionsToggle:hover {
-    text-decoration: underline;
-}
-
-#instructionsDetails {
-    background-color: #f8f9fa; /* Light background for instructions */
-    color: black;
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 10px;
-    display: none; /* Hidden by default */
-    width: 100%;
-}
-
-#closeInstructions {
-    color: #007bff;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-#closeInstructions:hover {
-    text-decoration: underline;
-}
-
-.text-size-controls {
+.blue-bar .text-size-controls {
     display: flex;
-    gap: 10px;
+    align-items: center;
 }
 
-.text-size-controls span {
+.blue-bar .text-size-controls span {
+    margin-left: 10px;
     cursor: pointer;
     font-weight: bold;
-    color: white;
 }
 
-.text-size-controls span:hover {
+.blue-bar .reset-text-size {
+    margin-right: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #ffffff;
     text-decoration: underline;
 }
 
@@ -151,9 +133,9 @@ p.instructions {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start; /* Align filters to the left */
-    gap: 18x; /* Increase gap between filters */
+    gap: 10px; /* Increase gap between filters */
     width: 100%;
-    padding: 8x; /* Increase padding */
+    padding: 10px; /* Increase padding */
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
@@ -164,23 +146,20 @@ p.instructions {
 }
 
 .filter-group label {
-    margin-right: 5px; /* Increase margin */
-    margin-left: 8px;
-    margin-top:5px;
-    margin-bottom:5px;
+    margin-right: 10px; /* Increase margin */
     font-weight: bold; /* Bold filter labels */
 }
 
 .filter-group select {
-    width: 165px; /* Set a fixed width */
-    max-width: 180px; /* Ensure the width doesn't exceed this value */
+    width: 135px; /* Set a fixed width */
+    max-width: 135px; /* Ensure the width doesn't exceed this value */
     min-width: 135px; /* Ensure the width doesn't go below this value */
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .filter-status-btn {
-    margin: 6px;
-    padding: 5px 5px; /* Increase padding */
+    margin-left: 0; /* Align button to the left */
+    padding: 5px 6px; /* Increase padding */
     border: 1px solid #000000;
     border-radius: 4px;
     cursor: pointer;
@@ -202,8 +181,7 @@ p.instructions {
 }
 
 .filter-notice {
-    margin-top: 4px; /* Increase top margin */
-    margin-bottom: 4px;
+    margin-top: 5px; /* Increase top margin */
     margin-left: 10px; /* Nudge to the right by 10px */
     color: #000000;
     background-color: #ebb6fcd8;
