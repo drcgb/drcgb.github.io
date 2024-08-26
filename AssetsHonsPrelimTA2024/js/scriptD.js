@@ -47,7 +47,6 @@ window.onload = function() {
     adjustContentMargin();
     matchNoticeWidth();
 };
-
 function initializeDataTable() {
     console.log("Initializing DataTable...");
 
@@ -102,7 +101,7 @@ function initializeDataTable() {
     
         return methodMatch && areaMatch;
     });
-    
+
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
@@ -113,14 +112,14 @@ function initializeDataTable() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        await updateAreaFilterCounts(); // Update Area filter counts based on the current method filter
+        await updateFiltersSequentially(); // Update filters sequentially
     });
 
     $('#areaFilter').on('change', async function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        await updateMethodFilterCounts(); // Update Method filter counts based on the current area filter
+        await updateFiltersSequentially(); // Update filters sequentially
     });
 
     $('#filterStatusBtn').on('click', function() {
@@ -141,7 +140,6 @@ function initializeDataTable() {
 
     console.log("DataTable initialized.");
 }
-
 // Populate and Update Functions
 function populateTable(rows) {
     console.log("Populating table...");
@@ -240,18 +238,24 @@ function populateAreaFilter(rows) {
 
     console.log("Area filter populated.");
 }
-
-// Function to update filter counts sequentially based on active filters
+// Sequential filter updates and status handling
 async function updateFiltersSequentially() {
-    // Update area filter counts based on method filter
-    await updateAreaFilterCounts();
-    // Update method filter counts based on area filter
-    await updateMethodFilterCounts();
+    if (!dataTable) return;
+
+    const methodFilterVal = $('#methodFilter').val();
+    const areaFilterVal = $('#areaFilter').val();
+
+    if (methodFilterVal) {
+        await updateAreaFilterCounts(); // Update Area filter counts based on the selected Method
+    } else if (areaFilterVal) {
+        await updateMethodFilterCounts(); // Update Method filter counts based on the selected Area
+    }
 }
 
 async function updateMethodFilterCounts() {
     if (!dataTable) return;
 
+    // Get the visible rows after applying the current area filter
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const methodCounts = {
         quantitative: 0,
@@ -286,12 +290,24 @@ async function updateMethodFilterCounts() {
         }
     });
 
-    populateMethodFilter(visibleRows);
+    const methodFilter = document.getElementById("methodFilter");
+    methodFilter.innerHTML = `
+        <option value="" style="font-weight: bold;">All Methods</option>
+        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [${methodCounts.metaAnalysis}]</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
+        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
+    `;
 }
 
 async function updateAreaFilterCounts() {
     if (!dataTable) return;
 
+    // Get the visible rows after applying the current method filter
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const areaCounts = {};
 
@@ -308,23 +324,13 @@ async function updateAreaFilterCounts() {
         });
     });
 
-    populateAreaFilter(visibleRows);
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
+    areaFilter.innerHTML += allAreas.map(area => {
+        const lowerCaseArea = area.toLowerCase();
+        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
+    }).join('');
 }
-
-// Event Listeners to handle filter changes and update filters sequentially
-$('#methodFilter').on('change', async function() {
-    dataTable.draw();
-    updateFilterStatus();
-    updateFilterNotice();
-    await updateFiltersSequentially(); // Update filters sequentially
-});
-
-$('#areaFilter').on('change', async function() {
-    dataTable.draw();
-    updateFilterStatus();
-    updateFilterNotice();
-    await updateFiltersSequentially(); // Update filters sequentially
-});
 
 // Filter status and notice updates
 function updateFilterStatus() {
@@ -376,7 +382,6 @@ function updateFilterNotice() {
 
     adjustContentMargin();
 }
-
 function adjustContentMargin() {
     const blueBarHeight = $('.blue-bar').outerHeight(true);
     const headerHeight = $('.fixed-header').outerHeight(true) + 5;
@@ -451,12 +456,4 @@ function resetTextSize() {
     document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
         el.style.fontSize = `${baseSize}px`;
     });
-}
-
-function adjustContentMargin() {
-    const blueBarHeight = $('.blue-bar').outerHeight(true);
-    const headerHeight = $('.fixed-header').outerHeight(true) + 5;
-    const totalMargin = headerHeight + blueBarHeight;
-
-    $('.content').css('margin-top', totalMargin);
 }
