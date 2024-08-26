@@ -246,6 +246,7 @@ function populateAreaFilter(rows) {
 async function updateMethodFilterCounts() {
     if (!dataTable) return;
 
+    // Get the visible rows after applying the current area filter
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const methodCounts = {
         quantitative: 0,
@@ -257,7 +258,7 @@ async function updateMethodFilterCounts() {
     };
 
     visibleRows.forEach(row => {
-        const mainMethod = row[1]?.trim().toLowerCase();
+        const mainMethod = $(row[0]).find('.method-section').text().trim().toLowerCase();
         if (mainMethod) {
             switch (mainMethod) {
                 case 'quantitative':
@@ -297,6 +298,7 @@ async function updateMethodFilterCounts() {
 async function updateAreaFilterCounts() {
     if (!dataTable) return;
 
+    // Get the visible rows after applying the current method filter
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const areaCounts = {};
 
@@ -305,9 +307,9 @@ async function updateAreaFilterCounts() {
     });
 
     visibleRows.forEach(row => {
-        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        const researchAreas = $(row[0]).find('.areas-section').text().split(';').map(area => area.trim().toLowerCase());
         researchAreas.forEach(area => {
-            if (area) {
+            if (area && areaCounts[area] !== undefined) {
                 areaCounts[area]++;
             }
         });
