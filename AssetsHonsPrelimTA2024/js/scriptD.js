@@ -67,20 +67,42 @@ function initializeDataTable() {
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
-
+    
         const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
         const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
-
+    
+        // Exact method matching
+        let methodMatch = false;
+    
+        if (methodValue === '') {
+            methodMatch = true; // No filter selected, all methods should match
+        } else {
+            switch (methodValue) {
+                case 'quantitative':
+                case 'meta-analysis':
+                case 'mixed-methods-quantitative':
+                case 'all-quantitative':
+                    methodMatch = (mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods');
+                    break;
+                case 'qualitative':
+                case 'meta-synthesis':
+                case 'mixed-methods-qualitative':
+                case 'all-qualitative':
+                    methodMatch = (mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods');
+                    break;
+                default:
+                    methodMatch = mainMethod === methodValue;
+            }
+        }
+    
+        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+    
         console.log(`Checking row ${dataIndex}: Method="${mainMethod}", Areas="${researchAreasContent}"`);
-
-        let methodMatch = methodValue === '' || mainMethod.includes(methodValue);
-        let areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
-
         console.log(`Method match: ${methodMatch}, Area match: ${areaMatch}`);
-
+    
         return methodMatch && areaMatch;
     });
-
+    
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
