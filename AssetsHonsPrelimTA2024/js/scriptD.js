@@ -274,6 +274,47 @@ function updateAreaFilterCounts(selectedMethod) {
     });
 }
 
+function updateMethodFilterCounts(selectedArea) {
+    const methodFilter = document.getElementById("methodFilter");
+    const areaCountsByMethod = window.areaCountsByMethod;
+
+    Array.from(methodFilter.options).forEach(option => {
+        const methodValue = option.value;
+
+        if (methodValue) {
+            let count = 0;
+
+            switch (methodValue) {
+                case 'all-quantitative':
+                    count = areaCountsByMethod[selectedArea].quantitative + areaCountsByMethod[selectedArea].metaAnalysis + areaCountsByMethod[selectedArea].mixedMethodsQuantitative;
+                    break;
+                case 'meta-analysis':
+                    count = areaCountsByMethod[selectedArea].metaAnalysis;
+                    break;
+                case 'mixed-methods-quantitative':
+                    count = areaCountsByMethod[selectedArea].mixedMethodsQuantitative;
+                    break;
+                case 'all-qualitative':
+                    count = areaCountsByMethod[selectedArea].qualitative + areaCountsByMethod[selectedArea].metaSynthesis + areaCountsByMethod[selectedArea].mixedMethodsQualitative;
+                    break;
+                case 'meta-synthesis':
+                    count = areaCountsByMethod[selectedArea].metaSynthesis;
+                    break;
+                case 'mixed-methods-qualitative':
+                    count = areaCountsByMethod[selectedArea].mixedMethodsQualitative;
+                    break;
+                default:
+                    count = areaCountsByMethod[selectedArea].all; // Default to all
+                    break;
+            }
+
+            // Add an asterisk if the count is greater than 0
+            let matchText = count === 0 ? `[~${count} matches]` : `[~${count} matches]*`;
+            option.text = `${option.text.split('[')[0].trim()} ${matchText}`;
+        }
+    });
+}
+
 
 $(document).ready(function() {
     // Adjust content margin initially
@@ -296,12 +337,14 @@ $(document).ready(function() {
     });
 
     $('#areaFilter').on('change', function() {
+        const selectedArea = $(this).val();
+        updateMethodFilterCounts(selectedArea); // Update method filter counts based on the selected area
         dataTable.draw(); // Re-filter the table based on the new area selection
         updateFilterStatus();
         updateFilterNotice();
         window.scrollTo(0, 0);
     });
-
+ 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
