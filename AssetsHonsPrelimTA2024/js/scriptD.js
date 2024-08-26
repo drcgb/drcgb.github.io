@@ -241,11 +241,17 @@ function populateAreaFilter(rows) {
     console.log("Area filter populated.");
 }
 
-// Update Functions
+// Function to update filter counts sequentially based on active filters
+async function updateFiltersSequentially() {
+    // Update area filter counts based on method filter
+    await updateAreaFilterCounts();
+    // Update method filter counts based on area filter
+    await updateMethodFilterCounts();
+}
+
 async function updateMethodFilterCounts() {
     if (!dataTable) return;
 
-    // Get the visible rows after applying the current area filter
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const methodCounts = {
         quantitative: 0,
@@ -280,24 +286,12 @@ async function updateMethodFilterCounts() {
         }
     });
 
-    const methodFilter = document.getElementById("methodFilter");
-    methodFilter.innerHTML = `
-        <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
-            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [${methodCounts.metaAnalysis}]</option>
-            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
-            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
-            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
-    `;
+    populateMethodFilter(visibleRows);
 }
 
 async function updateAreaFilterCounts() {
     if (!dataTable) return;
 
-    // Get the visible rows after applying the current method filter
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
     const areaCounts = {};
 
@@ -314,13 +308,23 @@ async function updateAreaFilterCounts() {
         });
     });
 
-    const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += allAreas.map(area => {
-        const lowerCaseArea = area.toLowerCase();
-        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
-    }).join('');
+    populateAreaFilter(visibleRows);
 }
+
+// Event Listeners to handle filter changes and update filters sequentially
+$('#methodFilter').on('change', async function() {
+    dataTable.draw();
+    updateFilterStatus();
+    updateFilterNotice();
+    await updateFiltersSequentially(); // Update filters sequentially
+});
+
+$('#areaFilter').on('change', async function() {
+    dataTable.draw();
+    updateFilterStatus();
+    updateFilterNotice();
+    await updateFiltersSequentially(); // Update filters sequentially
+});
 
 // Filter status and notice updates
 function updateFilterStatus() {
