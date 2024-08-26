@@ -113,14 +113,14 @@ function initializeDataTable() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        setTimeout(updateAreaFilterCounts, 300); // Delay to prevent simultaneous update
+        updateAreaFilterCounts(); // Only update area filter counts
     });
 
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        setTimeout(updateMethodFilterCounts, 300); // Delay to prevent simultaneous update
+        updateMethodFilterCounts(); // Only update method filter counts
     });
 
     $('#filterStatusBtn').on('click', function() {
@@ -132,14 +132,32 @@ function initializeDataTable() {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
-            setTimeout(() => {
-                populateMethodFilter(allRows); // Repopulate with all data
-                populateAreaFilter(allRows); // Repopulate with all data
-            }, 300); // Delay to allow table to reset first
+            populateMethodFilter(allRows); // Repopulate with all data
+            populateAreaFilter(allRows); // Repopulate with all data
         }
     });
 
+    // Instructions button event listener
+    $('#instructionsToggle').on('click', function() {
+        toggleInstructions();
+    });
+
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault(); // Prevent the default action of the link
+        toggleInstructions(); // Call the function to toggle instructions
+    });
+
     console.log("DataTable initialized.");
+}
+
+function toggleInstructions() {
+    const details = document.getElementById("instructionsDetails");
+    details.open = !details.open; // Toggle the 'open' attribute
+    console.log('Instructions toggled:', details.open);
+    
+    const toggleLink = document.getElementById("instructionsToggle");
+    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
+    adjustContentMargin(); // Recalculate margin after toggling
 }
 
 function populateTable(rows) {
@@ -419,7 +437,5 @@ function adjustTextSize(increase) {
 function resetTextSize() {
     const baseSize = 15;
     document.querySelector('body').style.fontSize = `${baseSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
-        el.style.fontSize = `${baseSize}px`;
-    });
 }
+   
