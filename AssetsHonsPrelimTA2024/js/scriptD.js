@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         console.log("Loading XLSX data...");
         const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+        if (!response.ok) {
+            throw new Error(`Failed to load data: ${response.statusText}`);
+        }
         const data = await response.arrayBuffer();
         const workbook = XLSX.read(data, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -149,6 +152,11 @@ function populateTable(rows) {
     researchAreasData = [];
 
     const tbody = document.querySelector("#abstractTable tbody");
+    if (!tbody) {
+        console.error("Table body element not found.");
+        return;
+    }
+
     tbody.innerHTML = rows.map(row => {
         const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
         const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
@@ -200,6 +208,11 @@ function populateMethodFilter(rows) {
     });
 
     const methodFilter = document.getElementById("methodFilter");
+    if (!methodFilter) {
+        console.error("Method filter element not found.");
+        return;
+    }
+
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
         <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
@@ -212,9 +225,7 @@ function populateMethodFilter(rows) {
             <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
     `;
 
-    console.log("Method
-
- filter populated.");
+    console.log("Method filter populated.");
 }
 
 function populateAreaFilter(rows) {
@@ -234,6 +245,11 @@ function populateAreaFilter(rows) {
     });
 
     const areaFilter = document.getElementById("areaFilter");
+    if (!areaFilter) {
+        console.error("Area filter element not found.");
+        return;
+    }
+
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
     areaFilter.innerHTML += allAreas.map(area => {
         const lowerCaseArea = area.toLowerCase();
