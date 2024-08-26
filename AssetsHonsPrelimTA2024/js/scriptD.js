@@ -267,17 +267,13 @@ function updateAreaFilterCounts(selectedMethod) {
                     break;
             }
 
-            // Update the option text and style based on the count
-            if (count === 0) {
-                option.style.textDecoration = 'line-through';
-            } else {
-                option.style.textDecoration = 'none'; // Remove strike-through if count is non-zero
-            }
-
-            option.text = `${area} [~${count} matches]`;
+            // Add an asterisk if the count is greater than 0
+            let matchText = count === 0 ? `[~${count} matches]` : `[~${count} matches]*`;
+            option.text = `${area} ${matchText}`;
         }
     });
 }
+
 
 $(document).ready(function() {
     // Adjust content margin initially
