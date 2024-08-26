@@ -148,6 +148,8 @@ p.instructions {
 .filter-group label {
     margin-right: 5px; /* Increase margin */
     margin-left: 8px;
+    margin-top:5px;
+    margin-bottom:5px;
     font-weight: bold; /* Bold filter labels */
 }
 
