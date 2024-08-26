@@ -171,46 +171,36 @@ function initializeDataTable() {
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
-
+    
         const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
         const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
-
-        // Exact method matching logic
+    
+        // Adjusted method matching logic
         let methodMatch = false;
+    
         if (methodValue === '') {
             methodMatch = true; // No filter selected, all methods should match
+        } else if (methodValue === 'all-quantitative') {
+            methodMatch = (mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods');
+        } else if (methodValue === 'all-qualitative') {
+            methodMatch = (mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods');
+        } else if (methodValue === 'meta-analysis') {
+            methodMatch = (mainMethod === 'meta-analysis');
+        } else if (methodValue === 'meta-synthesis') {
+            methodMatch = (mainMethod === 'meta-synthesis');
+        } else if (methodValue === 'mixed-methods-quantitative') {
+            methodMatch = (mainMethod === 'mixed-methods' && researchAreasContent.includes('quantitative'));
+        } else if (methodValue === 'mixed-methods-qualitative') {
+            methodMatch = (mainMethod === 'mixed-methods' && researchAreasContent.includes('qualitative'));
         } else {
-            switch (methodValue) {
-                case 'quantitative':
-                    methodMatch = mainMethod === 'quantitative';
-                    break;
-                case 'meta-analysis':
-                    methodMatch = mainMethod === 'meta-analysis';
-                    break;
-                case 'mixed-methods-quantitative':
-                    methodMatch = mainMethod === 'mixed-methods' && researchAreasContent.includes('quantitative');
-                    break;
-                case 'qualitative':
-                    methodMatch = mainMethod === 'qualitative';
-                    break;
-                case 'meta-synthesis':
-                    methodMatch = mainMethod === 'meta-synthesis';
-                    break;
-                case 'mixed-methods-qualitative':
-                    methodMatch = mainMethod === 'mixed-methods' && researchAreasContent.includes('qualitative');
-                    break;
-                default:
-                    methodMatch = mainMethod === methodValue;
-            }
+            methodMatch = mainMethod === methodValue;
         }
-
+    
         const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
-
-        console.log(`Checking row ${dataIndex}: Method="${mainMethod}", Areas="${researchAreasContent}"`);
-        console.log(`Method match: ${methodMatch}, Area match: ${areaMatch}`);
-
+    
         return methodMatch && areaMatch;
     });
+    
 
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
