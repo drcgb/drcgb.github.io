@@ -181,7 +181,8 @@ p.instructions {
 }
 
 .filter-notice {
-    margin-top: 5px; /* Increase top margin */
+    margin-top: 2px; /* Increase top margin */
+    margin-bottom: 2px;
     margin-left: 10px; /* Nudge to the right by 10px */
     color: #000000;
     background-color: #ebb6fcd8;
