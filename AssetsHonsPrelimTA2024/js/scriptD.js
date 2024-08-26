@@ -71,8 +71,12 @@ function initializeDataTable() {
         const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
         const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
+        console.log(`Checking row ${dataIndex}: Method="${mainMethod}", Areas="${researchAreasContent}"`);
+
         let methodMatch = methodValue === '' || mainMethod.includes(methodValue);
         let areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+
+        console.log(`Method match: ${methodMatch}, Area match: ${areaMatch}`);
 
         return methodMatch && areaMatch;
     });
