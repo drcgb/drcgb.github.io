@@ -2,6 +2,19 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
+let allAreas = [
+    "Applied Psychology", "Artificial Intelligence (AI) & Automation", "Behavioural Addictions", 
+    "Biological Psychology", "Child Development", "Child Neglect", "Climate Psychology", 
+    "Clinical Neuropsychology", "Clinical Psychology", "Cognitive Psychology", 
+    "Communication Psychology", "Community Psychology", "Criminology", "Cultural Psychology", 
+    "Cyberpsychology", "Developmental Psychology", "Educational Psychology", 
+    "Environmental Psychology", "Experimental Psychology", "Forensic Psychology", 
+    "Genetics", "Health Psychology", "Human Factors", "Individual Differences", 
+    "Journalism Psychology", "Learning & Behaviour", "Organisational Psychology", 
+    "Perception", "Performing Arts Psychology", "Personality Psychology", 
+    "Political Psychology", "Positive Psychology", "Psychometrics", "Public Health", 
+    "Sex Research", "Social Psychology", "Sport & Exercise Psychology"
+];
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -20,14 +33,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         initializeDataTable();
 
         window.addEventListener('resize', () => {
-            adjustContentMargin(); // Adjust margin on window resize
-            matchNoticeWidth(); // Match filter notice width to search input
+            adjustContentMargin();
+            matchNoticeWidth();
         });
 
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
 });
+
+window.onload = function() {
+    adjustContentMargin();
+    matchNoticeWidth();
+};
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
@@ -45,7 +63,6 @@ function initializeDataTable() {
         dom: '<"top"l>rt<"bottom"p><"clear">',
     });
 
-    // Custom filtering logic
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
@@ -53,13 +70,78 @@ function initializeDataTable() {
         const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
         const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
-        let methodMatch = methodValue === '' || mainMethod.includes(methodValue);
-        let areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+        let methodMatch = false;
+
+        switch (methodValue) {
+            case '':
+                methodMatch = true;
+                break;
+            case 'all-quantitative':
+                methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
+                break;
+            case 'quantitative':
+            case 'meta-analysis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-quantitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+            case 'all-qualitative':
+                methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
+                break;
+            case 'qualitative':
+            case 'meta-synthesis':
+                methodMatch = mainMethod === methodValue;
+                break;
+            case 'mixed-methods-qualitative':
+                methodMatch = mainMethod === 'mixed-methods';
+                break;
+        }
+
+        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
         return methodMatch && areaMatch;
     });
 
-    dataTable.draw(); // Apply filters initially
+    $('#customSearch').on('input', function() {
+        dataTable.search($(this).val()).draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
+    });
+
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        updateMethodFilterCounts();
+        updateAreaFilterCounts();
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+
+            dataTable.search('').draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            updateMethodFilterCounts();
+            updateAreaFilterCounts();
+        }
+    });
+
+    console.log("DataTable initialized.");
 }
 
 function populateTable(rows) {
@@ -122,75 +204,119 @@ function populateMethodFilter(rows) {
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
         <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} record(s)]</option>
-            <option value="meta-analysis">↘ Meta-Analysis [${methodCounts.metaAnalysis} record(s)]</option>
-            <option value="mixed-methods-quantitative">↘ Mixed-Methods [${methodCounts.mixedMethodsQuantitative} record(s)]</option>
+            <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
+            <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis}]</option>
+            <option value="mixed-methods-quantitative">Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
         <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} record(s)]</option>
-            <option value="meta-synthesis">↘ Meta-Synthesis [${methodCounts.metaSynthesis} record(s)]</option>
-            <option value="mixed-methods-qualitative">↘ Mixed-Methods [${methodCounts.mixedMethodsQualitative} record(s)]</option>
+            <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
+            <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
+            <option value="mixed-methods-qualitative">Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
     `;
     console.log("Method filter populated.");
 }
 
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
-    const areaCounts = {
-        "Applied Psychology": 0,
-        "Artificial Intelligence (AI) & Automation": 0,
-        "Behavioural Addictions": 0,
-        "Biological Psychology": 0,
-        "Child Development": 0,
-        "Child Neglect": 0,
-        "Climate Psychology": 0,
-        "Clinical Neuropsychology": 0,
-        "Clinical Psychology": 0,
-        "Cognitive Psychology": 0,
-        "Communication Psychology": 0,
-        "Community Psychology": 0,
-        "Criminology": 0,
-        "Cultural Psychology": 0,
-        "Cyberpsychology": 0,
-        "Developmental Psychology": 0,
-        "Educational Psychology": 0,
-        "Environmental Psychology": 0,
-        "Experimental Psychology": 0,
-        "Forensic Psychology": 0,
-        "Genetics": 0,
-        "Health Psychology": 0,
-        "Human Factors": 0,
-        "Individual Differences": 0,
-        "Journalism Psychology": 0,
-        "Learning & Behaviour": 0,
-        "Organisational Psychology": 0,
-        "Perception": 0,
-        "Performing Arts Psychology": 0,
-        "Personality Psychology": 0,
-        "Political Psychology": 0,
-        "Positive Psychology": 0,
-        "Psychometrics": 0,
-        "Public Health": 0,
-        "Sex Research": 0,
-        "Social Psychology": 0,
-        "Sport & Exercise Psychology": 0
-    };
+    const areaCounts = {};
+    allAreas.forEach(area => {
+        areaCounts[area.toLowerCase()] = 0;
+    });
 
     rows.forEach(row => {
-        const researchAreas = row.slice(5, 11).map(area => area?.trim() || '');
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
         researchAreas.forEach(area => {
-            if (area && areaCounts.hasOwnProperty(area)) {
-                areaCounts[area] += 1;
+            if (area) {
+                areaCounts[area]++;
             }
         });
     });
 
     const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += Object.entries(areaCounts).map(([area, count]) => {
-        return `<option value="${area.toLowerCase()}">${area} [${count} record(s)]</option>`;
+    areaFilter.innerHTML += allAreas.map(area => {
+        const lowerCaseArea = area.toLowerCase();
+        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
     }).join('');
 
     console.log("Area filter populated.");
+}
+
+function updateMethodFilterCounts() {
+    if (!dataTable) return;
+
+    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const methodCounts = {
+        quantitative: 0,
+        metaAnalysis: 0,
+        mixedMethodsQuantitative: 0,
+        qualitative: 0,
+        metaSynthesis: 0,
+        mixedMethodsQualitative: 0
+    };
+
+    visibleRows.forEach(row => {
+        const mainMethod = row[1]?.trim().toLowerCase();
+        if (mainMethod) {
+            switch (mainMethod) {
+                case 'quantitative':
+                    methodCounts.quantitative += 1;
+                    break;
+                case 'meta-analysis':
+                    methodCounts.metaAnalysis += 1;
+                    break;
+                case 'mixed-methods':
+                    methodCounts.mixedMethodsQuantitative += 1;
+                    methodCounts.mixedMethodsQualitative += 1;
+                    break;
+                case 'qualitative':
+                    methodCounts.qualitative += 1;
+                    break;
+                case 'meta-synthesis':
+                    methodCounts.metaSynthesis += 1;
+                    break;
+            }
+        }
+    });
+
+    const methodFilter = document.getElementById("methodFilter");
+    methodFilter.innerHTML = `
+        <option value="" style="font-weight: bold;">All Methods</option>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
+            <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis}]</option>
+            <option value="mixed-methods-quantitative">Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
+            <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
+            <option value="mixed-methods-qualitative">Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
+    `;
+}
+
+function updateAreaFilterCounts() {
+    if (!dataTable) return;
+
+    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const areaCounts = {};
+
+    allAreas.forEach(area => {
+        areaCounts[area.toLowerCase()] = 0;
+    });
+
+    visibleRows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area]++;
+            }
+        });
+    });
+
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
+    areaFilter.innerHTML += allAreas.map(area => {
+        const lowerCaseArea = area.toLowerCase();
+        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
+    }).join('');
 }
 
 function updateFilterStatus() {
@@ -239,18 +365,15 @@ function updateFilterNotice() {
     } else {
         notice.hide();
     }
-
+    
     adjustContentMargin();  // Recalculate margin after updating notice
 }
 
 function adjustContentMargin() {
-    const blueBarHeight = $('.blue-bar').outerHeight(true); // Get the height of the blue bar
+    const blueBarHeight = $('.blue-bar').outerHeight(true);
     const headerHeight = $('.fixed-header').outerHeight(true) + 5;
-
-    // Adjust the total margin so that it only adds the filter notice height if needed
     const totalMargin = headerHeight + blueBarHeight;
 
-    // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
 }
 
@@ -261,51 +384,43 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-// Scroll to top when filter changes
 function scrollToTop() {
     $('html, body').animate({ scrollTop: 0 }, 'fast');
 }
 
 $(document).ready(function() {
-    // Adjust content margin initially
     adjustContentMargin();
 
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        scrollToTop();
-    });
-
-    $('#methodFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        scrollToTop();
-    });
-
-    $('#areaFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        scrollToTop();
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-
-            dataTable.search('').draw();
-            updateFilterStatus();
-            updateFilterNotice();
-            scrollToTop();
-        }
-    });
-
-    // Event listeners for text size controls
-    document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
-    document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
-    document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
+    $('#increaseTextSize').on('click', () => adjustTextSize(true));
+    $('#decreaseTextSize').on('click', () => adjustTextSize(false));
+    $('#resetTextSize').on('click', resetTextSize);
 });
+
+function adjustTextSize(increase) {
+    const baseSize = 15;
+    let adjustmentLevel = 0;
+    const maxIncrease = 3;
+    const maxDecrease = -2;
+
+    if (increase && adjustmentLevel < maxIncrease) {
+        adjustmentLevel += 1;
+    } else if (!increase && adjustmentLevel > maxDecrease) {
+        adjustmentLevel -= 1;
+    } else {
+        return;
+    }
+
+    const newSize = baseSize + adjustmentLevel * 1.5;
+    document.querySelector('body').style.fontSize = `${newSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${newSize}px`;
+    });
+}
+
+function resetTextSize() {
+    const baseSize = 15;
+    document.querySelector('body').style.fontSize = `${baseSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+    });
+}
