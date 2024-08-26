@@ -1,3 +1,4 @@
+// Initialization and data loading
 let allRows = [];
 let dataTable;
 let methodData = [];
@@ -15,6 +16,35 @@ let allAreas = [
     "Political Psychology", "Positive Psychology", "Psychometrics", "Public Health", 
     "Sex Research", "Social Psychology", "Sport & Exercise Psychology"
 ];
+
+function populateAreaFilter(rows) {
+    console.log("Populating area filter...");
+    const areaCounts = {};
+    allAreas.forEach(area => {
+        areaCounts[area.toLowerCase()] = 0;
+    });
+
+    rows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area]++;
+            }
+        });
+    });
+
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
+    areaFilter.innerHTML += allAreas.map(area => {
+        const lowerCaseArea = area.toLowerCase();
+        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
+    }).join('');
+
+    console.log("Area filter populated.");
+}
+
+// Rest of your code...
+
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
