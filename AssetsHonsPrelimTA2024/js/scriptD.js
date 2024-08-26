@@ -175,7 +175,6 @@ function initializeDataTable() {
         const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
         const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
     
-        // Adjusted method matching logic
         let methodMatch = false;
     
         if (methodValue === '') {
@@ -189,9 +188,9 @@ function initializeDataTable() {
         } else if (methodValue === 'meta-synthesis') {
             methodMatch = (mainMethod === 'meta-synthesis');
         } else if (methodValue === 'mixed-methods-quantitative') {
-            methodMatch = (mainMethod === 'mixed-methods' && researchAreasContent.includes('quantitative'));
+            methodMatch = (mainMethod === 'mixed-methods' && (researchAreasContent.includes('quantitative') || researchAreasContent.includes('meta-analysis')));
         } else if (methodValue === 'mixed-methods-qualitative') {
-            methodMatch = (mainMethod === 'mixed-methods' && researchAreasContent.includes('qualitative'));
+            methodMatch = (mainMethod === 'mixed-methods' && (researchAreasContent.includes('qualitative') || researchAreasContent.includes('meta-synthesis')));
         } else {
             methodMatch = mainMethod === methodValue;
         }
@@ -200,6 +199,7 @@ function initializeDataTable() {
     
         return methodMatch && areaMatch;
     });
+    
     
 
     $('#customSearch').on('input', function() {
@@ -282,12 +282,12 @@ async function updateMethodFilterCounts() {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Quantitative [${methodCounts.quantitative}]</option>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="ALL Qantitative">&nbsp;&nbsp;&nbsp;&nbsp;Quantitative [${methodCounts.quantitative}]</option>
             <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [${methodCounts.metaAnalysis}]</option>
             <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Qualitative [${methodCounts.qualitative}]</option>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="ALL Qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Qualitative [${methodCounts.qualitative}]</option>
             <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
             <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
     `;
