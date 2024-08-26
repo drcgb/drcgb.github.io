@@ -1,5 +1,7 @@
 let allRows = [];
 let dataTable;
+let methodData = [];
+let researchAreasData = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -9,30 +11,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         const workbook = XLSX.read(data, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-        console.log("Data loaded:", allRows);  // Log the loaded data
+        console.log("Data loaded:", allRows);
 
         populateTable(allRows);
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
         initializeDataTable();
+
+        window.addEventListener('resize', () => {
+            adjustContentMargin(); // Adjust margin on window resize
+            matchNoticeWidth(); // Match filter notice width to search input
+        });
+
     } catch (err) {
         console.error('Error loading XLSX data:', err);
     }
-
-    const searchInput = document.querySelector('.custom-search-container input');
-    const filterNotice = document.querySelector('.filter-notice');
-
-    function matchNoticeWidth() {
-        const searchWidth = searchInput.offsetWidth;
-        filterNotice.style.width = `${searchWidth}px`;
-    }
-
-    matchNoticeWidth();
-    window.addEventListener('resize', matchNoticeWidth);
-
-    console.log("DataTable initialized.");
-
 });
+
+window.onload = function() {
+    adjustContentMargin();
+    matchNoticeWidth();
+};
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
@@ -52,30 +51,26 @@ function initializeDataTable() {
             const api = this.api();
             const rows = api.rows({ search: 'applied' }).data().length;
 
-            // Remove existing "End of records" row
             $('#abstractTable tbody .end-of-records').remove();
-
-            // Add "End of records" row at the end
             if (rows === 0 || rows > 0) {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
         }
     });
 
-    // Custom filter logic
+    // Custom filtering logic
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const methodValue = $('#methodFilter').val().toLowerCase().trim();
         const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
-        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : ''; // Ensure safe access
+        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
+        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
         let methodMatch = false;
 
-        // Logic for matching method
         switch (methodValue) {
             case '':
-                methodMatch = true; // "All Methods" selected
+                methodMatch = true;
                 break;
             case 'all-quantitative':
                 methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
@@ -99,65 +94,18 @@ function initializeDataTable() {
                 break;
         }
 
-        // Logic for matching area
         const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
-        // Combine method and area matches
         return methodMatch && areaMatch;
     });
 
-    // Initial filtering
-    dataTable.draw();
-
-    // Attach events
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw(); // Use DataTables native search
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#methodFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#areaFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            // Clear all filter inputs
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-
-            // Clear DataTables native search and redraw
-            dataTable.search('').draw(); 
-
-            // Update filter status and notice
-            updateFilterStatus();
-            updateFilterNotice();
-
-            // Scroll the window to the top instantly
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 0);
-        }
-    });
-
-    console.log("DataTable initialized.");
+    dataTable.draw(); // Apply filters initially
 }
 
-let methodData = []; // New array to store Main Method data
-let researchAreasData = []; // New array to store Research Areas data
-
+// Populate the table with rows
 function populateTable(rows) {
     console.log("Populating table...");
-    methodData = []; // Reset arrays before populating
+    methodData = [];
     researchAreasData = [];
 
     const tbody = document.querySelector("#abstractTable tbody");
@@ -166,7 +114,7 @@ function populateTable(rows) {
         const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
         const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
 
-        methodData.push(mainMethod.toLowerCase().trim()); // Ensure lowercase and trim before pushing
+        methodData.push(mainMethod.toLowerCase().trim());
         researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
 
         return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
@@ -176,6 +124,7 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
+// Populate the method filter dropdown
 function populateMethodFilter(rows) {
     console.log("Populating method filter...");
     const methodCounts = {
@@ -227,6 +176,7 @@ function populateMethodFilter(rows) {
     console.log("Method filter populated.");
 }
 
+// Populate the area filter dropdown
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
     const areaCounts = {};
@@ -239,7 +189,6 @@ function populateAreaFilter(rows) {
         });
     });
 
-    // Convert the areaCounts object into an array of entries and sort them alphabetically by the area name
     const sortedAreas = Object.entries(areaCounts).sort(([a], [b]) => a.localeCompare(b));
 
     const areaFilter = document.getElementById("areaFilter");
@@ -278,7 +227,6 @@ function updateFilterNotice() {
     const notice = $('#filterNotice');
     const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
 
-    // Exclude "End of records" row from the count
     const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
 
     if (activeFilters.length > 0) {
@@ -289,70 +237,150 @@ function updateFilterNotice() {
             alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
             notice.html(alertMessage).show();
 
-            // Add event listener to the "CLEAR ALL" link
             $('#clearAllFiltersLink').on('click', function(e) {
-                e.preventDefault(); // Prevent the default anchor behavior
+                e.preventDefault();
 
-                // Trigger the clear all filters action
                 $('#filterStatusBtn').trigger('click');
             });
         }
     } else {
         notice.hide();
     }
-    adjustContentMargin();
+    
+    adjustContentMargin();  // Recalculate margin after updating notice
+    // Add a slight delay before resetting scroll position
+    setTimeout(() => {
+    window.scrollTo(0, 0);
+    }, 65);  // 65 milliseconds delay
 }
 
 function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true);
-    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
+    const instructionsHeight = $('#instructionsDetails').is(':visible') && $('#instructionsDetails').attr('open') ? $('#instructionsDetails').outerHeight(true) : 0;
+    const headerHeight = $('.fixed-header').outerHeight(true) + 24;
 
+    // Adjust the total margin so that it only adds the filter notice height if needed
+    const totalMargin = headerHeight + filterNoticeHeight + instructionsHeight;
+
+    // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
 }
 
-// Add event listeners only once, at the end of your script
+function matchNoticeWidth() {
+    const searchInput = document.querySelector('.custom-search-container input');
+    const filterNotice = document.querySelector('.filter-notice');
+    const searchWidth = searchInput.offsetWidth;
+    filterNotice.style.width = `${searchWidth}px`;
+}
+
+$(document).ready(function() {
+    // Adjust content margin initially
+    adjustContentMargin();
+
+    // Event listeners for instructions toggle
+    $('#instructionsToggle').on('click', function() {
+        toggleInstructions();
+    });
+
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault();
+        toggleInstructions();
+    });
+});
+
+// Function to toggle instructions
+function toggleInstructions() {
+    const details = document.getElementById("instructionsDetails");
+    details.open = !details.open;
+    console.log('Instructions toggled:', details.open);
+    const toggleLink = document.getElementById("instructionsToggle");
+    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
+    adjustContentMargin();
+}
+
+
+// Variables to track the current adjustment level
+let adjustmentLevel = 0;
+const maxIncrease = 3;
+const maxDecrease = -2;
+
+// Adjust text size for the entire page
+function adjustTextSize(increase) {
+    if (increase && adjustmentLevel < maxIncrease) {
+        adjustmentLevel += 1;
+    } else if (!increase && adjustmentLevel > maxDecrease) {
+        adjustmentLevel -= 1;
+    } else {
+        return; // No adjustment needed
+    }
+
+    // Calculate the new font size based on adjustment level
+    const baseSize = 15; // Default font size in px
+    const newSize = baseSize + adjustmentLevel * 1.5; // Adjust by 1.5px per step
+
+    // Apply the new font size to all relevant elements
+    document.querySelector('body').style.fontSize = `${newSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${newSize}px`;
+    });
+}
+
+// Reset text size to default
+function resetTextSize() {
+    adjustmentLevel = 0; // Reset adjustment level
+    const baseSize = 15; // Default font size in px
+
+    // Reset font size for all relevant elements
+    document.querySelector('body').style.fontSize = `${baseSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+    });
+}
+
 
 $(document).ready(function() {
     adjustContentMargin();
 
     $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw(); // Use native DataTables search
+        dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a search is performed
+        window.scrollTo(0, 0);
     });
 
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a filter is applied
+        window.scrollTo(0, 0);
     });
 
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a filter is applied
+        window.scrollTo(0, 0);
     });
 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
-            // Clear all filter inputs
-            $('#methodFilter').val('');      // Clear the method filter dropdown
-            $('#areaFilter').val('');        // Clear the area filter dropdown
-            $('#customSearch').val('');      // Clear the custom search input field
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
 
-            // Clear DataTables native search and redraw
-            dataTable.search('').draw();     // Clear native DataTables search
-
-            // Update filter status and notice
+            dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
-
-            // Scroll the window to the top instantly
             window.scrollTo(0, 0);
         }
+    });
+
+    // Event listeners for text size controls
+    document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
+    document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
+    document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault();
+        toggleInstructions();
     });
 });
