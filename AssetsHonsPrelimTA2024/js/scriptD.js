@@ -446,12 +446,25 @@ function matchNoticeWidth() {
 
 function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
-    details.open = !details.open;
-    console.log('Instructions toggled:', details.open);
     const toggleLink = document.getElementById("instructionsToggle");
-    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
-    adjustContentMargin();
+
+    if (details.style.display === "none" || details.style.display === "") {
+        details.style.display = "block";
+        toggleLink.textContent = '▼ Instructions';
+    } else {
+        details.style.display = "none";
+        toggleLink.textContent = '► Instructions';
+    }
+
+    adjustContentMargin(); // Adjust the layout if needed
 }
+
+document.getElementById("instructionsToggle").addEventListener("click", toggleInstructions);
+document.getElementById("closeInstructions").addEventListener("click", function(e) {
+    e.preventDefault();
+    toggleInstructions();
+});
+
 
 // Variables to track the current adjustment level
 let adjustmentLevel = 0;
@@ -490,21 +503,3 @@ function resetTextSize() {
         el.style.fontSize = `${baseSize}px`;
     });
 }
-
-function toggleInstructions() {
-    const details = document.getElementById("instructionsDetails");
-    const toggleLink = document.getElementById("instructionsToggle");
-
-    if (details.style.display === "none" || details.style.display === "") {
-        details.style.display = "block";
-        toggleLink.textContent = '▼ Instructions';
-    } else {
-        details.style.display = "none";
-        toggleLink.textContent = '► Instructions';
-    }
-
-    adjustContentMargin(); // Adjust the layout if needed
-}
-
-document.getElementById("instructionsToggle").addEventListener("click", toggleInstructions);
-document.getElementById("closeInstructions").addEventListener("click", toggleInstructions);
