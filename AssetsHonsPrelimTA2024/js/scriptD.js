@@ -373,9 +373,29 @@ function scrollToTop() {
 $(document).ready(function() {
     adjustContentMargin();
 
+    // Text Size Controls
     $('#increaseTextSize').on('click', () => adjustTextSize(true));
     $('#decreaseTextSize').on('click', () => adjustTextSize(false));
     $('#resetTextSize').on('click', resetTextSize);
+
+    // Instructions Toggle
+    $('#instructionsToggle').on('click', function() {
+        const detailsElement = $('#instructionsDetails');
+        if (detailsElement.prop('open')) {
+            detailsElement.removeAttr('open');
+            $(this).text('► Instructions');
+        } else {
+            detailsElement.attr('open', true);
+            $(this).text('▼ Instructions');
+        }
+    });
+
+    // Close Instructions Link
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault();
+        $('#instructionsDetails').removeAttr('open');
+        $('#instructionsToggle').text('► Instructions');
+    });
 });
 
 function adjustTextSize(increase) {
@@ -406,3 +426,12 @@ function resetTextSize() {
         el.style.fontSize = `${baseSize}px`;
     });
 }
+
+function adjustContentMargin() {
+    const blueBarHeight = $('.blue-bar').outerHeight(true);
+    const headerHeight = $('.fixed-header').outerHeight(true) + 5;
+    const totalMargin = headerHeight + blueBarHeight;
+
+    $('.content').css('margin-top', totalMargin);
+}
+
