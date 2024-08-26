@@ -323,7 +323,43 @@ function populateAreaFilter(rows) {
 
     console.log("Area filter populated.");
 }
+let methodCounts = {
+    quantitative: 0,
+    metaAnalysis: 0,
+    mixedMethodsQuantitative: 0,
+    qualitative: 0,
+    metaSynthesis: 0,
+    mixedMethodsQualitative: 0
+};
 
+// Initialize methodCounts with actual data before calling populateMethodFilter
+function initializeMethodCounts(data) {
+    // Logic to calculate and set methodCounts based on data
+    // Example:
+    methodCounts.quantitative = data.filter(item => item.method === 'quantitative').length;
+    methodCounts.metaAnalysis = data.filter(item => item.method === 'meta-analysis').length;
+    // ... other counts
+}function populateMethodFilter() {
+    const methodFilter = document.getElementById("methodFilter");
+    if (methodFilter) {
+        methodFilter.innerHTML = `
+            <option value="" style="font-weight: bold;">All Methods</option>
+            <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;">
+                <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
+                <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis}]</option>
+                <option value="mixed-methods-quantitative">Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
+            </optgroup>
+            <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;">
+                <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
+                <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
+                <option value="mixed-methods-qualitative">Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
+            </optgroup>
+        `;
+        console.log("Method filter populated.");
+    } else {
+        console.error("Element with ID 'methodFilter' not found");
+    }
+}
 function updateMethodFilterCounts() {
     if (!dataTable) return;
 
@@ -506,4 +542,29 @@ function resetTextSize() {
     document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
         el.style.fontSize = `${baseSize}px`;
     });
+}$(document).ready(function() {
+    adjustContentMargin();
+
+    // Example data loading
+    const data = loadData(); // Replace with actual data loading logic
+    initializeMethodCounts(data);
+
+    $('#increaseTextSize').on('click', () => adjustTextSize(true));
+    $('#decreaseTextSize').on('click', () => adjustTextSize(false));
+    $('#resetTextSize').on('click', resetTextSize);
+
+    populateMethodFilter();
+    populateAreaFilter();
+});
+
+function loadData() {
+    // Replace with actual data loading logic
+    return [
+        { method: 'quantitative' },
+        { method: 'meta-analysis' },
+        { method: 'mixed-methods-quantitative' },
+        { method: 'qualitative' },
+        { method: 'meta-synthesis' },
+        { method: 'mixed-methods-qualitative' }
+    ];
 }
