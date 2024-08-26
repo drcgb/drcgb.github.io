@@ -2,7 +2,7 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
-const allAreas = [
+let allAreas = [
     "Applied Psychology", "Artificial Intelligence (AI) & Automation", "Behavioural Addictions", 
     "Biological Psychology", "Child Development", "Child Neglect", "Climate Psychology", 
     "Clinical Neuropsychology", "Clinical Psychology", "Cognitive Psychology", 
@@ -20,9 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         console.log("Loading XLSX data...");
         const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-        if (!response.ok) {
-            throw new Error(`Failed to load data: ${response.statusText}`);
-        }
         const data = await response.arrayBuffer();
         const workbook = XLSX.read(data, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -31,7 +28,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         populateTable(allRows);
         populateMethodFilter(allRows);
-        setTimeout(() => populateAreaFilter(allRows), 100);  // Add a short delay
+        populateAreaFilter(allRows);
+
         initializeDataTable();
 
         window.addEventListener('resize', () => {
@@ -109,24 +107,20 @@ function initializeDataTable() {
         dataTable.search($(this).val()).draw();
         updateFilterStatus();
         updateFilterNotice();
-        updateMethodFilterCounts();
-        setTimeout(updateAreaFilterCounts, 100);  // Add a short delay
     });
 
     $('#methodFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        updateMethodFilterCounts();
-        setTimeout(updateAreaFilterCounts, 100);  // Add a short delay
+        updateAreaFilterCounts(); // Only update area filter counts
     });
 
     $('#areaFilter').on('change', function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        setTimeout(updateMethodFilterCounts, 100);  // Add a short delay
-        updateAreaFilterCounts();
+        updateMethodFilterCounts(); // Only update method filter counts
     });
 
     $('#filterStatusBtn').on('click', function() {
@@ -138,8 +132,8 @@ function initializeDataTable() {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
-            updateMethodFilterCounts();
-            setTimeout(updateAreaFilterCounts, 100);  // Add a short delay
+            updateMethodFilterCounts(); // Update method counts when filters are cleared
+            updateAreaFilterCounts(); // Update area counts when filters are cleared
         }
     });
 
@@ -152,11 +146,6 @@ function populateTable(rows) {
     researchAreasData = [];
 
     const tbody = document.querySelector("#abstractTable tbody");
-    if (!tbody) {
-        console.error("Table body element not found.");
-        return;
-    }
-
     tbody.innerHTML = rows.map(row => {
         const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
         const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
@@ -208,21 +197,16 @@ function populateMethodFilter(rows) {
     });
 
     const methodFilter = document.getElementById("methodFilter");
-    if (!methodFilter) {
-        console.error("Method filter element not found.");
-        return;
-    }
-
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
         <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
-            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
-            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [${methodCounts.metaAnalysis}]</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
         <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
-            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
-            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
     `;
 
     console.log("Method filter populated.");
@@ -245,18 +229,90 @@ function populateAreaFilter(rows) {
     });
 
     const areaFilter = document.getElementById("areaFilter");
-    if (!areaFilter) {
-        console.error("Area filter element not found.");
-        return;
-    }
+    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
+    areaFilter.innerHTML += allAreas.map(area => {
+        const lowerCaseArea = area.toLowerCase();
+        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
+    }).join('');
+    console.log("Area filter populated.");
+}
 
+function updateMethodFilterCounts() {
+    if (!dataTable) return;
+
+    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const methodCounts = {
+        quantitative: 0,
+        metaAnalysis: 0,
+        mixedMethodsQuantitative: 0,
+        qualitative: 0,
+        metaSynthesis: 0,
+        mixedMethodsQualitative: 0
+    };
+
+    visibleRows.forEach(row => {
+        const mainMethod = row[1]?.trim().toLowerCase();
+        if (mainMethod) {
+            switch (mainMethod) {
+                case 'quantitative':
+                    methodCounts.quantitative += 1;
+                    break;
+                case 'meta-analysis':
+                    methodCounts.metaAnalysis += 1;
+                    break;
+                case 'mixed-methods':
+                    methodCounts.mixedMethodsQuantitative += 1;
+                    methodCounts.mixedMethodsQualitative += 1;
+                    break;
+                case 'qualitative':
+                    methodCounts.qualitative += 1;
+                    break;
+                case 'meta-synthesis':
+                    methodCounts.metaSynthesis += 1;
+                    break;
+            }
+        }
+    });
+
+    const methodFilter = document.getElementById("methodFilter");
+    methodFilter.innerHTML = `
+        <option value="" style="font-weight: bold;">All Methods</option>
+        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [${methodCounts.metaAnalysis}]</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
+        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
+    `;
+}
+
+function updateAreaFilterCounts() {
+    if (!dataTable) return;
+
+    const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+    const areaCounts = {};
+
+    allAreas.forEach(area => {
+        areaCounts[area.toLowerCase()] = 0;
+    });
+
+    visibleRows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area]++;
+            }
+        });
+    });
+
+    const areaFilter = document.getElementById("areaFilter");
     areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
     areaFilter.innerHTML += allAreas.map(area => {
         const lowerCaseArea = area.toLowerCase();
-        return `<option value="${lowerCaseArea}">${area} [~${areaCounts[lowerCaseArea]} matches]</option>`;
+        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
     }).join('');
-
-    console.log("Area filter populated.");
 }
 
 function updateFilterStatus() {
