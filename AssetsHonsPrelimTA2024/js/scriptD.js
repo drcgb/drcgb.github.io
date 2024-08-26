@@ -250,6 +250,56 @@ function populateAreaFilter(rows) {
         } else {
             console.error("Element with ID 'areaFilter' not found");
         }
+    }    document.getElementById('methodFilter').addEventListener('change', function() {
+        updateDropdowns();
+    });
+    
+    document.getElementById('areaFilter').addEventListener('change', function() {
+        updateDropdowns();
+    });
+    
+    function updateDropdowns() {
+        // Assuming you have a function to recalculate the counts
+        recalculateCounts();
+        populateMethodFilter();
+        populateAreaFilter();
+    }
+    
+    function recalculateCounts() {
+        // Logic to recalculate counts based on the selected options
+        // Ensure this logic correctly updates the methodCounts and areaCounts
+    }    function populateMethodFilter() {
+        const methodFilter = document.getElementById("methodFilter");
+        if (methodFilter) {
+            methodFilter.innerHTML = `
+                <option value="" style="font-weight: bold;">All Methods</option>
+                <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;">
+                    <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
+                    <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis}]</option>
+                    <option value="mixed-methods-quantitative">Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
+                </optgroup>
+                <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;">
+                    <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
+                    <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
+                    <option value="mixed-methods-qualitative">Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
+                </optgroup>
+            `;
+            console.log("Method filter populated.");
+        } else {
+            console.error("Element with ID 'methodFilter' not found");
+        }
+    }    function populateAreaFilter() {
+        const areaFilter = document.getElementById("areaFilter");
+        if (areaFilter) {
+            areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
+            areaFilter.innerHTML += allAreas.map(area => {
+                const lowerCaseArea = area.toLowerCase();
+                return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
+            }).join('');
+            console.log("Area filter populated.");
+        } else {
+            console.error("Element with ID 'areaFilter' not found");
+        }
     }
     allAreas.forEach(area => {
         areaCounts[area.toLowerCase()] = 0;
@@ -430,10 +480,10 @@ $(document).ready(function() {
 });
 
 function adjustTextSize(increase) {
-    const baseSize = 15;
     let adjustmentLevel = 0;
     const maxIncrease = 3;
     const maxDecrease = -2;
+    const baseSize = 15; // Define baseSize
 
     if (increase && adjustmentLevel < maxIncrease) {
         adjustmentLevel += 1;
