@@ -255,7 +255,7 @@ function updateFilterNotice() {
 }
 
 function adjustContentMargin() {
-    const headerHeight = $('.fixed-header').outerHeight(true) + 24;
+    const headerHeight = $('.fixed-header').outerHeight(true) + 34;
     const totalMargin = headerHeight 
 
     // Set the margin-top for the content area
