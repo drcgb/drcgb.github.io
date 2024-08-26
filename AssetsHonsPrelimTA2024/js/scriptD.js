@@ -17,34 +17,149 @@ let allAreas = [
     "Sex Research", "Social Psychology", "Sport & Exercise Psychology"
 ];
 
-// Populate Area Filter
-function populateAreaFilter(rows) {
-    console.log("Populating area filter...");
-    const areaCounts = {};
-    allAreas.forEach(area => {
-        areaCounts[area.toLowerCase()] = 0;
-    });
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        console.log("Loading XLSX data...");
+        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+        const data = await response.arrayBuffer();
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+        console.log("Data loaded:", allRows);
 
-    rows.forEach(row => {
-        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-        researchAreas.forEach(area => {
-            if (area) {
-                areaCounts[area]++;
-            }
+        populateTable(allRows);
+        populateMethodFilter(allRows);
+        populateAreaFilter(allRows);
+
+        initializeDataTable();
+
+        window.addEventListener('resize', () => {
+            adjustContentMargin();
+            matchNoticeWidth();
         });
+
+    } catch (err) {
+        console.error('Error loading XLSX data:', err);
+    }
+});
+
+window.onload = function() {
+    adjustContentMargin();
+    matchNoticeWidth();
+};
+
+function initializeDataTable() {
+    console.log("Initializing DataTable...");
+
+    dataTable = $('#abstractTable').DataTable({
+        paging: false,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        ordering: false,
+        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
+        language: {
+            lengthMenu: 'Show up to _MENU_ records per page',
+        },
+        dom: '<"top"l>rt<"bottom"p><"clear">',
     });
 
-    const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += allAreas.map(area => {
-        const lowerCaseArea = area.toLowerCase();
-        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
-    }).join('');
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const methodValue = $('#methodFilter').val().toLowerCase().trim();
+        const areaValue = $('#areaFilter').val().toLowerCase().trim();
 
-    console.log("Area filter populated.");
+        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
+        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+
+        let methodMatch = false;
+
+        if (methodValue === '') {
+            methodMatch = true; // No filter selected, all methods should match
+        } else if (methodValue === 'all-quantitative') {
+            methodMatch = (mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods');
+        } else if (methodValue === 'all-qualitative') {
+            methodMatch = (mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods');
+        } else if (methodValue === 'meta-analysis') {
+            methodMatch = (mainMethod === 'meta-analysis');
+        } else if (methodValue === 'meta-synthesis') {
+            methodMatch = (mainMethod === 'meta-synthesis');
+        } else if (methodValue === 'mixed-methods-quantitative') {
+            methodMatch = (mainMethod === 'mixed-methods' && (mainMethod === 'quantitative' || mainMethod === 'meta-analysis'));
+        } else if (methodValue === 'mixed-methods-qualitative') {
+            methodMatch = (mainMethod === 'mixed-methods' && (mainMethod === 'qualitative' || mainMethod === 'meta-synthesis'));
+        } else {
+            methodMatch = mainMethod === methodValue;
+        }
+
+        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
+
+        return methodMatch && areaMatch;
+    });
+
+    $('#customSearch').on('input', function() {
+        dataTable.search($(this).val()).draw();
+        updateFilterStatus();
+        updateFilterNotice();
+    });
+
+    $('#methodFilter').on('change', async function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        await updateAreaFilterCounts(); // Update Area filter counts based on the current method filter
+    });
+
+    $('#areaFilter').on('change', async function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        await updateMethodFilterCounts(); // Update Method filter counts based on the current area filter
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            $('#methodFilter').val('');
+            $('#areaFilter').val('');
+            $('#customSearch').val('');
+
+            dataTable.search('').draw();
+            updateFilterStatus();
+            updateFilterNotice();
+            setTimeout(() => {
+                populateMethodFilter(allRows); // Repopulate with all data
+                populateAreaFilter(allRows); // Repopulate with all data
+            }, 300); // Delay to allow table to reset first
+        }
+        setTimeout(() => {
+            scrollToTop();
+        }, 65);
+    });
+
+    console.log("DataTable initialized.");
 }
 
-// Populate Method Filter
+// Populate and Update Functions
+function populateTable(rows) {
+    console.log("Populating table...");
+    methodData = [];
+    researchAreasData = [];
+
+    const tbody = document.querySelector("#abstractTable tbody");
+    tbody.innerHTML = rows.map(row => {
+        const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
+        const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
+        const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+
+        methodData.push(mainMethod.toLowerCase().trim());
+        researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
+
+        return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+    }).join('');
+
+    tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
+    console.log("Table populated.");
+}
+
 function populateMethodFilter(rows) {
     console.log("Populating method filter...");
     const methodCounts = {
@@ -96,91 +211,33 @@ function populateMethodFilter(rows) {
     console.log("Method filter populated.");
 }
 
-// Initialize DataTable
-function initializeDataTable() {
-    console.log("Initializing DataTable...");
-
-    dataTable = $('#abstractTable').DataTable({
-        paging: false,
-        searching: true,
-        info: true,
-        autoWidth: false,
-        ordering: false,
-        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, `${allRows.length} (All)`]],
-        language: {
-            lengthMenu: 'Show up to _MENU_ records per page',
-        },
-        dom: '<"top"l>rt<"bottom"p><"clear">',
+function populateAreaFilter(rows) {
+    console.log("Populating area filter...");
+    const areaCounts = {};
+    allAreas.forEach(area => {
+        areaCounts[area.toLowerCase()] = 0;
     });
 
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const methodValue = $('#methodFilter').val().toLowerCase().trim();
-        const areaValue = $('#areaFilter').val().toLowerCase().trim();
-    
-        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
-        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
-    
-        let methodMatch = false;
-    
-        if (methodValue === '') {
-            methodMatch = true; // No filter selected, all methods should match
-        } else if (methodValue === 'all-quantitative') {
-            methodMatch = (mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods');
-        } else if (methodValue === 'all-qualitative') {
-            methodMatch = (mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods');
-        } else {
-            methodMatch = mainMethod === methodValue;
-        }
-    
-        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
-    
-        return methodMatch && areaMatch;
+    rows.forEach(row => {
+        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
+        researchAreas.forEach(area => {
+            if (area) {
+                areaCounts[area]++;
+            }
+        });
     });
 
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw();
-        updateFilterStatus();
-        updateFilterNotice();
-    });
+    const areaFilter = document.getElementById("areaFilter");
+    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
+    areaFilter.innerHTML += allAreas.map(area => {
+        const lowerCaseArea = area.toLowerCase();
+        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
+    }).join('');
 
-    $('#methodFilter').on('change', async function() {
-        const selectedArea = $('#areaFilter').val();
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        await updateAreaFilterCounts();
-        $('#areaFilter').val(selectedArea); // Retain the selected area
-    });
-
-    $('#areaFilter').on('change', async function() {
-        const selectedMethod = $('#methodFilter').val();
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        await updateMethodFilterCounts();
-        $('#methodFilter').val(selectedMethod); // Retain the selected method
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-
-            dataTable.search('').draw();
-            updateFilterStatus();
-            updateFilterNotice();
-            setTimeout(() => {
-                populateMethodFilter(allRows); // Repopulate with all data
-                populateAreaFilter(allRows); // Repopulate with all data
-            }, 300); // Delay to allow table to reset first
-        }
-    });
-
-    console.log("DataTable initialized.");
+    console.log("Area filter populated.");
 }
 
-// Update Method Filter Counts
+// Update Functions
 async function updateMethodFilterCounts() {
     if (!dataTable) return;
 
@@ -232,7 +289,6 @@ async function updateMethodFilterCounts() {
     `;
 }
 
-// Update Area Filter Counts
 async function updateAreaFilterCounts() {
     if (!dataTable) return;
 
@@ -260,7 +316,6 @@ async function updateAreaFilterCounts() {
     }).join('');
 }
 
-// Update Filter Status
 function updateFilterStatus() {
     const searchValue = $('#customSearch').val().trim();
     const methodValue = $('#methodFilter').val();
@@ -276,7 +331,6 @@ function updateFilterStatus() {
     }
 }
 
-// Update Filter Notice
 function updateFilterNotice() {
     const searchValue = $('#customSearch').val().trim();
     const methodValue = $('#methodFilter').val();
@@ -312,7 +366,6 @@ function updateFilterNotice() {
     adjustContentMargin();
 }
 
-// Adjust content margin
 function adjustContentMargin() {
     const blueBarHeight = $('.blue-bar').outerHeight(true);
     const headerHeight = $('.fixed-header').outerHeight(true) + 5;
@@ -321,7 +374,6 @@ function adjustContentMargin() {
     $('.content').css('margin-top', totalMargin);
 }
 
-// Match notice width
 function matchNoticeWidth() {
     const searchInput = document.querySelector('.custom-search-container input');
     const filterNotice = document.querySelector('.filter-notice');
@@ -329,43 +381,10 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
-// Scroll to top
 function scrollToTop() {
     $('html, body').animate({ scrollTop: 0 }, 'fast');
 }
 
-// Adjust text size
-function adjustTextSize(increase) {
-    let adjustmentLevel = 0;
-    const maxIncrease = 3;
-    const maxDecrease = -2;
-    const baseSize = 15;
-
-    if (increase && adjustmentLevel < maxIncrease) {
-        adjustmentLevel += 1;
-    } else if (!increase && adjustmentLevel > maxDecrease) {
-        adjustmentLevel -= 1;
-    } else {
-        return;
-    }
-
-    const newSize = baseSize + adjustmentLevel * 1.5;
-    document.querySelector('body').style.fontSize = `${newSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
-        el.style.fontSize = `${newSize}px`;
-    });
-}
-
-// Reset text size
-function resetTextSize() {
-    const baseSize = 15;
-    document.querySelector('body').style.fontSize = `${baseSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
-        el.style.fontSize = `${baseSize}px`;
-    });
-}
-
-// Document ready actions
 $(document).ready(function() {
     adjustContentMargin();
 
@@ -394,51 +413,31 @@ $(document).ready(function() {
     });
 });
 
-// Document loaded actions
-document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        console.log("Loading XLSX data...");
-        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-        const data = await response.arrayBuffer();
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-        console.log("Data loaded:", allRows);
+function adjustTextSize(increase) {
+    let adjustmentLevel = 0;
+    const maxIncrease = 3;
+    const maxDecrease = -2;
+    const baseSize = 15;
 
-        populateTable(allRows);
-        populateMethodFilter(allRows);
-        populateAreaFilter(allRows);
-
-        initializeDataTable();
-
-        window.addEventListener('resize', () => {
-            adjustContentMargin();
-            matchNoticeWidth();
-        });
-
-    } catch (err) {
-        console.error('Error loading XLSX data:', err);
+    if (increase && adjustmentLevel < maxIncrease) {
+        adjustmentLevel += 1;
+    } else if (!increase && adjustmentLevel > maxDecrease) {
+        adjustmentLevel -= 1;
+    } else {
+        return;
     }
-});
 
-// Populate Table
-function populateTable(rows) {
-    console.log("Populating table...");
-    methodData = [];
-    researchAreasData = [];
+    const newSize = baseSize + adjustmentLevel * 1.5;
+    document.querySelector('body').style.fontSize = `${newSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${newSize}px`;
+    });
+}
 
-    const tbody = document.querySelector("#abstractTable tbody");
-    tbody.innerHTML = rows.map(row => {
-        const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-        const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
-        const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-
-        methodData.push(mainMethod.toLowerCase().trim());
-        researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
-
-        return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
-    }).join('');
-
-    tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
-    console.log("Table populated.");
+function resetTextSize() {
+    const baseSize = 15;
+    document.querySelector('body').style.fontSize = `${baseSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+    });
 }
