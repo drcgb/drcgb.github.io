@@ -1,3 +1,4 @@
+// Initialization and data loading
 let allRows = [];
 let dataTable;
 let methodData = [];
@@ -109,18 +110,18 @@ function initializeDataTable() {
         updateFilterNotice();
     });
 
-    $('#methodFilter').on('change', function() {
+    $('#methodFilter').on('change', async function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        updateAreaFilterCounts(); // Only update area filter counts
+        await updateAreaFilterCounts(); // Ensure Area filter counts update sequentially
     });
 
-    $('#areaFilter').on('change', function() {
+    $('#areaFilter').on('change', async function() {
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        updateMethodFilterCounts(); // Only update method filter counts
+        await updateMethodFilterCounts(); // Ensure Method filter counts update sequentially
     });
 
     $('#filterStatusBtn').on('click', function() {
@@ -132,34 +133,17 @@ function initializeDataTable() {
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
-            populateMethodFilter(allRows); // Repopulate with all data
-            populateAreaFilter(allRows); // Repopulate with all data
+            setTimeout(() => {
+                populateMethodFilter(allRows); // Repopulate with all data
+                populateAreaFilter(allRows); // Repopulate with all data
+            }, 300); // Delay to allow table to reset first
         }
-    });
-
-    // Instructions button event listener
-    $('#instructionsToggle').on('click', function() {
-        toggleInstructions();
-    });
-
-    $('#closeInstructions').on('click', function(e) {
-        e.preventDefault(); // Prevent the default action of the link
-        toggleInstructions(); // Call the function to toggle instructions
     });
 
     console.log("DataTable initialized.");
 }
 
-function toggleInstructions() {
-    const details = document.getElementById("instructionsDetails");
-    details.open = !details.open; // Toggle the 'open' attribute
-    console.log('Instructions toggled:', details.open);
-    
-    const toggleLink = document.getElementById("instructionsToggle");
-    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
-    adjustContentMargin(); // Recalculate margin after toggling
-}
-
+// Populate and Update Functions
 function populateTable(rows) {
     console.log("Populating table...");
     methodData = [];
@@ -258,7 +242,8 @@ function populateAreaFilter(rows) {
     console.log("Area filter populated.");
 }
 
-function updateMethodFilterCounts() {
+// Update Functions
+async function updateMethodFilterCounts() {
     if (!dataTable) return;
 
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
@@ -309,7 +294,7 @@ function updateMethodFilterCounts() {
     `;
 }
 
-function updateAreaFilterCounts() {
+async function updateAreaFilterCounts() {
     if (!dataTable) return;
 
     const visibleRows = dataTable.rows({ filter: 'applied' }).data().toArray();
@@ -336,6 +321,7 @@ function updateAreaFilterCounts() {
     }).join('');
 }
 
+// Filter status and notice updates
 function updateFilterStatus() {
     const searchValue = $('#customSearch').val().trim();
     const methodValue = $('#methodFilter').val();
@@ -437,5 +423,7 @@ function adjustTextSize(increase) {
 function resetTextSize() {
     const baseSize = 15;
     document.querySelector('body').style.fontSize = `${baseSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+    });
 }
-   
