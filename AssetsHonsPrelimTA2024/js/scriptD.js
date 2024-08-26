@@ -17,6 +17,7 @@ let allAreas = [
     "Sex Research", "Social Psychology", "Sport & Exercise Psychology"
 ];
 
+// Populate Area Filter
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
     const areaCounts = {};
@@ -43,63 +44,7 @@ function populateAreaFilter(rows) {
     console.log("Area filter populated.");
 }
 
-// Rest of your code...
-
-
-document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        console.log("Loading XLSX data...");
-        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-        const data = await response.arrayBuffer();
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-        console.log("Data loaded:", allRows);
-
-        populateTable(allRows);
-        populateMethodFilter(allRows);
-        populateAreaFilter(allRows);
-
-        initializeDataTable();
-
-        window.addEventListener('resize', () => {
-            adjustContentMargin();
-            matchNoticeWidth();
-        });
-
-    } catch (err) {
-        console.error('Error loading XLSX data:', err);
-    }
-});
-
-window.onload = function() {
-    adjustContentMargin();
-    matchNoticeWidth();
-};
-
-
-
-function populateTable(rows) {
-    console.log("Populating table...");
-    methodData = [];
-    researchAreasData = [];
-
-    const tbody = document.querySelector("#abstractTable tbody");
-    tbody.innerHTML = rows.map(row => {
-        const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-        const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
-        const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
-
-        methodData.push(mainMethod.toLowerCase().trim());
-        researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
-
-        return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
-    }).join('');
-
-    tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
-    console.log("Table populated.");
-}
-
+// Populate Method Filter
 function populateMethodFilter(rows) {
     console.log("Populating method filter...");
     const methodCounts = {
@@ -139,11 +84,11 @@ function populateMethodFilter(rows) {
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
         <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Quantitative [${methodCounts.quantitative}]</option>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
             <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [${methodCounts.metaAnalysis}]</option>
             <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
         <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Qualitative [${methodCounts.qualitative}]</option>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
             <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
             <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
     `;
@@ -151,7 +96,7 @@ function populateMethodFilter(rows) {
     console.log("Method filter populated.");
 }
 
-
+// Initialize DataTable
 function initializeDataTable() {
     console.log("Initializing DataTable...");
 
@@ -183,14 +128,6 @@ function initializeDataTable() {
             methodMatch = (mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods');
         } else if (methodValue === 'all-qualitative') {
             methodMatch = (mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods');
-        } else if (methodValue === 'meta-analysis') {
-            methodMatch = (mainMethod === 'meta-analysis');
-        } else if (methodValue === 'meta-synthesis') {
-            methodMatch = (mainMethod === 'meta-synthesis');
-        } else if (methodValue === 'mixed-methods-quantitative') {
-            methodMatch = (mainMethod === 'mixed-methods' && (researchAreasContent.includes('quantitative') || researchAreasContent.includes('meta-analysis')));
-        } else if (methodValue === 'mixed-methods-qualitative') {
-            methodMatch = (mainMethod === 'mixed-methods' && (researchAreasContent.includes('qualitative') || researchAreasContent.includes('meta-synthesis')));
         } else {
             methodMatch = mainMethod === methodValue;
         }
@@ -199,8 +136,6 @@ function initializeDataTable() {
     
         return methodMatch && areaMatch;
     });
-    
-    
 
     $('#customSearch').on('input', function() {
         dataTable.search($(this).val()).draw();
@@ -209,17 +144,21 @@ function initializeDataTable() {
     });
 
     $('#methodFilter').on('change', async function() {
+        const selectedArea = $('#areaFilter').val();
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        await updateAreaFilterCounts(); // Update Area filter counts based on the current method filter
+        await updateAreaFilterCounts();
+        $('#areaFilter').val(selectedArea); // Retain the selected area
     });
 
     $('#areaFilter').on('change', async function() {
+        const selectedMethod = $('#methodFilter').val();
         dataTable.draw();
         updateFilterStatus();
         updateFilterNotice();
-        await updateMethodFilterCounts(); // Update Method filter counts based on the current area filter
+        await updateMethodFilterCounts();
+        $('#methodFilter').val(selectedMethod); // Retain the selected method
     });
 
     $('#filterStatusBtn').on('click', function() {
@@ -241,7 +180,7 @@ function initializeDataTable() {
     console.log("DataTable initialized.");
 }
 
-
+// Update Method Filter Counts
 async function updateMethodFilterCounts() {
     if (!dataTable) return;
 
@@ -282,17 +221,18 @@ async function updateMethodFilterCounts() {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="ALL Qantitative">&nbsp;&nbsp;&nbsp;&nbsp;Quantitative [${methodCounts.quantitative}]</option>
+        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
             <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [${methodCounts.metaAnalysis}]</option>
             <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
-        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="ALL Qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Qualitative [${methodCounts.qualitative}]</option>
+        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
             <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
             <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
     `;
 }
 
+// Update Area Filter Counts
 async function updateAreaFilterCounts() {
     if (!dataTable) return;
 
@@ -320,8 +260,7 @@ async function updateAreaFilterCounts() {
     }).join('');
 }
 
-
-
+// Update Filter Status
 function updateFilterStatus() {
     const searchValue = $('#customSearch').val().trim();
     const methodValue = $('#methodFilter').val();
@@ -337,6 +276,7 @@ function updateFilterStatus() {
     }
 }
 
+// Update Filter Notice
 function updateFilterNotice() {
     const searchValue = $('#customSearch').val().trim();
     const methodValue = $('#methodFilter').val();
@@ -372,6 +312,7 @@ function updateFilterNotice() {
     adjustContentMargin();
 }
 
+// Adjust content margin
 function adjustContentMargin() {
     const blueBarHeight = $('.blue-bar').outerHeight(true);
     const headerHeight = $('.fixed-header').outerHeight(true) + 5;
@@ -380,6 +321,7 @@ function adjustContentMargin() {
     $('.content').css('margin-top', totalMargin);
 }
 
+// Match notice width
 function matchNoticeWidth() {
     const searchInput = document.querySelector('.custom-search-container input');
     const filterNotice = document.querySelector('.filter-notice');
@@ -387,12 +329,43 @@ function matchNoticeWidth() {
     filterNotice.style.width = `${searchWidth}px`;
 }
 
+// Scroll to top
 function scrollToTop() {
     $('html, body').animate({ scrollTop: 0 }, 'fast');
 }
 
+// Adjust text size
+function adjustTextSize(increase) {
+    let adjustmentLevel = 0;
+    const maxIncrease = 3;
+    const maxDecrease = -2;
+    const baseSize = 15;
 
+    if (increase && adjustmentLevel < maxIncrease) {
+        adjustmentLevel += 1;
+    } else if (!increase && adjustmentLevel > maxDecrease) {
+        adjustmentLevel -= 1;
+    } else {
+        return;
+    }
 
+    const newSize = baseSize + adjustmentLevel * 1.5;
+    document.querySelector('body').style.fontSize = `${newSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${newSize}px`;
+    });
+}
+
+// Reset text size
+function resetTextSize() {
+    const baseSize = 15;
+    document.querySelector('body').style.fontSize = `${baseSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+    });
+}
+
+// Document ready actions
 $(document).ready(function() {
     adjustContentMargin();
 
@@ -421,37 +394,51 @@ $(document).ready(function() {
     });
 });
 
-function adjustTextSize(increase) {
-    let adjustmentLevel = 0;
-    const maxIncrease = 3;
-    const maxDecrease = -2;
-    const baseSize = 15;
+// Document loaded actions
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        console.log("Loading XLSX data...");
+        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+        const data = await response.arrayBuffer();
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+        console.log("Data loaded:", allRows);
 
-    if (increase && adjustmentLevel < maxIncrease) {
-        adjustmentLevel += 1;
-    } else if (!increase && adjustmentLevel > maxDecrease) {
-        adjustmentLevel -= 1;
-    } else {
-        return;
+        populateTable(allRows);
+        populateMethodFilter(allRows);
+        populateAreaFilter(allRows);
+
+        initializeDataTable();
+
+        window.addEventListener('resize', () => {
+            adjustContentMargin();
+            matchNoticeWidth();
+        });
+
+    } catch (err) {
+        console.error('Error loading XLSX data:', err);
     }
+});
 
-    const newSize = baseSize + adjustmentLevel * 1.5;
-    document.querySelector('body').style.fontSize = `${newSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
-        el.style.fontSize = `${newSize}px`;
-    });
+// Populate Table
+function populateTable(rows) {
+    console.log("Populating table...");
+    methodData = [];
+    researchAreasData = [];
+
+    const tbody = document.querySelector("#abstractTable tbody");
+    tbody.innerHTML = rows.map(row => {
+        const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
+        const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong>&nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
+        const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
+
+        methodData.push(mainMethod.toLowerCase().trim());
+        researchAreasData.push(researchAreas.filter(Boolean).join('; ').toLowerCase().trim());
+
+        return `<tr><td><br>${titleWithID}<br>${preliminaryAbstract}<br><br>${methodAndAreas}<br><br></td></tr>`;
+    }).join('');
+
+    tbody.innerHTML += `<tr class="end-of-records"><td><strong>End of records</strong></td></tr>`;
+    console.log("Table populated.");
 }
-
-function resetTextSize() {
-    const baseSize = 15;
-    document.querySelector('body').style.fontSize = `${baseSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
-        el.style.fontSize = `${baseSize}px`;
-    });
-}
-
-
-
-
-
-
