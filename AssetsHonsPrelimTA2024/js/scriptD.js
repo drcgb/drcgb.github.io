@@ -257,20 +257,7 @@ function updateMethodFilterCounts() {
         }
     });
 
-    const methodFilter = document.getElementById("methodFilter");
-    methodFilter.innerHTML = `
-        <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;">
-            <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
-            <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis}]</option>
-            <option value="mixed-methods-quantitative">Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
-        </optgroup>
-        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;">
-            <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
-            <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
-            <option value="mixed-methods-qualitative">Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
-        </optgroup>
-    `;
+    populateMethodFilter();
 }
 
 function updateAreaFilterCounts() {
@@ -292,12 +279,7 @@ function updateAreaFilterCounts() {
         });
     });
 
-    const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += allAreas.map(area => {
-        const lowerCaseArea = area.toLowerCase();
-        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
-    }).join('');
+    populateAreaFilter();
 }
 
 function updateFilterStatus() {
