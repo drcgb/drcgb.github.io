@@ -351,8 +351,9 @@ $(document).ready(function() {
             $('#areaFilter').val('');
             $('#customSearch').val('');
     
-            // Reset the research area filter counts to default
-            populateAreaFilter(allRows);  // Re-populate the area filter with default counts
+            // Reset the method and research area filter counts to default
+            populateMethodFilter(allRows);  // Re-populate the method filter with default counts
+            populateAreaFilter(allRows);    // Re-populate the area filter with default counts
     
             dataTable.search('').draw();
             updateFilterStatus();
@@ -360,6 +361,7 @@ $(document).ready(function() {
             window.scrollTo(0, 0);
         }
     });
+   
   
 
     // Event listeners for text size controls
