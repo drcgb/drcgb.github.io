@@ -2,6 +2,7 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
+
 let allAreas = [
     "Applied Psychology", "Artificial Intelligence (AI) & Automation", "Behavioural Addictions", 
     "Biological Psychology", "Child Development", "Child Neglect", "Climate Psychology", 
@@ -27,9 +28,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Data loaded:", allRows);
 
         populateTable(allRows);
-        populateMethodFilter(allRows);
-        populateAreaFilter(allRows);
-
         initializeDataTable();
 
         window.addEventListener('resize', () => {
@@ -70,33 +68,7 @@ function initializeDataTable() {
         const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
         const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
 
-        let methodMatch = false;
-
-        switch (methodValue) {
-            case '':
-                methodMatch = true;
-                break;
-            case 'all-quantitative':
-                methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
-                break;
-            case 'quantitative':
-            case 'meta-analysis':
-                methodMatch = mainMethod === methodValue;
-                break;
-            case 'mixed-methods-quantitative':
-                methodMatch = mainMethod === 'mixed-methods';
-                break;
-            case 'all-qualitative':
-                methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
-                break;
-            case 'qualitative':
-            case 'meta-synthesis':
-                methodMatch = mainMethod === methodValue;
-                break;
-            case 'mixed-methods-qualitative':
-                methodMatch = mainMethod === 'mixed-methods';
-                break;
-        }
+        let methodMatch = methodValue === '' || mainMethod === methodValue || (methodValue.includes('all-') && mainMethod.includes(methodValue.replace('all-', '')));
 
         const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
 
@@ -142,6 +114,8 @@ function initializeDataTable() {
     });
 
     console.log("DataTable initialized.");
+    populateMethodFilter();
+    populateAreaFilter();
 }
 
 function populateTable(rows) {
@@ -165,7 +139,7 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
-function populateMethodFilter(rows) {
+function populateMethodFilter() {
     console.log("Populating method filter...");
     const methodCounts = {
         quantitative: 0,
@@ -176,27 +150,24 @@ function populateMethodFilter(rows) {
         mixedMethodsQualitative: 0
     };
 
-    rows.forEach(row => {
-        const mainMethod = row[1]?.trim().toLowerCase();
-        if (mainMethod) {
-            switch (mainMethod) {
-                case 'quantitative':
-                    methodCounts.quantitative += 1;
-                    break;
-                case 'meta-analysis':
-                    methodCounts.metaAnalysis += 1;
-                    break;
-                case 'mixed-methods':
-                    methodCounts.mixedMethodsQuantitative += 1;
-                    methodCounts.mixedMethodsQualitative += 1;
-                    break;
-                case 'qualitative':
-                    methodCounts.qualitative += 1;
-                    break;
-                case 'meta-synthesis':
-                    methodCounts.metaSynthesis += 1;
-                    break;
-            }
+    methodData.forEach(mainMethod => {
+        switch (mainMethod) {
+            case 'quantitative':
+                methodCounts.quantitative += 1;
+                break;
+            case 'meta-analysis':
+                methodCounts.metaAnalysis += 1;
+                break;
+            case 'mixed-methods':
+                methodCounts.mixedMethodsQuantitative += 1;
+                methodCounts.mixedMethodsQualitative += 1;
+                break;
+            case 'qualitative':
+                methodCounts.qualitative += 1;
+                break;
+            case 'meta-synthesis':
+                methodCounts.metaSynthesis += 1;
+                break;
         }
     });
 
@@ -221,93 +192,15 @@ function populateMethodFilter(rows) {
     }
 }
 
-function populateAreaFilter(rows) {
+function populateAreaFilter() {
     console.log("Populating area filter...");
-    const areaCounts = {};    function populateAreaFilter(rows) {
-        console.log("Populating area filter...");
-        const areaCounts = {};
-        allAreas.forEach(area => {
-            areaCounts[area.toLowerCase()] = 0;
-        });
-    
-        rows.forEach(row => {
-            const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-            researchAreas.forEach(area => {
-                if (area) {
-                    areaCounts[area]++;
-                }
-            });
-        });
-    
-        const areaFilter = document.getElementById("areaFilter");
-        if (areaFilter) {
-            areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-            areaFilter.innerHTML += allAreas.map(area => {
-                const lowerCaseArea = area.toLowerCase();
-                return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
-            }).join('');
-            console.log("Area filter populated.");
-        } else {
-            console.error("Element with ID 'areaFilter' not found");
-        }
-    }    document.getElementById('methodFilter').addEventListener('change', function() {
-        updateDropdowns();
-    });
-    
-    document.getElementById('areaFilter').addEventListener('change', function() {
-        updateDropdowns();
-    });
-    
-    function updateDropdowns() {
-        // Assuming you have a function to recalculate the counts
-        recalculateCounts();
-        populateMethodFilter();
-        populateAreaFilter();
-    }
-    
-    function recalculateCounts() {
-        // Logic to recalculate counts based on the selected options
-        // Ensure this logic correctly updates the methodCounts and areaCounts
-    }    function populateMethodFilter() {
-        const methodFilter = document.getElementById("methodFilter");
-        if (methodFilter) {
-            methodFilter.innerHTML = `
-                <option value="" style="font-weight: bold;">All Methods</option>
-                <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;">
-                    <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
-                    <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis}]</option>
-                    <option value="mixed-methods-quantitative">Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
-                </optgroup>
-                <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;">
-                    <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
-                    <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
-                    <option value="mixed-methods-qualitative">Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
-                </optgroup>
-            `;
-            console.log("Method filter populated.");
-        } else {
-            console.error("Element with ID 'methodFilter' not found");
-        }
-    }    function populateAreaFilter() {
-        const areaFilter = document.getElementById("areaFilter");
-        if (areaFilter) {
-            areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-            areaFilter.innerHTML += allAreas.map(area => {
-                const lowerCaseArea = area.toLowerCase();
-                return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
-            }).join('');
-            console.log("Area filter populated.");
-        } else {
-            console.error("Element with ID 'areaFilter' not found");
-        }
-    }
+    const areaCounts = {};
     allAreas.forEach(area => {
         areaCounts[area.toLowerCase()] = 0;
     });
 
-    rows.forEach(row => {
-        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-        researchAreas.forEach(area => {
+    researchAreasData.forEach(areas => {
+        areas.split('; ').forEach(area => {
             if (area) {
                 areaCounts[area]++;
             }
@@ -315,51 +208,18 @@ function populateAreaFilter(rows) {
     });
 
     const areaFilter = document.getElementById("areaFilter");
-    areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
-    areaFilter.innerHTML += allAreas.map(area => {
-        const lowerCaseArea = area.toLowerCase();
-        return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
-    }).join('');
-
-    console.log("Area filter populated.");
-}
-let methodCounts = {
-    quantitative: 0,
-    metaAnalysis: 0,
-    mixedMethodsQuantitative: 0,
-    qualitative: 0,
-    metaSynthesis: 0,
-    mixedMethodsQualitative: 0
-};
-
-// Initialize methodCounts with actual data before calling populateMethodFilter
-function initializeMethodCounts(data) {
-    // Logic to calculate and set methodCounts based on data
-    // Example:
-    methodCounts.quantitative = data.filter(item => item.method === 'quantitative').length;
-    methodCounts.metaAnalysis = data.filter(item => item.method === 'meta-analysis').length;
-    // ... other counts
-}function populateMethodFilter() {
-    const methodFilter = document.getElementById("methodFilter");
-    if (methodFilter) {
-        methodFilter.innerHTML = `
-            <option value="" style="font-weight: bold;">All Methods</option>
-            <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;">
-                <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
-                <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis}]</option>
-                <option value="mixed-methods-quantitative">Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
-            </optgroup>
-            <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;">
-                <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
-                <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
-                <option value="mixed-methods-qualitative">Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
-            </optgroup>
-        `;
-        console.log("Method filter populated.");
+    if (areaFilter) {
+        areaFilter.innerHTML = `<option value="" style="font-weight: bold;">All Research Areas</option>`;
+        areaFilter.innerHTML += allAreas.map(area => {
+            const lowerCaseArea = area.toLowerCase();
+            return `<option value="${lowerCaseArea}">${area} [${areaCounts[lowerCaseArea]}]</option>`;
+        }).join('');
+        console.log("Area filter populated.");
     } else {
-        console.error("Element with ID 'methodFilter' not found");
+        console.error("Element with ID 'areaFilter' not found");
     }
 }
+
 function updateMethodFilterCounts() {
     if (!dataTable) return;
 
@@ -400,14 +260,16 @@ function updateMethodFilterCounts() {
     const methodFilter = document.getElementById("methodFilter");
     methodFilter.innerHTML = `
         <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+        <optgroup label="*Quantitative*" style="font-weight: bold; color: grey;">
             <option value="all-quantitative">ALL Quantitative [${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative}]</option>
             <option value="meta-analysis">Meta-Analysis [${methodCounts.metaAnalysis}]</option>
             <option value="mixed-methods-quantitative">Mixed-Methods [${methodCounts.mixedMethodsQuantitative}]</option>
-        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;" disabled></optgroup>
+        </optgroup>
+        <optgroup label="*Qualitative*" style="font-weight: bold; color: grey;">
             <option value="all-qualitative">ALL Qualitative [${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative}]</option>
             <option value="meta-synthesis">Meta-Synthesis [${methodCounts.metaSynthesis}]</option>
             <option value="mixed-methods-qualitative">Mixed-Methods [${methodCounts.mixedMethodsQualitative}]</option>
+        </optgroup>
     `;
 }
 
@@ -519,7 +381,7 @@ function adjustTextSize(increase) {
     let adjustmentLevel = 0;
     const maxIncrease = 3;
     const maxDecrease = -2;
-    const baseSize = 15; // Define baseSize
+    const baseSize = 15;
 
     if (increase && adjustmentLevel < maxIncrease) {
         adjustmentLevel += 1;
@@ -542,29 +404,4 @@ function resetTextSize() {
     document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
         el.style.fontSize = `${baseSize}px`;
     });
-}$(document).ready(function() {
-    adjustContentMargin();
-
-    // Example data loading
-    const data = loadData(); // Replace with actual data loading logic
-    initializeMethodCounts(data);
-
-    $('#increaseTextSize').on('click', () => adjustTextSize(true));
-    $('#decreaseTextSize').on('click', () => adjustTextSize(false));
-    $('#resetTextSize').on('click', resetTextSize);
-
-    populateMethodFilter();
-    populateAreaFilter();
-});
-
-function loadData() {
-    // Replace with actual data loading logic
-    return [
-        { method: 'quantitative' },
-        { method: 'meta-analysis' },
-        { method: 'mixed-methods-quantitative' },
-        { method: 'qualitative' },
-        { method: 'meta-synthesis' },
-        { method: 'mixed-methods-qualitative' }
-    ];
 }
