@@ -159,7 +159,7 @@ p.instructions {
 }
 
 .filter-status-btn {
-    margin-left: 5; /* Align button to the left */
+    margin-left: 6px; /* Align button to the left */
     padding: 5px 6px; /* Increase padding */
     border: 1px solid #000000;
     border-radius: 4px;
