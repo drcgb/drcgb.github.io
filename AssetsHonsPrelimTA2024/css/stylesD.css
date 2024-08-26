@@ -29,41 +29,59 @@ body, table, th, td,
 
 /* Blue Bar Styling */
 .blue-bar {
-    background-color: #0056b3; /* Dark blue background */
-    height: 37px; /* Adjust height if needed */
-    width: 100%; /* Consistent width */
-    max-width: 100%; /* Prevent expansion */
+    background-color: #007bff; /* Blue color */
+    color: white;
+    padding: 10px;
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 5px 25px;
-    box-sizing: border-box;
+}
+
+#instructionsToggle {
+    background-color: transparent;
+    border: none;
     color: white;
-    position: fixed;
-    top: 0;
-    z-index: 1000;
-}
-
-.blue-bar .instructions-link {
-    cursor: pointer;
-}
-
-.blue-bar .text-size-controls {
-    display: flex;
-    align-items: center;
-}
-
-.blue-bar .text-size-controls span {
-    margin-left: 10px;
     cursor: pointer;
     font-weight: bold;
 }
 
-.blue-bar .reset-text-size {
-    margin-right: 10px;
+#instructionsToggle:hover {
+    text-decoration: underline;
+}
+
+#instructionsDetails {
+    background-color: #f8f9fa; /* Light background for instructions */
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    display: none; /* Hidden by default */
+    width: 100%;
+}
+
+#closeInstructions {
+    color: #007bff;
     cursor: pointer;
-    font-weight: 600;
-    color: #ffffff;
+    text-decoration: none;
+}
+
+#closeInstructions:hover {
+    text-decoration: underline;
+}
+
+.text-size-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.text-size-controls span {
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+
+.text-size-controls span:hover {
     text-decoration: underline;
 }
 
