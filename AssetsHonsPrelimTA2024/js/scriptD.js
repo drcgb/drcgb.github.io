@@ -1,5 +1,5 @@
 let allRows = [];
-let dataTable;
+let dataTable = [];
 let methodData = [];
 let researchAreasData = [];
 
