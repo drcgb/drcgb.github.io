@@ -146,13 +146,13 @@ p.instructions {
 }
 
 .filter-group label {
-    margin-right: 10px; /* Increase margin */
+    margin-right: 5px; /* Increase margin */
     font-weight: bold; /* Bold filter labels */
 }
 
 .filter-group select {
-    width: 170px; /* Set a fixed width */
-    max-width: 200x; /* Ensure the width doesn't exceed this value */
+    width: 180px; /* Set a fixed width */
+    max-width: 210x; /* Ensure the width doesn't exceed this value */
     min-width: 135px; /* Ensure the width doesn't go below this value */
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
