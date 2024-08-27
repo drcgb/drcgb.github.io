@@ -446,3 +446,49 @@ function resetTextSize() {
 
 document.getElementById("instructionsToggle").addEventListener("click", toggleInstructions);
 document.getElementById("closeInstructions").addEventListener("click", toggleInstructions);
+
+// Add event listeners only once, at the end of your script
+
+$(document).ready(function() {
+    adjustContentMargin();
+
+    $('#customSearch').on('input', function() {
+        dataTable.search($(this).val()).draw(); // Use native DataTables search
+        updateFilterStatus();
+        updateFilterNotice();
+        window.scrollTo(0, 0); // Scroll to the top when a search is performed
+    });
+
+    $('#methodFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        window.scrollTo(0, 0); // Scroll to the top when a filter is applied
+    });
+
+    $('#areaFilter').on('change', function() {
+        dataTable.draw();
+        updateFilterStatus();
+        updateFilterNotice();
+        window.scrollTo(0, 0); // Scroll to the top when a filter is applied
+    });
+
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            // Clear all filter inputs
+            $('#methodFilter').val('');      // Clear the method filter dropdown
+            $('#areaFilter').val('');        // Clear the area filter dropdown
+            $('#customSearch').val('');      // Clear the custom search input field
+
+            // Clear DataTables native search and redraw
+            dataTable.search('').draw();     // Clear native DataTables search
+
+            // Update filter status and notice
+            updateFilterStatus();
+            updateFilterNotice();
+
+            // Scroll the window to the top instantly
+            window.scrollTo(0, 0);
+        }
+    });
+});
