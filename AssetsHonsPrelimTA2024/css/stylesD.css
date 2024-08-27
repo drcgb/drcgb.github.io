@@ -86,7 +86,7 @@ body, table, th, td,
     flex: 1;
     width: 100%; /* Ensure it fits within the viewport */
     position: fixed;
-    top: 40px; /* Adjust based on blue bar height */*******************************
+    top: 40px; /* Adjust based on blue bar height */
     padding: 0px 12px 4px 8px; /* Adjust padding: top right bottom left */
     background-color: white;
     z-index: 999;
