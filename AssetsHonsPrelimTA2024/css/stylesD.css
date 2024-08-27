@@ -30,7 +30,7 @@ body, table, th, td,
 /* Blue Bar Styling */
 .blue-bar {
     background-color: #0056b3; /* Dark blue background */
-    height: 40px; /* Adjust height if needed */
+    height: 37px; /* Adjust height if needed */
     width: 100%; /* Consistent width */
     max-width: 100%; /* Prevent expansion */
     display: flex;
@@ -181,12 +181,12 @@ p.instructions {
 }
 
 .filter-notice {
-    margin-top: 5px; /* Increase top margin */
+    margin-top: 2px; /* Increase top margin */
     margin-left: 10px; /* Nudge to the right by 10px */
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
-    padding: 10px; /* Increase padding */
+    padding: 5px 0px 5px 0px; /*top, right, bottom, and left*/
     border-radius: 4px;
     box-sizing: border-box;
     width: 100%;
