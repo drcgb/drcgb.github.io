@@ -100,6 +100,7 @@ function initializeDataTable() {
     dataTable.draw(); // Apply filters initially
 }
 
+// Populate the table with rows
 function populateTable(rows) {
     console.log("Populating table...");
     methodData = [];
@@ -121,6 +122,7 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
+// Populate the method filter dropdown
 function populateMethodFilter(rows) {
     console.log("Populating method filter...");
     const methodCounts = {
@@ -172,6 +174,7 @@ function populateMethodFilter(rows) {
     console.log("Method filter populated.");
 }
 
+// Populate the area filter dropdown
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
     const areaCountsByMethod = {};
@@ -344,24 +347,25 @@ $(document).ready(function() {
         updateFilterNotice();
         window.scrollTo(0, 0);
     });
-
+ 
     $('#filterStatusBtn').on('click', function() {
         if ($(this).hasClass('red')) {
             $('#methodFilter').val('');
             $('#areaFilter').val('');
             $('#customSearch').val('');
-
+    
             // Reset the method and research area filter counts to default
             populateMethodFilter(allRows);  // Re-populate the method filter with default counts
             populateAreaFilter(allRows);    // Re-populate the area filter with default counts
-
+    
             dataTable.search('').draw();
             updateFilterStatus();
             updateFilterNotice();
             window.scrollTo(0, 0);
         }
     });
-
+    
+  
     // Event listeners for text size controls
     document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
     document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
@@ -403,24 +407,13 @@ function updateFilterNotice() {
     const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
 
     if (activeFilters.length > 0) {
-        if (filteredRowCount > 0) {
-            notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
-        } else {
-            let alertMessage = '<strong>No results found with the current filter combination.</strong> ';
-            alertMessage += 'Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.';
-            notice.html(alertMessage).show();
-
-            $('#clearAllFiltersLink').on('click', function(e) {
-                e.preventDefault();
-
-                $('#filterStatusBtn').trigger('click');
-            });
-        }
+        notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
     } else {
         notice.hide();
     }
-
+    
     adjustContentMargin();  // Recalculate margin after updating notice
+    // Add a slight delay before resetting scroll position
     setTimeout(() => {
         window.scrollTo(0, 0);
     }, 65);  // 65 milliseconds delay
@@ -443,6 +436,53 @@ function matchNoticeWidth() {
 
 function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
+    details.open = !details.open;
+    console.log('Instructions toggled:', details.open);
+    const toggleLink = document.getElementById("instructionsToggle");
+    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
+    adjustContentMargin();
+}
+
+// Variables to track the current adjustment level
+let adjustmentLevel = 0;
+const maxIncrease = 3;
+const maxDecrease = -2;
+
+// Adjust text size for the entire page
+function adjustTextSize(increase) {
+    if (increase && adjustmentLevel < maxIncrease) {
+        adjustmentLevel += 1;
+    } else if (!increase && adjustmentLevel > maxDecrease) {
+        adjustmentLevel -= 1;
+    } else {
+        return; // No adjustment needed
+    }
+
+    // Calculate the new font size based on adjustment level
+    const baseSize = 15; // Default font size in px
+    const newSize = baseSize + adjustmentLevel * 1.5; // Adjust by 1.5px per step
+
+    // Apply the new font size to all relevant elements
+    document.querySelector('body').style.fontSize = `${newSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${newSize}px`;
+    });
+}
+
+// Reset text size to default
+function resetTextSize() {
+    adjustmentLevel = 0; // Reset adjustment level
+    const baseSize = 15; // Default font size in px
+
+    // Reset font size for all relevant elements
+    document.querySelector('body').style.fontSize = `${baseSize}px`;
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+    });
+}
+
+function toggleInstructions() {
+    const details = document.getElementById("instructionsDetails");
     const toggleLink = document.getElementById("instructionsToggle");
 
     if (details.style.display === "none" || details.style.display === "") {
@@ -457,7 +497,4 @@ function toggleInstructions() {
 }
 
 document.getElementById("instructionsToggle").addEventListener("click", toggleInstructions);
-document.getElementById("closeInstructions").addEventListener("click", function(e) {
-    e.preventDefault();
-    toggleInstructions();
-});
+document.getElementById("closeInstructions").addEventListener("click", toggleInstructions);
