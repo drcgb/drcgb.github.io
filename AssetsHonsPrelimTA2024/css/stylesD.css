@@ -30,7 +30,7 @@ body, table, th, td,
 /* Blue Bar Styling */
 .blue-bar {
     background-color: #0056b3; /* Dark blue background */
-    height: 37px; /* Adjust height if needed */
+    height: 40px; /* Adjust height if needed */
     width: 100%; /* Consistent width */
     max-width: 100%; /* Prevent expansion */
     display: flex;
