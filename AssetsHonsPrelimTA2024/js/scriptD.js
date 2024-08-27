@@ -1,5 +1,5 @@
 let allRows = [];
-let dataTable = [];
+let dataTable;
 let methodData = [];
 let researchAreasData = [];
 
@@ -25,8 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (err) {
         console.error('Error loading XLSX data:', err);
-    }
-});
+    }});
 
 window.onload = function() {
     adjustContentMargin();
@@ -173,7 +172,6 @@ function populateMethodFilter(rows) {
 
     console.log("Method filter populated.");
 }
-
 // Populate the area filter dropdown
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
@@ -235,7 +233,6 @@ function populateAreaFilter(rows) {
     
     console.log("Area filter populated.");
 }
-
 
 function updateAreaFilterCounts(selectedMethod) {
     const areaFilter = document.getElementById("areaFilter");
@@ -319,6 +316,7 @@ function updateMethodFilterCounts(selectedArea) {
     });
 }
 
+
 $(document).ready(function() {
     // Adjust content margin initially
     adjustContentMargin();
@@ -391,6 +389,62 @@ function updateFilterStatus() {
     }
 }
 
+function updateFilterNotice() {
+    const searchValue = $('#customSearch').val().trim();
+    const methodValue = $('#methodFilter').val();
+    const areaValue = $('#areaFilter').val();
+
+    let activeFilters = [];
+    if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
+    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
+    if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
+
+    const notice = $('#filterNotice');
+    const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
+
+    const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
+
+    if (activeFilters.length > 0) {
+        if (filteredRowCount > 0) {
+            notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+        } else {
+            let alertMessage = `<strong>No results found with the current filter combination.</strong> 
+                                <strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} 
+                                Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
+            notice.html(alertMessage).show();
+
+            $('#clearAllFiltersLink').on('click', function(e) {
+                e.preventDefault();
+
+                $('#filterStatusBtn').trigger('click');
+            });
+        }
+    } else {
+        notice.hide();
+    }
+    
+    adjustContentMargin();  // Recalculate margin after updating notice
+    // Add a slight delay before resetting scroll position
+    setTimeout(() => {
+        window.scrollTo(0, 0);
+    }, 65);  // 65 milliseconds delay
+}
+
+function adjustContentMargin() {
+    const headerHeight = $('.fixed-header').outerHeight(true) + 36;
+    const totalMargin = headerHeight;
+
+    // Set the margin-top for the content area
+    $('.content').css('margin-top', totalMargin);
+}
+
+function matchNoticeWidth() {
+    const searchInput = document.querySelector('.custom-search-container input');
+    const filterNotice = document.querySelector('.filter-notice');
+    const searchWidth = searchInput.offsetWidth;
+    filterNotice.style.width = `${searchWidth}px`;
+}
+
 function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
     const toggleLink = document.getElementById("instructionsToggle");
@@ -447,48 +501,3 @@ function resetTextSize() {
 document.getElementById("instructionsToggle").addEventListener("click", toggleInstructions);
 document.getElementById("closeInstructions").addEventListener("click", toggleInstructions);
 
-// Add event listeners only once, at the end of your script
-
-$(document).ready(function() {
-    adjustContentMargin();
-
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw(); // Use native DataTables search
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a search is performed
-    });
-
-    $('#methodFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a filter is applied
-    });
-
-    $('#areaFilter').on('change', function() {
-        dataTable.draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0); // Scroll to the top when a filter is applied
-    });
-
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            // Clear all filter inputs
-            $('#methodFilter').val('');      // Clear the method filter dropdown
-            $('#areaFilter').val('');        // Clear the area filter dropdown
-            $('#customSearch').val('');      // Clear the custom search input field
-
-            // Clear DataTables native search and redraw
-            dataTable.search('').draw();     // Clear native DataTables search
-
-            // Update filter status and notice
-            updateFilterStatus();
-            updateFilterNotice();
-
-            // Scroll the window to the top instantly
-            window.scrollTo(0, 0);
-        }
-    });
-});
