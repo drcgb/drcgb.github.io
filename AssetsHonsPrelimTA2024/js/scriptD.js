@@ -455,14 +455,14 @@ function updateFilterNotice() {
     }
     
     adjustContentMargin();  // Recalculate margin after updating notice
-    // Add a slight delay before resetting scroll position
+    // Add a mild delay before resetting scroll position
     setTimeout(() => {
         window.scrollTo(0, 0);
-    }, 65);  // 65 milliseconds delay
+    }, 850);  // 850 milliseconds delay
 }
 
 function adjustContentMargin() {
-    const headerHeight = $('.fixed-header').outerHeight(true) + 36;
+    const headerHeight = $('.fixed-header').outerHeight(true) + 40;
     const totalMargin = headerHeight;
 
     // Set the margin-top for the content area
