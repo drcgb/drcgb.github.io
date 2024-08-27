@@ -3,7 +3,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow-y: scroll; /* Always show the scrollbar */
+   /* overflow-y: scroll; /* Always show the scrollbar */
     scrollbar-width: thin; /* Makes the scrollbar thinner */
     display: flex;
     flex-direction: column;
