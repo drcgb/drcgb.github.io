@@ -439,7 +439,7 @@ function updateFilterNotice() {
         if (filteredRowCount > 0) {
             notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
-            let alertMessage = `<strong>No results found with the current filter combination.</strong> 
+            let alertMessage = `<strong>No results</strong> found with the current filter combination. 
                                 <strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} 
                                 Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
             notice.html(alertMessage).show();
@@ -455,10 +455,7 @@ function updateFilterNotice() {
     }
     
     adjustContentMargin();  // Recalculate margin after updating notice
-    // Add a mild delay before resetting scroll position
-    setTimeout(() => {
-        window.scrollTo(0, 0);
-    }, 850);  // 850 milliseconds delay
+
 }
 
 function adjustContentMargin() {
