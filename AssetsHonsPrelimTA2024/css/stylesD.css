@@ -48,7 +48,7 @@ body, table, th, td,
     cursor: pointer;
     font-weight: 600;
     color: #ffffff;
-    text-decoration: underline;
+    
 }
 
 .blue-bar .text-size-controls {
@@ -184,12 +184,13 @@ p.instructions {
 }
 
 .filter-notice {
-    margin-top: 2px; /* Increase top margin */
+    margin-top: 1px; 
+    margin-bottom: 3px; 
     margin-left: 10px; /* Nudge to the right by 10px */
     color: #000000;
     background-color: #ebb6fcd8;
     border: 1px solid #c953ff;
-    padding: 5px 0px 5px 0px; /*top, right, bottom, and left*/
+    padding: 10px; /*top, right, bottom, and left*/
     border-radius: 4px;
     box-sizing: border-box;
     width: 100%;

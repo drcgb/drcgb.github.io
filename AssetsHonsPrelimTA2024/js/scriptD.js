@@ -498,6 +498,3 @@ function resetTextSize() {
     });
 }
 
-document.getElementById("instructionsToggle").addEventListener("click", toggleInstructions);
-document.getElementById("closeInstructions").addEventListener("click", toggleInstructions);
-
