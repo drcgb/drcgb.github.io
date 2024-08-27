@@ -32,6 +32,40 @@ window.onload = function() {
     matchNoticeWidth();
 };
 
+document.addEventListener("DOMContentLoaded", function() {
+    const toggleLink = document.getElementById("instructionsToggle");
+    const closeLink = document.getElementById("closeInstructions");
+    
+    if (toggleLink) {
+        toggleLink.addEventListener("click", toggleInstructions);
+    }
+
+    if (closeLink) {
+        closeLink.addEventListener("click", toggleInstructions);
+    }
+});
+
+function toggleInstructions() {
+    const details = document.getElementById("instructionsDetails");
+    const toggleLink = document.getElementById("instructionsToggle");
+
+    if (!details || !toggleLink) {
+        console.error("Toggle elements not found");
+        return;
+    }
+
+    if (details.style.display === "none" || details.style.display === "") {
+        details.style.display = "block";
+        toggleLink.textContent = '▼ Instructions';
+    } else {
+        details.style.display = "none";
+        toggleLink.textContent = '► Instructions';
+    }
+
+    adjustContentMargin(); // Adjust the layout if needed
+}
+
+
 function initializeDataTable() {
     console.log("Initializing DataTable...");
 
