@@ -25,8 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (err) {
         console.error('Error loading XLSX data:', err);
-    }
-});
+    }});
 
 window.onload = function() {
     adjustContentMargin();
@@ -173,7 +172,6 @@ function populateMethodFilter(rows) {
 
     console.log("Method filter populated.");
 }
-
 // Populate the area filter dropdown
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
@@ -364,12 +362,12 @@ $(document).ready(function() {
             window.scrollTo(0, 0);
         }
     });
-    
-  
+
     // Event listeners for text size controls
     document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
     document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
     document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
+
     $('#closeInstructions').on('click', function(e) {
         e.preventDefault();
         toggleInstructions();
@@ -407,7 +405,20 @@ function updateFilterNotice() {
     const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
 
     if (activeFilters.length > 0) {
-        notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+        if (filteredRowCount > 0) {
+            notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
+        } else {
+            let alertMessage = `<strong>No results found with the current filter combination.</strong> 
+                                <strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} 
+                                Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
+            notice.html(alertMessage).show();
+
+            $('#clearAllFiltersLink').on('click', function(e) {
+                e.preventDefault();
+
+                $('#filterStatusBtn').trigger('click');
+            });
+        }
     } else {
         notice.hide();
     }
@@ -436,11 +447,17 @@ function matchNoticeWidth() {
 
 function toggleInstructions() {
     const details = document.getElementById("instructionsDetails");
-    details.open = !details.open;
-    console.log('Instructions toggled:', details.open);
     const toggleLink = document.getElementById("instructionsToggle");
-    toggleLink.textContent = details.open ? '▼ Instructions' : '► Instructions';
-    adjustContentMargin();
+
+    if (details.style.display === "none" || details.style.display === "") {
+        details.style.display = "block";
+        toggleLink.textContent = '▼ Instructions';
+    } else {
+        details.style.display = "none";
+        toggleLink.textContent = '► Instructions';
+    }
+
+    adjustContentMargin(); // Adjust the layout if needed
 }
 
 // Variables to track the current adjustment level
@@ -464,7 +481,7 @@ function adjustTextSize(increase) {
 
     // Apply the new font size to all relevant elements
     document.querySelector('body').style.fontSize = `${newSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper, select, option').forEach(el => {
         el.style.fontSize = `${newSize}px`;
     });
 }
@@ -476,24 +493,9 @@ function resetTextSize() {
 
     // Reset font size for all relevant elements
     document.querySelector('body').style.fontSize = `${baseSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper').forEach(el => {
+    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper, select, option').forEach(el => {
         el.style.fontSize = `${baseSize}px`;
     });
-}
-
-function toggleInstructions() {
-    const details = document.getElementById("instructionsDetails");
-    const toggleLink = document.getElementById("instructionsToggle");
-
-    if (details.style.display === "none" || details.style.display === "") {
-        details.style.display = "block";
-        toggleLink.textContent = '▼ Instructions';
-    } else {
-        details.style.display = "none";
-        toggleLink.textContent = '► Instructions';
-    }
-
-    adjustContentMargin(); // Adjust the layout if needed
 }
 
 document.getElementById("instructionsToggle").addEventListener("click", toggleInstructions);
