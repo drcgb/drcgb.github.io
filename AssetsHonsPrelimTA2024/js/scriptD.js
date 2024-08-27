@@ -32,37 +32,38 @@ window.onload = function() {
     matchNoticeWidth();
 };
 
-document.addEventListener("DOMContentLoaded", function() {
-    const toggleLink = document.getElementById("instructionsToggle");
-    const closeLink = document.getElementById("closeInstructions");
-    
-    if (toggleLink) {
-        toggleLink.addEventListener("click", toggleInstructions);
-    }
+$(document).ready(function() {
+    // Adjust content margin initially
+    adjustContentMargin();
 
-    if (closeLink) {
-        closeLink.addEventListener("click", toggleInstructions);
-    }
+    // Instructions Toggle
+    $('#instructionsToggle').on('click', function() {
+        const detailsElement = $('#instructionsDetails');
+        if (detailsElement.prop('open')) {
+            detailsElement.removeAttr('open');
+            $(this).text('► Instructions');
+        } else {
+            detailsElement.attr('open', true);
+            $(this).text('▼ Instructions');
+        }
+        adjustContentMargin(); // Adjust margin when instructions toggle changes
+    });
+
+    // Close Instructions Link
+    $('#closeInstructions').on('click', function(e) {
+        e.preventDefault();
+        $('#instructionsDetails').removeAttr('open');
+        $('#instructionsToggle').text('► Instructions');
+        adjustContentMargin(); // Adjust margin when instructions are closed
+    });
 });
 
-function toggleInstructions() {
-    const details = document.getElementById("instructionsDetails");
-    const toggleLink = document.getElementById("instructionsToggle");
+function adjustContentMargin() {
+    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const headerHeight = $('.fixed-header').outerHeight(true);
+    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
 
-    if (!details || !toggleLink) {
-        console.error("Toggle elements not found");
-        return;
-    }
-
-    if (details.style.display === "none" || details.style.display === "") {
-        details.style.display = "block";
-        toggleLink.textContent = '▼ Instructions';
-    } else {
-        details.style.display = "none";
-        toggleLink.textContent = '► Instructions';
-    }
-
-    adjustContentMargin(); // Adjust the layout if needed
+    $('.content').css('margin-top', totalMargin);
 }
 
 
