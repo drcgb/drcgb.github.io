@@ -98,8 +98,8 @@ body, table, th, td,
     width: 100%; /* Consistent width */
     max-width: 100%; /* Prevent expansion */
     flex: 1;
-    padding: 8px 12px 1px 8px; /* Adjust padding: top right bottom left */
-    margin-top: 24px; /* Adjust to create space between the header and the content */
+    padding: 10px 12px 1px 8px; /* Adjust padding: top right bottom left */
+    margin-top: 22px; /* Adjust to create space between the header and the content */
     transition: margin-top 0.3s ease;
     text-align: left; /* Ensure left alignment */
 }
