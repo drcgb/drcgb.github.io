@@ -15,6 +15,32 @@ html, body {
 
 }
 
+/* Your existing styles here... */
+
+/* Custom Scrollbar Styles */
+html {
+    scrollbar-width: auto; /* Makes scrollbar auto width (chunky) */
+    scrollbar-color: #007bff #f9f9f9; /* Thumb color, Track color */
+}
+
+::-webkit-scrollbar {
+    width: 16px; /* Width of the entire scrollbar */
+    height: 16px; /* Height of the entire scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #007bff; /* Color of the scrollbar thumb */
+    border-radius: 8px; /* Roundness of the scrollbar thumb */
+    border: 3px solid #f9f9f9; /* Adds padding around the thumb */
+}
+
+::-webkit-scrollbar-track {
+    background: #f9f9f9; /* Color of the scrollbar track */
+}
+
+/* Your existing styles here... */
+
+
 body, table, th, td, 
 .dataTables_wrapper .dataTables_filter input, 
 .dataTables_wrapper .dataTables_length, 
