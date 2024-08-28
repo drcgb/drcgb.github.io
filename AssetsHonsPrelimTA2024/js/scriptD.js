@@ -3,6 +3,16 @@ let dataTable;
 let methodData = [];
 let researchAreasData = [];
 
+function adjustContentMargin() {
+    requestAnimationFrame(() => {
+        const headerHeight = $('.fixed-header').outerHeight(true) + 40;
+        const totalMargin = headerHeight;
+
+        // Set the margin-top for the content area
+        $('.content').css('margin-top', totalMargin);
+    });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         console.log("Loading XLSX data...");
@@ -18,6 +28,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateAreaFilter(allRows);
         initializeDataTable();
 
+        requestAnimationFrame(() => {
+            adjustContentMargin(); // Adjust after the initial load
+            matchNoticeWidth();
+        });
+
         window.addEventListener('resize', () => {
             adjustContentMargin(); // Adjust margin on window resize
             matchNoticeWidth(); // Match filter notice width to search input
@@ -25,12 +40,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (err) {
         console.error('Error loading XLSX data:', err);
-    }});
-
-window.onload = function() {
-    adjustContentMargin();
-    matchNoticeWidth();
-};
+    }
+});
 
 $(document).ready(function() {
     // Adjust content margin initially
