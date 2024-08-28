@@ -3,7 +3,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    scrollbar-width: thin; /* Makes the scrollbar thinner */
+    /*scrollbar-width: thin; /* Makes the scrollbar thinner - commented out */
     display: flex;
     flex-direction: column;
     -webkit-text-size-adjust: 99%;
