@@ -11,6 +11,8 @@ html, body {
     box-sizing: border-box;
     width: 100%; /* Prevent width expansion */
     max-width: 100%;
+    scrollbar-gutter: stable; /* Reserve space for the scrollbar to prevent layout shift */
+
 }
 
 body, table, th, td, 
@@ -100,7 +102,6 @@ body, table, th, td,
     margin-top: 24px; /* Adjust to create space between the header and the content */
     transition: margin-top 0.3s ease;
     text-align: left; /* Ensure left alignment */
-    scrollbar-gutter: stable; /* Reserve space for the scrollbar to prevent layout shift */
 }
 
 .custom-search-container {
@@ -153,10 +154,14 @@ p.instructions {
 }
 
 .filter-group select {
-    width: 190px; /* Set a fixed width */
-    max-width: 350px; /* Ensure the width doesn't exceed this value */
+    width: 250; /* Set a fixed width */
+    max-width: 500px; /* Ensure the width doesn't exceed this value */
     min-width: 135px; /* Ensure the width doesn't go below this value */
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+select, option {
+    font-size: 15px; /* Ensure this matches your baseSize */
 }
 
 .filter-status-btn {
