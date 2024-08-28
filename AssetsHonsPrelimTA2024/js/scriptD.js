@@ -450,8 +450,8 @@ function updateFilterNotice() {
         if (filteredRowCount > 0) {
             notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
         } else {
-            let alertMessage = `<strong>No results</strong> found with the current filter combination. 
-                                <strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} 
+            let alertMessage = `<strong>No results</strong> found with the current filter <u>combination</u>.
+            <strong> Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} 
                                 Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
             notice.html(alertMessage).show();
 
