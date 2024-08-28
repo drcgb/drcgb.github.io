@@ -47,7 +47,7 @@ body, table, th, td,
 .dataTables_wrapper .dataTables_length, 
 .dataTables_wrapper .dataTables_info {
     font-family: Arial, sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.2;
 }
 
@@ -143,7 +143,7 @@ body, table, th, td,
     width: 100%;
     padding: 10px; /* Adjust padding: top right bottom left */
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 15px;
     box-sizing: border-box;
 }
 
@@ -189,7 +189,7 @@ p.instructions {
 }
 
 select, option {
-    font-size: 15px; /* Ensure this matches your baseSize */
+    font-size: 14px; /* Ensure this matches your baseSize */
 }
 
 .filter-status-btn {
@@ -202,7 +202,7 @@ select, option {
     transition: background-color 0.3s, color 0.3s;
     vertical-align: center;
     text-align: center;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .filter-status-btn.green {

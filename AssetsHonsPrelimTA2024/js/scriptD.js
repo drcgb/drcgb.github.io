@@ -154,7 +154,7 @@ function populateTable(rows) {
     const tbody = document.querySelector("#abstractTable tbody");
     tbody.innerHTML = rows.map(row => {
         const [abstractID, mainMethod = '', methodDetail = '', preliminaryTitle = '', preliminaryAbstract = '', ...researchAreas] = row;
-        const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong> &nbsp&nbsp <strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
+        const titleWithID = `<strong>ID: </strong>${abstractID}&nbsp&nbsp <strong>|</strong> &nbsp&nbsp<strong class="method-section">Method:</strong> ${mainMethod}${methodDetail ? ` (${methodDetail})` : ''} &nbsp <br><br> <strong class="abstract-title">${preliminaryTitle}</strong>`;
         const methodAndAreas = `<strong class="areas-section">Areas:</strong> ${researchAreas.filter(Boolean).join('; ')}`;
 
         methodData.push(mainMethod.toLowerCase().trim());
@@ -501,7 +501,7 @@ function adjustTextSize(increase) {
     }
 
     // Calculate the new font size based on adjustment level
-    const baseSize = 15; // Default font size in px
+    const baseSize = 14; // Default font size in px
     const newSize = baseSize + adjustmentLevel * 1.5; // Adjust by 1.5px per step
 
     // Apply the new font size to all relevant elements
@@ -514,7 +514,7 @@ function adjustTextSize(increase) {
 // Reset text size to default
 function resetTextSize() {
     adjustmentLevel = 0; // Reset adjustment level
-    const baseSize = 15; // Default font size in px
+    const baseSize = 14; // Default font size in px
 
     // Reset font size for all relevant elements
     document.querySelector('body').style.fontSize = `${baseSize}px`;
