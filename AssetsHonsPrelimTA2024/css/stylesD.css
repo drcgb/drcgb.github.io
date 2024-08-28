@@ -3,7 +3,6 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-   /* overflow-y: scroll; /* Always show the scrollbar */
     scrollbar-width: thin; /* Makes the scrollbar thinner */
     display: flex;
     flex-direction: column;
@@ -48,7 +47,6 @@ body, table, th, td,
     cursor: pointer;
     font-weight: 600;
     color: #ffffff;
-    
 }
 
 .blue-bar .text-size-controls {
@@ -102,6 +100,7 @@ body, table, th, td,
     margin-top: 24px; /* Adjust to create space between the header and the content */
     transition: margin-top 0.3s ease;
     text-align: left; /* Ensure left alignment */
+    scrollbar-gutter: stable; /* Reserve space for the scrollbar to prevent layout shift */
 }
 
 .custom-search-container {
@@ -155,7 +154,7 @@ p.instructions {
 
 .filter-group select {
     width: 180px; /* Set a fixed width */
-    max-width: 210x; /* Ensure the width doesn't exceed this value */
+    max-width: 210px; /* Ensure the width doesn't exceed this value */
     min-width: 135px; /* Ensure the width doesn't go below this value */
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
