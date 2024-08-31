@@ -1,17 +1,26 @@
-// Store the original console.log function
+// Store the original console functions
 const originalConsoleLog = console.log;
+const originalConsoleWarn = console.warn;
+const originalConsoleError = console.error;
+const originalConsoleInfo = console.info;
 
-// Function to toggle ConsoleLog logging on/off
+// Function to toggle all types of console logging on/off
 function toggleLogging(isLoggingEnabled) {
   if (isLoggingEnabled) {
-    console.log = originalConsoleLog; // Enable logging
+    console.log = originalConsoleLog;   // Enable log messages
+    console.warn = originalConsoleWarn; // Enable warning messages
+    console.error = originalConsoleError; // Enable error messages
+    console.info = originalConsoleInfo; // Enable info messages
   } else {
-    console.log = function () {}; // Disable logging
+    console.log = function () {};   // Disable log messages
+    console.warn = function () {};  // Disable warning messages
+    console.error = function () {}; // Disable error messages
+    console.info = function () {};  // Disable info messages
   }
 }
 
-// Disable logging initially
-toggleLogging(false); // Turn off logging by default
+// Disable all logging initially
+toggleLogging(false); // Turn off all logging by default
 
 let allRows = [];
 let dataTable;
