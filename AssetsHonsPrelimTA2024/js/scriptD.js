@@ -1,7 +1,7 @@
 // Store the original console.log function
 const originalConsoleLog = console.log;
 
-// Function to toggle logging on/off
+// Function to toggle ConsoleLog logging on/off
 function toggleLogging(isLoggingEnabled) {
   if (isLoggingEnabled) {
     console.log = originalConsoleLog; // Enable logging
@@ -10,15 +10,15 @@ function toggleLogging(isLoggingEnabled) {
   }
 }
 
-// Example usage: Disable logging
-toggleLogging(false); // Turns off logging
+// Disable logging initially
+toggleLogging(false); // Turn off logging by default
 
-// Your existing script
 let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
 
+// Function to adjust content margin
 function adjustContentMargin() {
   requestAnimationFrame(() => {
     const headerHeight = $('.fixed-header').outerHeight(true) + 40;
@@ -29,16 +29,24 @@ function adjustContentMargin() {
   });
 }
 
+// Event listener for DOMContentLoaded to handle data loading and initialization
 document.addEventListener("DOMContentLoaded", async () => {
+  // Step 1: Set toggleLogging to 'true' to enable console logging to debug the data loading process
+  toggleLogging(false); // Turn logging on(true)/off(false) for this section
+
   try {
-    console.log("Loading XLSX data..."); // Will be disabled if logging is off
+    console.log("Loading XLSX data...");
     const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
     const data = await response.arrayBuffer();
     const workbook = XLSX.read(data, { type: "array" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-    console.log("Data loaded:", allRows); // Will be disabled if logging is off
+    console.log("Data loaded:", allRows);
 
+    // Step 2: Disable logging after debugging
+    toggleLogging(false); // Turn console logging on(true)/off(false) after the debugging is done
+
+    // Populate and initialize components
     populateTable(allRows);
     populateMethodFilter(allRows);
     populateAreaFilter(allRows);
@@ -49,21 +57,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       matchNoticeWidth();
     });
 
+    // Adjustments on window resize
     window.addEventListener('resize', () => {
       adjustContentMargin(); // Adjust margin on window resize
       matchNoticeWidth(); // Match filter notice width to search input
     });
 
   } catch (err) {
-    console.error('Error loading XLSX data:', err);
+    console.error('Error loading XLSX data:', err); // Keep error logging enabled
   }
 });
-
-// Your existing jQuery code and functions
-// ...
-
-/* Example usage: Enable logging
-toggleLogging(true); // Turns on logging when not commented out*/
 
 $(document).ready(function() {
     // Adjust content margin initially
