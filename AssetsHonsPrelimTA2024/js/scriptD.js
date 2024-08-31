@@ -1,47 +1,69 @@
+// Store the original console.log function
+const originalConsoleLog = console.log;
+
+// Function to toggle logging on/off
+function toggleLogging(isLoggingEnabled) {
+  if (isLoggingEnabled) {
+    console.log = originalConsoleLog; // Enable logging
+  } else {
+    console.log = function () {}; // Disable logging
+  }
+}
+
+// Example usage: Disable logging
+toggleLogging(false); // Turns off logging
+
+// Your existing script
 let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
 
 function adjustContentMargin() {
-    requestAnimationFrame(() => {
-        const headerHeight = $('.fixed-header').outerHeight(true) + 40;
-        const totalMargin = headerHeight;
+  requestAnimationFrame(() => {
+    const headerHeight = $('.fixed-header').outerHeight(true) + 40;
+    const totalMargin = headerHeight;
 
-        // Set the margin-top for the content area
-        $('.content').css('margin-top', totalMargin);
-    });
+    // Set the margin-top for the content area
+    $('.content').css('margin-top', totalMargin);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        console.log("Loading XLSX data...");
-        const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
-        const data = await response.arrayBuffer();
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-        console.log("Data loaded:", allRows);
+  try {
+    console.log("Loading XLSX data..."); // Will be disabled if logging is off
+    const response = await fetch("AssetsHonsPrelimTA2024/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2024_FinalX.xlsx");
+    const data = await response.arrayBuffer();
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+    console.log("Data loaded:", allRows); // Will be disabled if logging is off
 
-        populateTable(allRows);
-        populateMethodFilter(allRows);
-        populateAreaFilter(allRows);
-        initializeDataTable();
+    populateTable(allRows);
+    populateMethodFilter(allRows);
+    populateAreaFilter(allRows);
+    initializeDataTable();
 
-        requestAnimationFrame(() => {
-            adjustContentMargin(); // Adjust after the initial load
-            matchNoticeWidth();
-        });
+    requestAnimationFrame(() => {
+      adjustContentMargin(); // Adjust after the initial load
+      matchNoticeWidth();
+    });
 
-        window.addEventListener('resize', () => {
-            adjustContentMargin(); // Adjust margin on window resize
-            matchNoticeWidth(); // Match filter notice width to search input
-        });
+    window.addEventListener('resize', () => {
+      adjustContentMargin(); // Adjust margin on window resize
+      matchNoticeWidth(); // Match filter notice width to search input
+    });
 
-    } catch (err) {
-        console.error('Error loading XLSX data:', err);
-    }
+  } catch (err) {
+    console.error('Error loading XLSX data:', err);
+  }
 });
+
+// Your existing jQuery code and functions
+// ...
+
+/* Example usage: Enable logging
+toggleLogging(true); // Turns on logging when not commented out*/
 
 $(document).ready(function() {
     // Adjust content margin initially
