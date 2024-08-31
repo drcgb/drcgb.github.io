@@ -12,7 +12,7 @@ html, body {
     width: 100%; /* Prevent width expansion */
     max-width: 100%;
     scrollbar-gutter: stable; /* Reserve space for the scrollbar to prevent layout shift */
-
+    overflow-y: scroll;
 }
 
 /* Your existing styles here... */
