@@ -47,10 +47,19 @@
       border: 1px solid #ccc;
       border-top: none;
     }
-    #upload-iframe, #view-only-iframe {
+    /* Adjusted iframe height for Upload Files tab with a subtle border */
+    #upload-iframe {
+      width: 100%;
+      height: 70vh; /* Shortened the height by 10% */
+      border: 1px solid #ccc; /* Subtle border */
+      border-radius: 5px; /* Slightly rounded corners */
+    }
+    /* View or Download Files iframe with a subtle border */
+    #view-only-iframe {
       width: 100%;
       height: 80vh;
-      border: none;
+      border: 1px solid #ccc; /* Subtle border */
+      border-radius: 5px; /* Slightly rounded corners */
     }
     .return-link {
       margin-top: 10px;
@@ -142,7 +151,10 @@
   <p class="return-link"><a href="#" onclick="reloadViewOnlyTab()">Click here to Reload Shared Folder</a></p>
 
   <!-- Add the new "Tip:" under the reload link -->
-  <p><strong>Tip:</strong> Have you just uploaded a new file and can't see it listed below? Please try clicking on the "Reload Shared Folder" link above. <br><strong>Note:</strong> The "Loading..." screen will appear for a few seconds and then the page will appear empty for a few seconds while loading.</p>
+  <p><strong>Tip:</strong> Have you just uploaded a new file and can't see it listed below? Please try clicking on the "Reload Shared Folder" link above.</p>
+  
+  <!-- Added a small gap and italicized "Note" -->
+  <p><em>Note: The "Loading..." screen will appear for a few seconds and then the page may appear empty for a few seconds while loading.</em></p>
 
   <!-- Box Embed Widget for folder viewing -->
   <div>
