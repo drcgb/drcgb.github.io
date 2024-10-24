@@ -29,6 +29,9 @@
       transition: 0.3s;
       font-weight: bold; /* Bold text */
     }
+    .tab button span {
+      font-weight: normal; /* Normal weight for parentheses content */
+    }
     .tab button:hover {
       background-color: #ddd;
     }
@@ -103,7 +106,7 @@
 </head>
 <body>
 
-<h2>Box Easy File Upload & Access - No Login Required</h2>
+<h2>UoA Psychology Honours | Easy Box File Upload & Access — No Login Required</h2>
 
 <!-- Loading screen div -->
 <div id="loading-screen">Loading<span class="dots">
@@ -115,16 +118,16 @@
 
 <div class="tab">
   <button class="tablinks" onclick="openTab(event, 'FileRequest')" id="defaultOpen">
-    <i class="fas fa-upload"></i> Upload Files (Use this part to upload your files)
+    <i class="fas fa-upload"></i> Upload Files <span>(Use this part to upload your files)</span>
   </button>
   <button class="tablinks" onclick="openTab(event, 'ViewOnly'); triggerLoadingSequence();">
-    <i class="fas fa-folder-open"></i> View or Download Files (Use this part to view or download files)
+    <i class="fas fa-folder-open"></i> View or Download Files <span>(Use this part to view or download files)</span>
   </button>
 </div>
 
 <div id="FileRequest" class="tabcontent">
   <h3>Upload Files</h3>
-  <p><strong>Tip:</strong> Once you've submitted your files, you can click on the "View or Download Files" option above to access the shared folder.</p>
+  <p><strong>Tip:</strong> Once you've submitted your files, you can click on the "<strong>View or Download Files</strong>" option above to access the shared folder.</p>
   <iframe id="upload-iframe" src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request"></iframe>
   
   <!-- Tip moved below the iframe -->
@@ -139,7 +142,6 @@
     <!-- Box embed iframe -->
     <iframe id="view-only-iframe" src="https://universityofadelaide.app.box.com/embed/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date" title="Box View-Only Files" alt="File view and download frame for Box"></iframe>
   </div>
-  <p>If the file preview doesn't load, you can <a href="https://universityofadelaide.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc" target="_blank">click here to open or download the file</a>.</p>
 </div>
 
 <script>
@@ -161,7 +163,7 @@
     loadingScreen.style.opacity = 1; // Start fade-in
   }
 
-  // Function to hide the loading screen with an additional 1-second delay
+  // Function to hide the loading screen with an additional 4-second delay after the iframe starts loading
   function hideLoadingScreen(extraDelay = 0) {
     var loadingScreen = document.getElementById('loading-screen');
     loadingScreen.style.opacity = 0; // Start fade-out
@@ -175,9 +177,11 @@
     var iframe = document.getElementById("view-only-iframe");
     iframe.src = "https://universityofadelaide.app.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date&is_embed_widget=true";
 
-    // Hide loading screen 1 second after the iframe reloads
+    // Show the loading screen for an extra 4 seconds after the iframe starts loading
     iframe.onload = function() {
-      hideLoadingScreen(1000); // Extra 1-second delay before hiding the loading screen
+      setTimeout(function() {
+        hideLoadingScreen(); // Keep the loading screen visible for 4 seconds after the iframe starts loading
+      }, 4000);
     };
   }
 
