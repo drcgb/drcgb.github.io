@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Box File Request and View-Only Links</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .tab {
+      overflow: hidden;
+      border: 1px solid #ccc;
+      background-color: #f1f1f1;
+    }
+    .tab button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+    }
+    .tab button:hover {
+      background-color: #ddd;
+    }
+    .tab button.active {
+      background-color: #ccc;
+    }
+    .tabcontent {
+      display: none;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-top: none;
+    }
+    iframe {
+      width: 100%;
+      height: 80vh; /* Height based on the viewport for better responsiveness */
+      border: none;
+    }
+    .return-link {
+      margin-top: 10px;
+    }
+    #loading-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      font-size: 24px;
+      text-align: center;
+      line-height: 100vh;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Box File Management</h2>
+
+<!-- Loading screen div -->
+<div id="loading-screen">Loading...</div>
+
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'FileRequest')" id="defaultOpen">Upload Files (Use this part to upload your files)</button>
+  <button class="tablinks" onclick="openTab(event, 'ViewOnly')">View or Download Files (Use this part to view or download files)</button>
+</div>
+
+<div id="FileRequest" class="tabcontent">
+  <h3>Upload Files</h3>
+  <iframe src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request" onload="startLoading()"></iframe>
+</div>
+
+<div id="ViewOnly" class="tabcontent">
+  <h3>View or Download Files</h3>
+  <p class="return-link"><a href="https://universityofadelaide.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc" target="_blank">Return to Folder</a></p>
+  <p class="return-link"><a href="#" onclick="reloadViewOnly()">Have you just uploaded a new file and can't see it here? Please click here to reload this page</a></p>
+  <!-- Box Embed Widget for folder viewing -->
+  <div>
+    <!-- Box embed iframe -->
+    <iframe id="view-only-iframe" src="https://universityofadelaide.app.box.com/embed/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date" title="Box View-Only Files" alt="File view and download frame for Box"></iframe>
+  </div>
+  <p>If the file preview doesn't load, you can <a href="https://universityofadelaide.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc" target="_blank">click here to open or download the file</a>.</p>
+</div>
+
+<script>
+  function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+
+  // Open the default tab
+  document.getElementById("defaultOpen").click();
+
+  // Function to display the loading screen and refresh the iframe after 8 seconds
+  function startLoading() {
+    document.getElementById("loading-screen").style.display = "block";
+    
+    // Simulate an 8-second loading time
+    setTimeout(function() {
+      document.getElementById("loading-screen").style.display = "none";
+      document.getElementById("view-only-iframe").contentWindow.location.reload(); // Reload the View-Only iframe
+    }, 8000);
+  }
+
+  // Function to manually reload the View-Only iframe
+  function reloadViewOnly() {
+    document.getElementById("view-only-iframe").contentWindow.location.reload();
+  }
+</script>
+
+</body>
+</html>
