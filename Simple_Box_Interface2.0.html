@@ -41,12 +41,6 @@
       height: 80vh; /* Height based on the viewport for better responsiveness */
       border: none;
     }
-    #upload-iframe {
-      transform: translateY(-30%);
-      height: 110vh; /* Increased height to compensate for the cropped part */
-      z-index: 1; /* Lower z-index to make sure it doesn't block the tab */
-      position: relative;
-    }
     .return-link {
       margin-top: 10px;
     }
@@ -80,7 +74,7 @@
 
 <div id="FileRequest" class="tabcontent">
   <h3>Upload Files</h3>
-  <iframe id="upload-iframe" src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request" onload="checkSuccess()"></iframe>
+  <iframe id="upload-iframe" src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request"></iframe>
 </div>
 
 <div id="ViewOnly" class="tabcontent">
@@ -112,28 +106,6 @@
 
   // Open the default tab
   document.getElementById("defaultOpen").click();
-
-  // Function to check if the success message appears in the iframe
-  function checkSuccess() {
-    var iframe = document.getElementById("upload-iframe");
-    var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-
-    // Check if the iframe contains the "Success! Your file has been submitted." text
-    if (iframeDocument.body.textContent.includes("Success! Your file has been submitted.")) {
-      startLoading(); // Trigger the loading sequence
-    }
-  }
-
-  // Function to display the loading screen and refresh the iframe after 8 seconds
-  function startLoading() {
-    document.getElementById("loading-screen").style.display = "block";
-    
-    // Simulate an 8-second loading time
-    setTimeout(function() {
-      document.getElementById("loading-screen").style.display = "none";
-      document.getElementById("view-only-iframe").contentWindow.location.reload(); // Reload the View-Only iframe
-    }, 8000);
-  }
 
   // Function to manually reload the View-Only iframe and open the "View or Download Files" tab
   function reloadViewOnlyTab() {
