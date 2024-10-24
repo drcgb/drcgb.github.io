@@ -14,6 +14,11 @@
     }
     h2 {
       padding-left: 20px; /* Slightly indent the title */
+      display: flex;
+      align-items: center;
+    }
+    .h2-icon {
+      margin-right: 10px; /* Add space between icon and text */
     }
     .tab {
       overflow: hidden;
@@ -47,13 +52,20 @@
       border: 1px solid #ccc;
       border-top: none;
     }
-    /* Adjusted iframe height for Upload Files tab with a subtle border and cropping */
-    #upload-iframe {
+    /* Cropping the iframe on the Upload Files tab */
+    .iframe-wrapper {
       width: 100%;
-      height: 70vh; /* Shortened height */
+      height: 70vh; /* The visible height after cropping */
+      overflow: hidden;
+      position: relative;
       border: 1px solid #ccc; /* Subtle border */
       border-radius: 5px;
-      transform: translateY(-14vh); /* Crop out the first 14vh */
+    }
+    #upload-iframe {
+      width: 100%;
+      height: 84vh; /* Full height of the iframe before cropping */
+      position: relative;
+      top: -14vh; /* Crops out the first 14vh */
     }
     /* View or Download Files iframe with a subtle border */
     #view-only-iframe {
@@ -119,7 +131,7 @@
 </head>
 <body>
 
-<h2>UoA Psychology Honours | Easy Box File Upload & Access — No Login Required</h2>
+<h2><i class="fas fa-university h2-icon"></i> UoA Psychology Honours | Easy Box File Upload & Access — No Login Required</h2>
 
 <!-- Loading screen div -->
 <div id="loading-screen">Loading<span class="dots">
@@ -131,24 +143,28 @@
 
 <div class="tab">
   <button class="tablinks" onclick="openTab(event, 'FileRequest')" id="defaultOpen">
-    <i class="fas fa-upload"></i> Upload Files <span>(Use this part to upload your files)</span>
+    <i class="fas fa-upload"></i> Upload Files to Shared Folder <span>(Use this part to upload your files)</span>
   </button>
   <button class="tablinks" onclick="openTab(event, 'ViewOnly'); triggerLoadingSequence();">
-    <i class="fas fa-folder-open"></i> View or Download Files <span>(Use this part to view or download files)</span>
+    <i class="fas fa-folder-open"></i> View Shared Folder or Download Files <span>(Use this part to view or download files)</span>
   </button>
 </div>
 
 <div id="FileRequest" class="tabcontent">
-  <h3>Upload Files</h3>
-  <p><strong>Tip:</strong> Once you've submitted your files, you can click on the "<strong>View or Download Files</strong>" option above to access the shared folder.</p>
-  <iframe id="upload-iframe" src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request"></iframe>
+  <h3>Upload Files to Shared Folder</h3>
+  <p><strong>Tip:</strong> Once you've submitted your files, you can click on the "<strong>View Shared Folder or Download Files</strong>" option above to access the shared folder.</p>
+  
+  <!-- Wrapping the iframe in a container to crop -->
+  <div class="iframe-wrapper">
+    <iframe id="upload-iframe" src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request"></iframe>
+  </div>
   
   <!-- Tip moved below the iframe -->
   <p><strong>Tip:</strong> If you've just submitted a file and would like to submit more to the same folder, <a href="#" onclick="reloadUploadTab()">click here to reload this tab</a>.</p>
 </div>
 
 <div id="ViewOnly" class="tabcontent">
-  <h3>View or Download Files</h3>
+  <h3>View Shared Folder or Download Files</h3>
   <p class="return-link"><a href="#" onclick="reloadViewOnlyTab()">Click here to Reload Shared Folder</a></p>
 
   <!-- Add the new "Tip:" under the reload link -->
@@ -160,8 +176,8 @@
     <iframe id="view-only-iframe" src="https://universityofadelaide.app.box.com/embed/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date" title="Box View-Only Files" alt="File view and download frame for Box"></iframe>
   </div>
 
-  <!-- Moved the Note below the second iframe and bolded the "Note:" part -->
-  <p><strong>Note:</strong> The "Loading..." screen will appear for a few seconds and then the page may appear empty for a few seconds while loading.</p>
+  <!-- Moved the Note below the second iframe and italicized the "Note:" part -->
+  <p><em><strong>Note:</strong> The "Loading..." screen will appear for a few seconds and then the page may appear empty for a few seconds while loading.</em></p>
 
 </div>
 
