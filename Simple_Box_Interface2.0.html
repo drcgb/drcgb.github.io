@@ -72,13 +72,13 @@
 
 <div id="FileRequest" class="tabcontent">
   <h3>Upload Files</h3>
-  <iframe src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request" onload="startLoading()"></iframe>
+  <iframe id="upload-iframe" src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request" onload="checkSuccess()"></iframe>
 </div>
 
 <div id="ViewOnly" class="tabcontent">
   <h3>View or Download Files</h3>
   <p class="return-link"><a href="https://universityofadelaide.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc" target="_blank">Return to Folder</a></p>
-  <p class="return-link"><a href="#" onclick="reloadViewOnly()">Have you just uploaded a new file and can't see it here? Please click here to reload this page</a></p>
+  <p class="return-link"><a href="#" onclick="reloadViewOnlyTab()">Have you just uploaded a new file and can't see it here? Please click here to reload this page</a></p>
   <!-- Box Embed Widget for folder viewing -->
   <div>
     <!-- Box embed iframe -->
@@ -105,6 +105,17 @@
   // Open the default tab
   document.getElementById("defaultOpen").click();
 
+  // Function to check if the success message appears in the iframe
+  function checkSuccess() {
+    var iframe = document.getElementById("upload-iframe");
+    var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+    // Check if the iframe contains the "Success! Your file has been submitted." text
+    if (iframeDocument.body.textContent.includes("Success! Your file has been submitted.")) {
+      startLoading(); // Trigger the loading sequence
+    }
+  }
+
   // Function to display the loading screen and refresh the iframe after 8 seconds
   function startLoading() {
     document.getElementById("loading-screen").style.display = "block";
@@ -116,8 +127,18 @@
     }, 8000);
   }
 
-  // Function to manually reload the View-Only iframe
-  function reloadViewOnly() {
+  // Function to manually reload the View-Only iframe and open the "View or Download Files" tab
+  function reloadViewOnlyTab() {
+    // Switch to the "View or Download Files" tab
+    var viewTab = document.getElementById("ViewOnly");
+    var tablinks = document.getElementsByClassName("tablinks");
+    for (var i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById("ViewOnly").style.display = "block";
+    tablinks[1].className += " active"; // Ensure the correct tab link is active
+
+    // Reload the iframe in the "View or Download Files" tab
     document.getElementById("view-only-iframe").contentWindow.location.reload();
   }
 </script>
