@@ -12,6 +12,9 @@
     body {
       font-family: Arial, sans-serif;
     }
+    h2 {
+      padding-left: 20px; /* Slightly indent the title */
+    }
     .tab {
       overflow: hidden;
       border: 1px solid #ccc;
@@ -44,18 +47,9 @@
       border: 1px solid #ccc;
       border-top: none;
     }
-    /* Crop 80px from the top of the iframe for the upload tab */
-    #upload-iframe {
+    #upload-iframe, #view-only-iframe {
       width: 100%;
       height: 80vh;
-      border: none;
-      margin-top: -80px; /* Shift iframe 80px up to crop the top */
-      padding-top: 80px; /* Add padding to container to keep space */
-    }
-    /* Proper sizing for the View or Download iframe */
-    #view-only-iframe {
-      width: 100%;
-      height: 80vh; /* Set height to 80% of the viewport height */
       border: none;
     }
     .return-link {
@@ -148,7 +142,7 @@
   <p class="return-link"><a href="#" onclick="reloadViewOnlyTab()">Click here to Reload Shared Folder</a></p>
 
   <!-- Add the new "Tip:" under the reload link -->
-  <p><strong>Tip:</strong> Have you just uploaded a new file and can't see it listed below? Please try clicking on the "Reload Shared Folder" link above.</p>
+  <p><strong>Tip:</strong> Have you just uploaded a new file and can't see it listed below? Please try clicking on the "Reload Shared Folder" link above. <br><strong>Note:</strong> The "Loading..." screen will appear for a few seconds and then the page will appear empty for a few seconds while loading.</p>
 
   <!-- Box Embed Widget for folder viewing -->
   <div>
