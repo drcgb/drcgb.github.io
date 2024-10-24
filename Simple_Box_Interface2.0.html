@@ -47,12 +47,13 @@
       border: 1px solid #ccc;
       border-top: none;
     }
-    /* Adjusted iframe height for Upload Files tab with a subtle border */
+    /* Adjusted iframe height for Upload Files tab with a subtle border and cropping */
     #upload-iframe {
       width: 100%;
-      height: 70vh; /* Shortened the height by 10% */
+      height: 70vh; /* Shortened height */
       border: 1px solid #ccc; /* Subtle border */
-      border-radius: 5px; /* Slightly rounded corners */
+      border-radius: 5px;
+      transform: translateY(-14vh); /* Crop out the first 14vh */
     }
     /* View or Download Files iframe with a subtle border */
     #view-only-iframe {
@@ -152,15 +153,16 @@
 
   <!-- Add the new "Tip:" under the reload link -->
   <p><strong>Tip:</strong> Have you just uploaded a new file and can't see it listed below? Please try clicking on the "Reload Shared Folder" link above.</p>
-  
-  <!-- Added a small gap and italicized "Note" -->
-  <p><em>Note: The "Loading..." screen will appear for a few seconds and then the page may appear empty for a few seconds while loading.</em></p>
 
   <!-- Box Embed Widget for folder viewing -->
   <div>
     <!-- Box embed iframe -->
     <iframe id="view-only-iframe" src="https://universityofadelaide.app.box.com/embed/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date" title="Box View-Only Files" alt="File view and download frame for Box"></iframe>
   </div>
+
+  <!-- Moved the Note below the second iframe and bolded the "Note:" part -->
+  <p><strong>Note:</strong> The "Loading..." screen will appear for a few seconds and then the page may appear empty for a few seconds while loading.</p>
+
 </div>
 
 <script>
