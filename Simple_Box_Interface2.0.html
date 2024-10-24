@@ -12,8 +12,8 @@
       overflow: hidden;
       border: 1px solid #ccc;
       background-color: #f1f1f1;
-      position: relative; /* Ensure the tab menu stays on top */
-      z-index: 10; /* Higher z-index to keep the tab menu on top */
+      position: relative;
+      z-index: 10;
     }
     .tab button {
       background-color: inherit;
@@ -44,6 +44,7 @@
     .return-link {
       margin-top: 10px;
     }
+    /* Loading Screen Styles */
     #loading-screen {
       display: none; /* Hidden initially */
       position: fixed;
@@ -56,7 +57,19 @@
       font-size: 24px;
       text-align: center;
       line-height: 100vh;
-      z-index: 9999; /* Ensures it stays above everything else */
+      z-index: 9999;
+      opacity: 0; /* Start invisible */
+      transition: opacity 0.5s ease; /* Fade-in and fade-out animation */
+    }
+    /* Keyframes for animation */
+    @keyframes fadein {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes fadeout {
+      from { opacity: 1; }
+      to   { opacity: 0; }
     }
   </style>
 </head>
@@ -69,7 +82,7 @@
 
 <div class="tab">
   <button class="tablinks" onclick="openTab(event, 'FileRequest')" id="defaultOpen">Upload Files (Use this part to upload your files)</button>
-  <button class="tablinks" onclick="openTab(event, 'ViewOnly')">View or Download Files (Use this part to view or download files)</button>
+  <button class="tablinks" onclick="openTab(event, 'ViewOnly'); triggerLoadingSequence();">View or Download Files (Use this part to view or download files)</button>
 </div>
 
 <div id="FileRequest" class="tabcontent">
@@ -89,6 +102,17 @@
 </div>
 
 <script>
+  // Trigger loading sequence with animation when the tab is clicked
+  function triggerLoadingSequence() {
+    showLoadingScreen(); // Show the loading screen
+
+    // Simulate a 5-second loading screen, then reload the View-Only iframe
+    setTimeout(function() {
+      hideLoadingScreen(); // Hide the loading screen
+      reloadViewOnlyTab(); // Reload the View-Only iframe
+    }, 5000);
+  }
+
   function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -106,30 +130,24 @@
   // Open the default tab
   document.getElementById("defaultOpen").click();
 
-  // Function to simulate loading behavior on the Upload Iframe
-  document.getElementById('upload-iframe').onload = function() {
-    showLoadingScreen(); // Show the loading screen when the iframe is loaded
-
-    // Simulate an 8-second loading screen, then reload the View-Only iframe
-    setTimeout(function() {
-      hideLoadingScreen(); // Hide the loading screen
-      reloadViewOnlyTab(); // Trigger reload of the View-Only iframe
-    }, 8000);
-  };
-
-  // Function to show the loading screen
+  // Function to show the loading screen with animation
   function showLoadingScreen() {
-    document.getElementById('loading-screen').style.display = 'block';
+    var loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.display = 'block';
+    loadingScreen.style.opacity = 1; // Start fade-in
   }
 
-  // Function to hide the loading screen
+  // Function to hide the loading screen with animation
   function hideLoadingScreen() {
-    document.getElementById('loading-screen').style.display = 'none';
+    var loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.opacity = 0; // Start fade-out
+    setTimeout(function() {
+      loadingScreen.style.display = 'none';
+    }, 500); // Hide after fade-out animation completes
   }
 
   // Function to manually reload the View-Only iframe
   function reloadViewOnlyTab() {
-    showLoadingScreen(); // Show the loading screen
     var iframe = document.getElementById("view-only-iframe");
     iframe.src = "https://universityofadelaide.app.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date&is_embed_widget=true";
 
