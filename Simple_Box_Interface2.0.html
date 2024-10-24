@@ -61,24 +61,52 @@
       opacity: 0; /* Start invisible */
       transition: opacity 0.5s ease; /* Fade-in and fade-out animation */
     }
-    /* Keyframes for animation */
-    @keyframes fadein {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    /* Animation for ellipses */
+    .dots {
+      display: inline-block;
+      margin-left: 5px;
     }
 
-    @keyframes fadeout {
-      from { opacity: 1; }
-      to   { opacity: 0; }
+    .dot {
+      display: inline-block;
+      font-size: 24px;
+      opacity: 0;
+      animation: blink 1.5s infinite;
+    }
+
+    .dot:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.3s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes blink {
+      0%, 100% {
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
     }
   </style>
 </head>
 <body>
 
-<h2>Box File Management</h2>
+<h2>Box Easy File Upload & Access - No Login Required</h2>
 
 <!-- Loading screen div -->
-<div id="loading-screen">Loading...</div>
+<div id="loading-screen">Loading<span class="dots">
+    <span class="dot">.</span>
+    <span class="dot">.</span>
+    <span class="dot">.</span>
+  </span>
+</div>
 
 <div class="tab">
   <button class="tablinks" onclick="openTab(event, 'FileRequest')" id="defaultOpen">Upload Files (Use this part to upload your files)</button>
@@ -87,6 +115,7 @@
 
 <div id="FileRequest" class="tabcontent">
   <h3>Upload Files</h3>
+  <p>Tip: Once you've submitted your files, you can click on the "View or Download Files" option above to access the shared folder. If you've just submitted a file and would like to submit more to the same folder, <a href="#" onclick="reloadUploadTab()">click here to reload this tab</a>.</p>
   <iframe id="upload-iframe" src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request"></iframe>
 </div>
 
@@ -154,6 +183,12 @@
     iframe.onload = function() {
       hideLoadingScreen(); // Hide the loading screen when the iframe loads
     };
+  }
+
+  // Function to manually reload the Upload iframe
+  function reloadUploadTab() {
+    var iframe = document.getElementById("upload-iframe");
+    iframe.src = "https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04"; // Reload the same upload iframe URL
   }
 </script>
 
