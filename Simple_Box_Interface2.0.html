@@ -79,8 +79,7 @@
 
 <div id="ViewOnly" class="tabcontent">
   <h3>View or Download Files</h3>
-  <p class="return-link"><a href="https://universityofadelaide.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc" target="_blank">Return to Folder</a></p>
-  <p class="return-link"><a href="#" onclick="reloadViewOnlyTab()">Have you just uploaded a new file and can't see it here? Please click here to reload this page</a></p>
+  <p class="return-link"><a href="#" onclick="reloadViewOnlyTab()">Click here to Reload Shared Folder</a></p>
   <!-- Box Embed Widget for folder viewing -->
   <div>
     <!-- Box embed iframe -->
@@ -109,15 +108,6 @@
 
   // Function to manually reload the View-Only iframe and open the "View or Download Files" tab
   function reloadViewOnlyTab() {
-    // Switch to the "View or Download Files" tab
-    var viewTab = document.getElementById("ViewOnly");
-    var tablinks = document.getElementsByClassName("tablinks");
-    for (var i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-    document.getElementById("ViewOnly").style.display = "block";
-    tablinks[1].className += " active"; // Ensure the correct tab link is active
-
     // Reload the iframe with the new URL
     document.getElementById("view-only-iframe").src = "https://universityofadelaide.app.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date&is_embed_widget=true";
   }
@@ -125,3 +115,5 @@
 
 </body>
 </html>
+
+
