@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Box File Request and View-Only Links</title>
+  <title>Box Easy File Upload & Access - No Login Required</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -115,7 +115,8 @@
 
 <div id="FileRequest" class="tabcontent">
   <h3>Upload Files</h3>
-  <p>Tip: Once you've submitted your files, you can click on the "View or Download Files" option above to access the shared folder. If you've just submitted a file and would like to submit more to the same folder, <a href="#" onclick="reloadUploadTab()">click here to reload this tab</a>.</p>
+  <p><strong>Tip:</strong> Once you've submitted your files, you can click on the "View or Download Files" option above to access the shared folder.<br> 
+  If you've just submitted a file and would like to submit more to the same folder, <a href="#" onclick="reloadUploadTab()">click here to reload this tab</a>.</p>
   <iframe id="upload-iframe" src="https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04" title="Upload screen (Use this to upload your files)" alt="File upload frame for Box request"></iframe>
 </div>
 
@@ -137,9 +138,42 @@
 
     // Simulate a 5-second loading screen, then reload the View-Only iframe
     setTimeout(function() {
-      hideLoadingScreen(); // Hide the loading screen
+      hideLoadingScreen(); // Hide the loading screen after 5 seconds
       reloadViewOnlyTab(); // Reload the View-Only iframe
     }, 5000);
+  }
+
+  // Function to show the loading screen with animation
+  function showLoadingScreen() {
+    var loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.display = 'block';
+    loadingScreen.style.opacity = 1; // Start fade-in
+  }
+
+  // Function to hide the loading screen with an additional 1-second delay
+  function hideLoadingScreen(extraDelay = 0) {
+    var loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.opacity = 0; // Start fade-out
+    setTimeout(function() {
+      loadingScreen.style.display = 'none';
+    }, 500 + extraDelay); // Add extra delay if specified (default is 0)
+  }
+
+  // Function to manually reload the View-Only iframe
+  function reloadViewOnlyTab() {
+    var iframe = document.getElementById("view-only-iframe");
+    iframe.src = "https://universityofadelaide.app.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date&is_embed_widget=true";
+
+    // Hide loading screen 1 second after the iframe reloads
+    iframe.onload = function() {
+      hideLoadingScreen(1000); // Extra 1-second delay before hiding the loading screen
+    };
+  }
+
+  // Function to manually reload the Upload iframe
+  function reloadUploadTab() {
+    var iframe = document.getElementById("upload-iframe");
+    iframe.src = "https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04"; // Reload the same upload iframe URL
   }
 
   function openTab(evt, tabName) {
@@ -158,38 +192,6 @@
 
   // Open the default tab
   document.getElementById("defaultOpen").click();
-
-  // Function to show the loading screen with animation
-  function showLoadingScreen() {
-    var loadingScreen = document.getElementById('loading-screen');
-    loadingScreen.style.display = 'block';
-    loadingScreen.style.opacity = 1; // Start fade-in
-  }
-
-  // Function to hide the loading screen with animation
-  function hideLoadingScreen() {
-    var loadingScreen = document.getElementById('loading-screen');
-    loadingScreen.style.opacity = 0; // Start fade-out
-    setTimeout(function() {
-      loadingScreen.style.display = 'none';
-    }, 500); // Hide after fade-out animation completes
-  }
-
-  // Function to manually reload the View-Only iframe
-  function reloadViewOnlyTab() {
-    var iframe = document.getElementById("view-only-iframe");
-    iframe.src = "https://universityofadelaide.app.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date&is_embed_widget=true";
-
-    iframe.onload = function() {
-      hideLoadingScreen(); // Hide the loading screen when the iframe loads
-    };
-  }
-
-  // Function to manually reload the Upload iframe
-  function reloadUploadTab() {
-    var iframe = document.getElementById("upload-iframe");
-    iframe.src = "https://universityofadelaide.app.box.com/f/584ce632533e42868b9f63842ad22e04"; // Reload the same upload iframe URL
-  }
 </script>
 
 </body>
