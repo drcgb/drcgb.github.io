@@ -45,7 +45,7 @@
       margin-top: 10px;
     }
     #loading-screen {
-      display: none;
+      display: none; /* Hidden initially */
       position: fixed;
       top: 0;
       left: 0;
@@ -56,7 +56,7 @@
       font-size: 24px;
       text-align: center;
       line-height: 100vh;
-      z-index: 9999;
+      z-index: 9999; /* Ensures it stays above everything else */
     }
   </style>
 </head>
@@ -106,14 +106,38 @@
   // Open the default tab
   document.getElementById("defaultOpen").click();
 
-  // Function to manually reload the View-Only iframe and open the "View or Download Files" tab
+  // Function to simulate loading behavior on the Upload Iframe
+  document.getElementById('upload-iframe').onload = function() {
+    showLoadingScreen(); // Show the loading screen when the iframe is loaded
+
+    // Simulate an 8-second loading screen, then reload the View-Only iframe
+    setTimeout(function() {
+      hideLoadingScreen(); // Hide the loading screen
+      reloadViewOnlyTab(); // Trigger reload of the View-Only iframe
+    }, 8000);
+  };
+
+  // Function to show the loading screen
+  function showLoadingScreen() {
+    document.getElementById('loading-screen').style.display = 'block';
+  }
+
+  // Function to hide the loading screen
+  function hideLoadingScreen() {
+    document.getElementById('loading-screen').style.display = 'none';
+  }
+
+  // Function to manually reload the View-Only iframe
   function reloadViewOnlyTab() {
-    // Reload the iframe with the new URL
-    document.getElementById("view-only-iframe").src = "https://universityofadelaide.app.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date&is_embed_widget=true";
+    showLoadingScreen(); // Show the loading screen
+    var iframe = document.getElementById("view-only-iframe");
+    iframe.src = "https://universityofadelaide.app.box.com/s/0wdn3gezqhr22d6tz04d1j0ym6iuomoc?sortColumn=date&is_embed_widget=true";
+
+    iframe.onload = function() {
+      hideLoadingScreen(); // Hide the loading screen when the iframe loads
+    };
   }
 </script>
 
 </body>
 </html>
-
-
