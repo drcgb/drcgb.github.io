@@ -1,0 +1,282 @@
+/* Global Styles */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    /*scrollbar-width: thin; /* Makes the scrollbar thinner - commented out */
+    display: flex;
+    flex-direction: column;
+    -webkit-text-size-adjust: 99%;
+    text-size-adjust: 99%;
+    box-sizing: border-box;
+    width: 100%; /* Prevent width expansion */
+    max-width: 100%;
+    scrollbar-gutter: stable; /* Reserve space for the scrollbar to prevent layout shift */
+
+}
+
+/* Your existing styles here... */
+
+/* For Firefox */
+html {
+    scrollbar-width: thick; /* Makes scrollbar thicker */
+    scrollbar-color: #007bff #f9f9f9; /* Thumb color, Track color */
+}
+
+/* For WebKit Browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 24px; /* Increased width of the scrollbar */
+    height: 24px; /* Increased height of the scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #007bff; /* Color of the scrollbar thumb */
+    border-radius: 12px; /* Increased roundness of the scrollbar thumb */
+    border: 6px solid #f9f9f9; /* Thicker padding around the thumb */
+    min-height: 40px; /* Minimum height of the scrollbar thumb */
+
+}
+
+::-webkit-scrollbar-track {
+    background: #f9f9f9; /* Color of the scrollbar track */
+}
+
+
+body, table, th, td, 
+.dataTables_wrapper .dataTables_filter input, 
+.dataTables_wrapper .dataTables_length, 
+.dataTables_wrapper .dataTables_info {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+/* Blue Bar Styling */
+.blue-bar {
+    background-color: #0056b3; /* Dark blue background */
+    height: 40px; /* Adjust height if needed */
+    width: 100%; /* Consistent width */
+    max-width: 100%; /* Prevent expansion */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    box-sizing: border-box;
+    color: white;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.blue-bar .instructions-link {
+    cursor: pointer;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.blue-bar .text-size-controls {
+    display: flex;
+    align-items: center;
+}
+
+.blue-bar .text-size-controls span {
+    margin-left: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.blue-bar .reset-text-size {
+    margin-right: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Layout Styles */
+.page-wrapper,
+.custom-search-container,
+.fixed-header,
+.content {
+    width: 100%; /* Consistent width */
+    max-width: 100%; /* Prevent expansion */
+    margin: 0 auto; /* Center the container */
+    text-align: left; /* Ensure left alignment */
+    box-sizing: border-box;
+}
+
+.fixed-header {
+    flex: 1;
+    width: 100%; /* Ensure it fits within the viewport */
+    position: fixed;
+    top: 40px; /* Adjust based on blue bar height */
+    padding: 0px 12px 2px 8px; /* Adjust padding: top right bottom left */
+    background-color: white;
+    z-index: 999;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: left; /* Align fixed header content to the left */
+    border-bottom: 2px solid #377E22; /* Add a 2px solid border at the bottom */
+}
+
+.content {
+    width: 100%; /* Consistent width */
+    max-width: 100%; /* Prevent expansion */
+    flex: 1;
+    padding: 10px 10px 1px 10px; /* Adjust padding: top right bottom left */
+    margin-top: 27px; /* Adjust to create space between the header and the content */
+    transition: margin-top 0.3s ease;
+    text-align: left; /* Ensure left alignment */
+}
+
+.custom-search-container {
+    width: 100%; /* Ensure it fits within the container */
+    text-align: left; /* Align search container to the left */
+    padding: 10px 10px 2px 10px; /* Adjust padding: top right bottom left */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.custom-search-container input {
+    width: 100%;
+    padding: 10px; /* Adjust padding: top right bottom left */
+    border-radius: 4px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+p.instructions {
+    margin: 0; /* Removes all margins */
+    background-color: #e9f5ff;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* DataTables and Filter Styling */
+.dataTables_wrapper {
+    text-align: left; /* Ensure DataTables elements are left-aligned */
+    padding-left: 0; /* Ensure there's no extra left padding */
+}
+
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Align filters to the left */
+    gap: 10px; /* Increase gap between filters */
+    width: 100%;
+    padding: 10px; /* Increase padding */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    text-align: left; /* Align filter groups to the left */
+}
+
+.filter-group label {
+    margin-right: 5px; /* Increase margin */
+    font-weight: bold; /* Bold filter labels */
+}
+
+.filter-group select {
+    width: 220; /* Set a fixed width */
+    max-width: 500px; /* Ensure the width doesn't exceed this value */
+    min-width: 135px; /* Ensure the width doesn't go below this value */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+select, option {
+    font-size: 14px; /* Ensure this matches your baseSize */
+}
+
+.filter-status-btn {
+    margin-left: 0; /* Align button to the left */
+    padding: 5px 6px; /* Increase padding */
+    border: 1px solid #000000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold; /* Makes the font bold */
+    transition: background-color 0.3s, color 0.3s;
+    vertical-align: center;
+    text-align: center;
+    font-size: 14px;
+}
+
+.filter-status-btn.green {
+    background-color: #28a745;
+    color: white;
+}
+
+.filter-status-btn.red {
+    background-color: red;
+    color: white;
+}
+
+.filter-notice {
+    margin-top: 1px; 
+    margin-bottom: 3px; 
+    margin-left: 10px; /* Nudge to the right by 10px */
+    color: #000000;
+    background-color: #ebb6fcd8;
+    border: 1px solid #c953ff;
+    padding: 10px; /*top, right, bottom, and left*/
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%;
+    display: none;
+    text-align: left; /* Align filter notice text to the left */
+    font-size: 14px;
+}
+
+/* Table Styling */
+table, th, td {
+    border-collapse: collapse;
+    border: 1px solid black;
+    text-align: left; /* Align table content to the left */
+}
+
+th {
+    background-color: #f2f2f2;
+    text-align: left; /* Align table headers to the left */
+    vertical-align: middle;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: #e0f7fa;
+}
+
+.table-container {
+    flex: 1;
+    margin-bottom: 2px; /* Increase bottom margin */
+    text-align: left; /* Align table content to the left */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .filter-container {
+        flex-direction: column;
+        align-items: flex-start; /* Ensure filter items are aligned to the left on small screens */
+    }
+
+    .filter-group {
+        width: 100%; /* Ensure it fits within the container */
+        text-align: left; /* Maintain left alignment on small screens */
+    }
+
+    .filter-status-btn {
+        width: 100%; /* Make the button take full width */
+        margin-left: 0; /* Align button to the left */
+        text-align: center; /* Center the text */
+        display: flex; /* Use flexbox for vertical centering */
+        justify-content: center; /* Center the text horizontally */
+        align-items: center; /* Center the text vertically */
+    }
+
+    .custom-search-container input, .filter-status-btn {
+        width: 100%; /* Ensure it fits within the container */
+        text-align: left; /* Ensure left alignment for input and buttons on small screens */
+    }
+}
