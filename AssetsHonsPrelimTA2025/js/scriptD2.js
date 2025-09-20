@@ -31,8 +31,9 @@ let isResettingFilters = false; // Add this flag at the top with other global va
 // Function to adjust content margin
 function adjustContentMargin() {
   requestAnimationFrame(() => {
-    const headerHeight = $('.fixed-header').outerHeight(true) + 40;
-    const totalMargin = headerHeight;
+    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const headerHeight = $('.fixed-header').outerHeight(true);
+    const totalMargin = headerHeight + filterNoticeHeight;
 
     // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin);
@@ -102,16 +103,56 @@ $(document).ready(function() {
         $('#instructionsToggle').text('► Instructions');
         adjustContentMargin(); // Adjust margin when instructions are closed
     });
+
+    // Filter status button click handler
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            clearAllFilters();
+        }
+    });
+    
+    // Custom search handler
+    $('#customSearch').on('input', function() {
+        const searchValue = $(this).val();
+        if (dataTable) {
+            dataTable.search(searchValue).draw();
+        }
+        updateFilterStatus();
+    });
+    
+    // Method filter change handler
+    $('#methodFilter').on('change', function() {
+        const selectedMethod = $(this).val();
+        updateAreaFilterCounts(selectedMethod);
+        if (dataTable) {
+            dataTable.draw();
+        }
+        updateFilterStatus();
+    });
+    
+    // Area filter change handler
+    $('#areaFilter').on('change', function() {
+        const selectedArea = $(this).val();
+        updateMethodFilterCounts(selectedArea);
+        if (dataTable) {
+            dataTable.draw();
+        }
+        updateFilterStatus();
+    });
+
+    // Text size controls
+    $('#increaseTextSize').on('click', function() {
+        adjustFontSize(1.1);
+    });
+
+    $('#decreaseTextSize').on('click', function() {
+        adjustFontSize(0.9);
+    });
+
+    $('#resetTextSize').on('click', function() {
+        resetFontSize();
+    });
 });
-
-function adjustContentMargin() {
-    const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true);
-    const totalMargin = headerHeight + (filterNoticeHeight > 0 ? filterNoticeHeight - 40 : 0);
-
-    $('.content').css('margin-top', totalMargin);
-}
-
 
 function initializeDataTable() {
     console.log("Initializing DataTable...");
@@ -253,6 +294,7 @@ function populateMethodFilter(rows) {
 
     console.log("Method filter populated.");
 }
+
 // Populate the area filter dropdown
 function populateAreaFilter(rows) {
     console.log("Populating area filter...");
@@ -453,8 +495,6 @@ function updateMethodFilterCounts(selectedArea) {
     updateFilterStatus();
 }
 
-// Add this function after your other functions
-
 function updateFilterStatus() {
     const methodFilter = document.getElementById("methodFilter");
     const areaFilter = document.getElementById("areaFilter");
@@ -521,46 +561,16 @@ function clearAllFilters() {
     updateFilterStatus();
 }
 
-// Add event handlers after the DOMContentLoaded section
-$(document).ready(function() {
-    // ... existing ready code ...
-    
-    // Filter status button click handler
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            clearAllFilters();
-        }
-    });
-    
-    // Custom search handler
-    $('#customSearch').on('input', function() {
-        const searchValue = $(this).val();
-        if (dataTable) {
-            dataTable.search(searchValue).draw();
-        }
-        updateFilterStatus();
-    });
-    
-    // Method filter change handler
-    $('#methodFilter').on('change', function() {
-        const selectedMethod = $(this).val();
-        updateAreaFilterCounts(selectedMethod);
-        if (dataTable) {
-            dataTable.draw();
-        }
-        updateFilterStatus();
-    });
-    
-    // Area filter change handler
-    $('#areaFilter').on('change', function() {
-        const selectedArea = $(this).val();
-        updateMethodFilterCounts(selectedArea);
-        if (dataTable) {
-            dataTable.draw();
-        }
-        updateFilterStatus();
-    });
-});
+// Add font size control functions
+function adjustFontSize(factor) {
+    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+    const newSize = currentSize * factor;
+    document.body.style.fontSize = newSize + 'px';
+}
+
+function resetFontSize() {
+    document.body.style.fontSize = '';
+}
 
 // Add a function to match filter notice width to search input
 function matchNoticeWidth() {
