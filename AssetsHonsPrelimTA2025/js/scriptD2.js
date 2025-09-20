@@ -362,10 +362,13 @@ function updateMethodFilterCounts(selectedArea) {
     // If no area is selected (All Research Areas), repopulate the method filter with original counts
     if (!selectedArea || selectedArea === '') {
         // Reset to original state - also reset the method filter value
-        const currentMethodValue = methodFilter.value;
         populateMethodFilter(allRows);
         // Clear the method selection when resetting to "All Research Areas"
         methodFilter.value = '';
+        // Force a table redraw to ensure filters are properly applied
+        if (dataTable) {
+            dataTable.draw();
+        }
         return;
     }
 
@@ -373,6 +376,9 @@ function updateMethodFilterCounts(selectedArea) {
     if (!areaCountsByMethod || !areaCountsByMethod[selectedArea]) {
         populateMethodFilter(allRows);
         methodFilter.value = '';
+        if (dataTable) {
+            dataTable.draw();
+        }
         return;
     }
 
@@ -420,7 +426,9 @@ $(document).on('change', '#methodFilter', function() {
 $(document).on('change', '#areaFilter', function() {
     const selectedArea = $(this).val();
     updateMethodFilterCounts(selectedArea);
-    if (dataTable) {
+    // Don't call dataTable.draw() here since updateMethodFilterCounts already does it
+    // when resetting to "All Research Areas"
+    if (selectedArea !== '' && dataTable) {
         dataTable.draw();
     }
 });
