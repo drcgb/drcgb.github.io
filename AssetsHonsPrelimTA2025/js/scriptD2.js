@@ -26,6 +26,7 @@ let allRows = [];
 let dataTable;
 let methodData = [];
 let researchAreasData = [];
+let isResettingFilters = false; // Add this flag at the top with other global variables
 
 // Function to adjust content margin
 function adjustContentMargin() {
@@ -356,31 +357,48 @@ function updateAreaFilterCounts(selectedMethod) {
 }
 
 function updateMethodFilterCounts(selectedArea) {
+    // Prevent recursive calls during reset
+    if (isResettingFilters) return;
+    
     const methodFilter = document.getElementById("methodFilter");
+    const areaFilter = document.getElementById("areaFilter");
     const areaCountsByMethod = window.areaCountsByMethod;
 
     // If no area is selected (All Research Areas), repopulate both filters with original counts
     if (!selectedArea || selectedArea === '') {
-        // Reset to original state - also reset the method filter value
+        isResettingFilters = true; // Set flag to prevent recursive calls
+        
+        // Reset to original state
         populateMethodFilter(allRows);
-        populateAreaFilter(allRows); // Add this line to reset area filter too
-        // Clear the method selection when resetting to "All Research Areas"
+        populateAreaFilter(allRows);
+        
+        // Clear method filter selection
         methodFilter.value = '';
+        // DON'T set areaFilter.value = '' here since that's what triggered this function
+        
         // Force a table redraw to ensure filters are properly applied
         if (dataTable) {
             dataTable.draw();
         }
+        
+        isResettingFilters = false; // Clear flag
         return;
     }
 
     // Check if the selected area exists in our data
     if (!areaCountsByMethod || !areaCountsByMethod[selectedArea]) {
+        isResettingFilters = true; // Set flag to prevent recursive calls
+        
         populateMethodFilter(allRows);
-        populateAreaFilter(allRows); // Add this line here too
+        populateAreaFilter(allRows);
         methodFilter.value = '';
+        // DON'T set areaFilter.value = '' here since the user selected something
+        
         if (dataTable) {
             dataTable.draw();
         }
+        
+        isResettingFilters = false; // Clear flag
         return;
     }
 
