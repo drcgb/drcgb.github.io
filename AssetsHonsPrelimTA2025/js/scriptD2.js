@@ -364,20 +364,22 @@ function updateMethodFilterCounts(selectedArea) {
     const areaFilter = document.getElementById("areaFilter");
     const areaCountsByMethod = window.areaCountsByMethod;
 
-    // If no area is selected (All Research Areas), repopulate both filters with original counts
+    // If no area is selected (All Research Areas), reset to original state
     if (!selectedArea || selectedArea === '') {
         isResettingFilters = true; // Set flag to prevent recursive calls
         
         // Reset method filter to original state
         populateMethodFilter(allRows);
-        
-        // Reset area filter but preserve the "All Research Areas" selection
-        const currentAreaValue = areaFilter.value; // Should be ""
-        populateAreaFilter(allRows);
-        areaFilter.value = currentAreaValue; // Restore "All Research Areas" selection
-        
-        // Clear method filter selection
         methodFilter.value = '';
+        
+        // Store current area selection before repopulating
+        const currentAreaValue = areaFilter.value;
+        
+        // Repopulate area filter to reset counts
+        populateAreaFilter(allRows);
+        
+        // Restore the area filter selection (should be "" for "All Research Areas")
+        areaFilter.value = currentAreaValue;
         
         // Force a table redraw to ensure filters are properly applied
         if (dataTable) {
@@ -393,9 +395,11 @@ function updateMethodFilterCounts(selectedArea) {
         isResettingFilters = true; // Set flag to prevent recursive calls
         
         populateMethodFilter(allRows);
-        populateAreaFilter(allRows);
         methodFilter.value = '';
-        areaFilter.value = ''; // Reset to "All Research Areas" for error case
+        
+        // Reset area filter to original state
+        populateAreaFilter(allRows);
+        areaFilter.value = ''; // Reset to "All Research Areas"
         
         if (dataTable) {
             dataTable.draw();
