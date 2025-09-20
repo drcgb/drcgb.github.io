@@ -426,9 +426,8 @@ $(document).on('change', '#methodFilter', function() {
 $(document).on('change', '#areaFilter', function() {
     const selectedArea = $(this).val();
     updateMethodFilterCounts(selectedArea);
-    // Don't call dataTable.draw() here since updateMethodFilterCounts already does it
-    // when resetting to "All Research Areas"
-    if (selectedArea !== '' && dataTable) {
+    // Always redraw the table when area filter changes
+    if (dataTable) {
         dataTable.draw();
     }
 });
