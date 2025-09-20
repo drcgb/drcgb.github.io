@@ -368,13 +368,16 @@ function updateMethodFilterCounts(selectedArea) {
     if (!selectedArea || selectedArea === '') {
         isResettingFilters = true; // Set flag to prevent recursive calls
         
-        // Reset to original state
+        // Reset method filter to original state
         populateMethodFilter(allRows);
+        
+        // Reset area filter but preserve the "All Research Areas" selection
+        const currentAreaValue = areaFilter.value; // Should be ""
         populateAreaFilter(allRows);
+        areaFilter.value = currentAreaValue; // Restore "All Research Areas" selection
         
         // Clear method filter selection
         methodFilter.value = '';
-        // DON'T set areaFilter.value = '' here since that's what triggered this function
         
         // Force a table redraw to ensure filters are properly applied
         if (dataTable) {
@@ -392,7 +395,7 @@ function updateMethodFilterCounts(selectedArea) {
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
         methodFilter.value = '';
-        // DON'T set areaFilter.value = '' here since the user selected something
+        areaFilter.value = ''; // Reset to "All Research Areas" for error case
         
         if (dataTable) {
             dataTable.draw();
