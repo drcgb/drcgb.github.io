@@ -359,10 +359,11 @@ function updateMethodFilterCounts(selectedArea) {
     const methodFilter = document.getElementById("methodFilter");
     const areaCountsByMethod = window.areaCountsByMethod;
 
-    // If no area is selected (All Research Areas), repopulate the method filter with original counts
+    // If no area is selected (All Research Areas), repopulate both filters with original counts
     if (!selectedArea || selectedArea === '') {
         // Reset to original state - also reset the method filter value
         populateMethodFilter(allRows);
+        populateAreaFilter(allRows); // Add this line to reset area filter too
         // Clear the method selection when resetting to "All Research Areas"
         methodFilter.value = '';
         // Force a table redraw to ensure filters are properly applied
@@ -375,6 +376,7 @@ function updateMethodFilterCounts(selectedArea) {
     // Check if the selected area exists in our data
     if (!areaCountsByMethod || !areaCountsByMethod[selectedArea]) {
         populateMethodFilter(allRows);
+        populateAreaFilter(allRows); // Add this line here too
         methodFilter.value = '';
         if (dataTable) {
             dataTable.draw();
