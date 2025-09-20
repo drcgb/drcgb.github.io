@@ -354,6 +354,9 @@ function updateAreaFilterCounts(selectedMethod) {
             option.text = `${area} ${matchText}`;
         }
     });
+
+    // At the end of the function, add:
+    updateFilterStatus();
 }
 
 function updateMethodFilterCounts(selectedArea) {
@@ -381,6 +384,9 @@ function updateMethodFilterCounts(selectedArea) {
         // Restore the area filter selection (should be "" for "All Research Areas")
         areaFilter.value = currentAreaValue;
         
+        // Update filter status and notice - ADD THIS
+        updateFilterStatus();
+        
         // Force a table redraw to ensure filters are properly applied
         if (dataTable) {
             dataTable.draw();
@@ -400,6 +406,9 @@ function updateMethodFilterCounts(selectedArea) {
         // Reset area filter to original state
         populateAreaFilter(allRows);
         areaFilter.value = ''; // Reset to "All Research Areas"
+        
+        // Update filter status and notice - ADD THIS
+        updateFilterStatus();
         
         if (dataTable) {
             dataTable.draw();
@@ -439,23 +448,128 @@ function updateMethodFilterCounts(selectedArea) {
     if (currentMethodValue) {
         methodFilter.value = currentMethodValue;
     }
+    
+    // Update filter status and notice - ADD THIS
+    updateFilterStatus();
 }
 
-// Event handlers for filter changes
-$(document).on('change', '#methodFilter', function() {
-    const selectedMethod = $(this).val();
-    updateAreaFilterCounts(selectedMethod);
-    if (dataTable) {
-        dataTable.draw();
+// Add this function after your other functions
+
+function updateFilterStatus() {
+    const methodFilter = document.getElementById("methodFilter");
+    const areaFilter = document.getElementById("areaFilter");
+    const customSearch = document.getElementById("customSearch");
+    const filterStatusBtn = document.getElementById("filterStatusBtn");
+    const filterNotice = document.getElementById("filterNotice");
+
+    const hasMethodFilter = methodFilter.value !== '';
+    const hasAreaFilter = areaFilter.value !== '';
+    const hasSearchFilter = customSearch.value.trim() !== '';
+    const hasAnyFilter = hasMethodFilter || hasAreaFilter || hasSearchFilter;
+
+    if (hasAnyFilter) {
+        // Active filters - show red button and notice
+        filterStatusBtn.textContent = "Clear all filters";
+        filterStatusBtn.className = "filter-status-btn red";
+        
+        let filterText = "Active filters: ";
+        let filters = [];
+        
+        if (hasSearchFilter) filters.push(`Search: "${customSearch.value}"`);
+        if (hasMethodFilter) {
+            const methodText = methodFilter.options[methodFilter.selectedIndex].text.trim();
+            filters.push(`Method: ${methodText}`);
+        }
+        if (hasAreaFilter) {
+            const areaText = areaFilter.options[areaFilter.selectedIndex].text.trim();
+            filters.push(`Area: ${areaText}`);
+        }
+        
+        filterNotice.textContent = filterText + filters.join(", ");
+        filterNotice.style.display = "block";
+    } else {
+        // No active filters - show green button and hide notice
+        filterStatusBtn.textContent = "No filters active";
+        filterStatusBtn.className = "filter-status-btn green";
+        filterNotice.style.display = "none";
     }
+    
+    // Adjust content margin when filter notice visibility changes
+    adjustContentMargin();
+}
+
+function clearAllFilters() {
+    const methodFilter = document.getElementById("methodFilter");
+    const areaFilter = document.getElementById("areaFilter");
+    const customSearch = document.getElementById("customSearch");
+    
+    // Clear all filter values
+    methodFilter.value = '';
+    areaFilter.value = '';
+    customSearch.value = '';
+    
+    // Reset filters to original state
+    populateMethodFilter(allRows);
+    populateAreaFilter(allRows);
+    
+    // Clear DataTable search
+    if (dataTable) {
+        dataTable.search('').draw();
+    }
+    
+    // Update filter status
+    updateFilterStatus();
+}
+
+// Add event handlers after the DOMContentLoaded section
+$(document).ready(function() {
+    // ... existing ready code ...
+    
+    // Filter status button click handler
+    $('#filterStatusBtn').on('click', function() {
+        if ($(this).hasClass('red')) {
+            clearAllFilters();
+        }
+    });
+    
+    // Custom search handler
+    $('#customSearch').on('input', function() {
+        const searchValue = $(this).val();
+        if (dataTable) {
+            dataTable.search(searchValue).draw();
+        }
+        updateFilterStatus();
+    });
+    
+    // Method filter change handler
+    $('#methodFilter').on('change', function() {
+        const selectedMethod = $(this).val();
+        updateAreaFilterCounts(selectedMethod);
+        if (dataTable) {
+            dataTable.draw();
+        }
+        updateFilterStatus();
+    });
+    
+    // Area filter change handler
+    $('#areaFilter').on('change', function() {
+        const selectedArea = $(this).val();
+        updateMethodFilterCounts(selectedArea);
+        if (dataTable) {
+            dataTable.draw();
+        }
+        updateFilterStatus();
+    });
 });
 
-$(document).on('change', '#areaFilter', function() {
-    const selectedArea = $(this).val();
-    updateMethodFilterCounts(selectedArea);
-    // Always redraw the table when area filter changes
-    if (dataTable) {
-        dataTable.draw();
+// Add a function to match filter notice width to search input
+function matchNoticeWidth() {
+    const searchInput = document.getElementById('customSearch');
+    const filterNotice = document.getElementById('filterNotice');
+    
+    if (searchInput && filterNotice) {
+        const searchWidth = searchInput.offsetWidth;
+        filterNotice.style.width = searchWidth + 'px';
     }
-});
+}
 
