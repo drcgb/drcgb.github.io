@@ -359,10 +359,16 @@ function updateMethodFilterCounts(selectedArea) {
     const methodFilter = document.getElementById("methodFilter");
     const areaCountsByMethod = window.areaCountsByMethod;
 
+    // If no area is selected (All Research Areas), repopulate the method filter with original counts
+    if (selectedArea === '') {
+        populateMethodFilter(allRows);
+        return;
+    }
+
     Array.from(methodFilter.options).forEach(option => {
         const methodValue = option.value;
 
-        if (methodValue) {
+        if (methodValue && areaCountsByMethod[selectedArea]) {
             let count = 0;
 
             switch (methodValue) {
