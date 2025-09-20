@@ -360,206 +360,68 @@ function updateMethodFilterCounts(selectedArea) {
     const areaCountsByMethod = window.areaCountsByMethod;
 
     // If no area is selected (All Research Areas), repopulate the method filter with original counts
-    if (selectedArea === '') {
+    if (!selectedArea || selectedArea === '') {
+        // Reset to original state - also reset the method filter value
+        const currentMethodValue = methodFilter.value;
         populateMethodFilter(allRows);
+        // Clear the method selection when resetting to "All Research Areas"
+        methodFilter.value = '';
         return;
     }
 
-    Array.from(methodFilter.options).forEach(option => {
-        const methodValue = option.value;
+    // Check if the selected area exists in our data
+    if (!areaCountsByMethod || !areaCountsByMethod[selectedArea]) {
+        populateMethodFilter(allRows);
+        methodFilter.value = '';
+        return;
+    }
 
-        if (methodValue && areaCountsByMethod[selectedArea]) {
-            let count = 0;
+    // Get the current selected method to preserve it
+    const currentMethodValue = methodFilter.value;
 
-            switch (methodValue) {
-                case 'all-quantitative':
-                    count = areaCountsByMethod[selectedArea].quantitative + areaCountsByMethod[selectedArea].metaAnalysis + areaCountsByMethod[selectedArea].mixedMethodsQuantitative;
-                    break;
-                case 'meta-analysis':
-                    count = areaCountsByMethod[selectedArea].metaAnalysis;
-                    break;
-                case 'mixed-methods-quantitative':
-                    count = areaCountsByMethod[selectedArea].mixedMethodsQuantitative;
-                    break;
-                case 'all-qualitative':
-                    count = areaCountsByMethod[selectedArea].qualitative + areaCountsByMethod[selectedArea].metaSynthesis + areaCountsByMethod[selectedArea].mixedMethodsQualitative;
-                    break;
-                case 'meta-synthesis':
-                    count = areaCountsByMethod[selectedArea].metaSynthesis;
-                    break;
-                case 'mixed-methods-qualitative':
-                    count = areaCountsByMethod[selectedArea].mixedMethodsQualitative;
-                    break;
-                default:
-                    count = areaCountsByMethod[selectedArea].all; // Default to all
-                    break;
-            }
+    // Recalculate counts for the selected area
+    const methodCounts = {
+        quantitative: areaCountsByMethod[selectedArea].quantitative || 0,
+        metaAnalysis: areaCountsByMethod[selectedArea].metaAnalysis || 0,
+        mixedMethodsQuantitative: areaCountsByMethod[selectedArea].mixedMethodsQuantitative || 0,
+        qualitative: areaCountsByMethod[selectedArea].qualitative || 0,
+        metaSynthesis: areaCountsByMethod[selectedArea].metaSynthesis || 0,
+        mixedMethodsQualitative: areaCountsByMethod[selectedArea].mixedMethodsQualitative || 0
+    };
 
-            // Add an asterisk if the count is greater than 0
-            let matchText = count === 0 ? `[~${count} matches]` : `[~${count} matches]*`;
-            option.text = `${option.text.split('[')[0].trim()} ${matchText}`;
-        }
-    });
+    // Rebuild the method filter with updated counts
+    methodFilter.innerHTML = `
+        <option value="" style="font-weight: bold;">All Methods</option>
+        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]${(methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative) > 0 ? '*' : ''}</option>
+            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]${methodCounts.metaAnalysis > 0 ? '*' : ''}</option>
+            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]${methodCounts.mixedMethodsQuantitative > 0 ? '*' : ''}</option>
+        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
+            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]${(methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative) > 0 ? '*' : ''}</option>
+            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]${methodCounts.metaSynthesis > 0 ? '*' : ''}</option>
+            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]${methodCounts.mixedMethodsQualitative > 0 ? '*' : ''}</option>
+    `;
+
+    // Restore the previously selected method if it's still valid
+    if (currentMethodValue) {
+        methodFilter.value = currentMethodValue;
+    }
 }
 
-
-$(document).ready(function() {
-    // Adjust content margin initially
-    adjustContentMargin();
-
-    $('#customSearch').on('input', function() {
-        dataTable.search($(this).val()).draw();
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
-    });
-
-    $('#methodFilter').on('change', function() {
-        const selectedMethod = $(this).val();
-        updateAreaFilterCounts(selectedMethod); // Update area filter counts based on the selected method
-        dataTable.draw(); // Re-filter the table based on the new method selection
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
-    });
-
-    $('#areaFilter').on('change', function() {
-        const selectedArea = $(this).val();
-        updateMethodFilterCounts(selectedArea); // Update method filter counts based on the selected area
-        dataTable.draw(); // Re-filter the table based on the new area selection
-        updateFilterStatus();
-        updateFilterNotice();
-        window.scrollTo(0, 0);
-    });
- 
-    $('#filterStatusBtn').on('click', function() {
-        if ($(this).hasClass('red')) {
-            $('#methodFilter').val('');
-            $('#areaFilter').val('');
-            $('#customSearch').val('');
-    
-            // Reset the method and research area filter counts to default
-            populateMethodFilter(allRows);  // Re-populate the method filter with default counts
-            populateAreaFilter(allRows);    // Re-populate the area filter with default counts
-    
-            dataTable.search('').draw();
-            updateFilterStatus();
-            updateFilterNotice();
-            window.scrollTo(0, 0);
-        }
-    });
-
-    // Event listeners for text size controls
-    document.getElementById('increaseTextSize').addEventListener('click', () => adjustTextSize(true));
-    document.getElementById('decreaseTextSize').addEventListener('click', () => adjustTextSize(false));
-    document.getElementById('resetTextSize').addEventListener('click', resetTextSize);
-
+// Event handlers for filter changes
+$(document).on('change', '#methodFilter', function() {
+    const selectedMethod = $(this).val();
+    updateAreaFilterCounts(selectedMethod);
+    if (dataTable) {
+        dataTable.draw();
+    }
 });
 
-function updateFilterStatus() {
-    const searchValue = $('#customSearch').val().trim();
-    const methodValue = $('#methodFilter').val();
-    const areaValue = $('#areaFilter').val();
-
-    const filterActive = searchValue !== '' || methodValue !== '' || areaValue !== '';
-
-    const button = $('#filterStatusBtn');
-    if (filterActive) {
-        button.removeClass('green').addClass('red').text('Click to clear all filters');
-    } else {
-        button.removeClass('red').addClass('green').text('No filters active');
+$(document).on('change', '#areaFilter', function() {
+    const selectedArea = $(this).val();
+    updateMethodFilterCounts(selectedArea);
+    if (dataTable) {
+        dataTable.draw();
     }
-}
-
-function updateFilterNotice() {
-    const searchValue = $('#customSearch').val().trim();
-    const methodValue = $('#methodFilter').val();
-    const areaValue = $('#areaFilter').val();
-
-    let activeFilters = [];
-    if (searchValue) activeFilters.push(`Search: "${searchValue}"`);
-    if (methodValue) activeFilters.push(`Method: "${methodValue}"`);
-    if (areaValue) activeFilters.push(`Area: "${areaValue}"`);
-
-    const notice = $('#filterNotice');
-    const filteredRows = dataTable.rows({ filter: 'applied' }).data().toArray();
-
-    const filteredRowCount = filteredRows.filter(row => !row[0].includes("End of records")).length;
-
-    if (activeFilters.length > 0) {
-        if (filteredRowCount > 0) {
-            notice.html(`<strong>Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`).show();
-        } else {
-            let alertMessage = `<strong>No results</strong> found with the current filter <u>combination</u>.
-            <strong> Active Filters:</strong> ${activeFilters.join(' <strong>+</strong> ')}.
-                                 Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">CLEAR ALL</a> filters.`;
-            notice.html(alertMessage).show();
-
-            $('#clearAllFiltersLink').on('click', function(e) {
-                e.preventDefault();
-
-                $('#filterStatusBtn').trigger('click');
-            });
-        }
-    } else {
-        notice.hide();
-    }
-    
-    adjustContentMargin();  // Recalculate margin after updating notice
-
-}
-
-function adjustContentMargin() {
-    const headerHeight = $('.fixed-header').outerHeight(true) + 40;
-    const totalMargin = headerHeight;
-
-    // Set the margin-top for the content area
-    $('.content').css('margin-top', totalMargin);
-}
-
-function matchNoticeWidth() {
-    const searchInput = document.querySelector('.custom-search-container input');
-    const filterNotice = document.querySelector('.filter-notice');
-    const searchWidth = searchInput.offsetWidth;
-    filterNotice.style.width = `${searchWidth}px`;
-}
-
-
-// Variables to track the current adjustment level
-let adjustmentLevel = 0;
-const maxIncrease = 3;
-const maxDecrease = -2;
-
-// Adjust text size for the entire page
-function adjustTextSize(increase) {
-    if (increase && adjustmentLevel < maxIncrease) {
-        adjustmentLevel += 1;
-    } else if (!increase && adjustmentLevel > maxDecrease) {
-        adjustmentLevel -= 1;
-    } else {
-        return; // No adjustment needed
-    }
-
-    // Calculate the new font size based on adjustment level
-    const baseSize = 14; // Default font size in px
-    const newSize = baseSize + adjustmentLevel * 1.5; // Adjust by 1.5px per step
-
-    // Apply the new font size to all relevant elements
-    document.querySelector('body').style.fontSize = `${newSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper, select, option').forEach(el => {
-        el.style.fontSize = `${newSize}px`;
-    });
-}
-
-// Reset text size to default
-function resetTextSize() {
-    adjustmentLevel = 0; // Reset adjustment level
-    const baseSize = 14; // Default font size in px
-
-    // Reset font size for all relevant elements
-    document.querySelector('body').style.fontSize = `${baseSize}px`;
-    document.querySelectorAll('.instructions, .blue-bar, .filter-status-btn, .filter-container, table, th, td, .dataTables_wrapper, select, option').forEach(el => {
-        el.style.fontSize = `${baseSize}px`;
-    });
-}
+});
 
