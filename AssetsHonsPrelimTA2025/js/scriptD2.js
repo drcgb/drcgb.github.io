@@ -33,16 +33,20 @@ function adjustContentMargin() {
   requestAnimationFrame(() => {
     const blueBarHeight = $('.blue-bar').outerHeight(true) || 40;
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true) || 140;
+    const headerHeight = $('.fixed-header').outerHeight(true);
     
-    const extraPadding = 30;
-    const calculatedMargin = blueBarHeight + headerHeight + filterNoticeHeight + extraPadding;
-    
-    // Use Math.max to ensure margin never goes below your CSS value of 220px
-    const totalMargin = Math.max(220, calculatedMargin);
+    // Only adjust if header has a reasonable height (indicating it's properly rendered)
+    if (headerHeight > 50) { // Add this check
+        const extraPadding = 30;
+        const calculatedMargin = blueBarHeight + headerHeight + filterNoticeHeight + extraPadding;
+        
+        // Use Math.max to ensure margin never goes below your CSS value of 220px
+        const totalMargin = Math.max(220, calculatedMargin);
 
-    // Set the margin-top for the content area
-    $('.content').css('margin-top', totalMargin + 'px');
+        // Set the margin-top for the content area
+        $('.content').css('margin-top', totalMargin + 'px');
+    }
+    // If headerHeight is too small, don't adjust - let CSS handle it
   });
 }
 
@@ -71,8 +75,7 @@ function resetFontSize() {
 
 // Event listener for DOMContentLoaded to handle data loading and initialization
 document.addEventListener("DOMContentLoaded", async () => {
-  // Turn off logging for production
-  toggleLogging(false); // MAKE SURE THIS IS FALSE
+  // REMOVE THIS LINE: toggleLogging(false); // MAKE SURE THIS IS FALSE
 
   try {
     const response = await fetch("AssetsHonsPrelimTA2025/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2025_FinalX.xlsx");
