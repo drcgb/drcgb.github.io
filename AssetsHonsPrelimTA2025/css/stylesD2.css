@@ -1,7 +1,4 @@
 /* Global Styles */
-:root {
-    --scrollbar-gap: 0px;
-}
 html, body {
     height: 100%;
     margin: 0;
@@ -42,7 +39,9 @@ html {
     background-color: #0056b3;
     height: 40px;
     left: 0;
-    right: var(--scrollbar-gap);
+    right: 0;
+    width: 100%;
+    max-width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -98,7 +97,9 @@ html {
 
 .fixed-header {
     left: 0;
-    right: var(--scrollbar-gap);
+    right: 0;
+    width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
     flex: 1;
     position: fixed;
@@ -171,8 +172,7 @@ p.instructions {
 }
 
 .filter-group select {
-    width: auto;
-    min-width: 160px;
+    width: 240px;
     max-width: 100%;
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }

@@ -33,10 +33,10 @@ let fontSizeAdjustLevel = 0; // Current adjustment level: 0 is baseline
 const MAX_INCREASE = 3;      // Maximum 3 clicks to increase
 const MAX_DECREASE = -2;     // Maximum 2 clicks to decrease
 
-let pendingScrollReset = false;
-
-function requestTableScrollReset() {
-    pendingScrollReset = true;
+function scheduleTableScrollReset(options = { smooth: true }) {
+    setTimeout(() => {
+        resetTableScrollPosition(options);
+    }, 80);
 }
 
 function resetTableScrollPosition(options = { smooth: true }) {
@@ -116,7 +116,6 @@ function adjustFontSize(factor) {
 
     // Update button states
     updateFontSizeButtonStates();
-    updateFilterDropdownWidths();
 }
 
 function resetFontSize() {
@@ -132,7 +131,6 @@ function resetFontSize() {
     
     // Update button states
     updateFontSizeButtonStates();
-    updateFilterDropdownWidths();
 }
 
 // New function to update button states based on current adjustment level
@@ -188,7 +186,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateTable(allRows);
     populateMethodFilter(allRows);
     populateAreaFilter(allRows);
-    updateFilterDropdownWidths();
     initializeDataTable();
 
     // Define a global function instead of a local alias
@@ -218,7 +215,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         matchNoticeWidth();
       }, 100);
       forceScrollbarVisibility();
-      updateFilterDropdownWidths();
     });
 
     // Add this line near other layout adjustments
@@ -277,7 +273,7 @@ $(document).ready(function() {
         }
         updateFilterStatus();
         updateFilterNotice();
-        requestTableScrollReset();
+        scheduleTableScrollReset({ smooth: true });
     });
     // Method filter change handler
     $('#methodFilter').on('change', function() {
@@ -291,8 +287,7 @@ $(document).ready(function() {
         updateFilterStatus();
         updateFilterNotice();
         adjustContentMargin();
-        updateFilterDropdownWidths();
-        requestTableScrollReset();
+        scheduleTableScrollReset({ smooth: true });
     });
 
     // Area filter change handler
@@ -312,8 +307,7 @@ $(document).ready(function() {
         updateFilterStatus();
         updateFilterNotice();
         adjustContentMargin();
-        updateFilterDropdownWidths();
-        requestTableScrollReset();
+        scheduleTableScrollReset({ smooth: true });
     });
 
     // Text size controls with updated handlers
@@ -334,7 +328,6 @@ $(document).ready(function() {
     });
 
     updateFontSizeButtonStates();
-    updateFilterDropdownWidths();
 });
 
 // Initialize DataTable configuration
@@ -359,10 +352,6 @@ function initializeDataTable() {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
             updateFilterNotice();
-            if (pendingScrollReset) {
-                pendingScrollReset = false;
-                resetTableScrollPosition({ smooth: false });
-            }
         }
     });
 
@@ -466,32 +455,6 @@ function extractAreas(row) {
         return possibleAreas.filter(Boolean).map(area => area.toString().trim());
     }
     return [];
-}
-
-function updateFilterDropdownWidths() {
-    ['methodFilter', 'areaFilter'].forEach(id => {
-        const select = document.getElementById(id);
-        if (!select) return;
-
-        select.style.width = 'auto';
-        select.style.minWidth = '';
-
-        // Force reflow to ensure scrollWidth is accurate after font-size changes
-        const computed = window.getComputedStyle(select);
-        const paddingLeft = parseFloat(computed.paddingLeft) || 0;
-        const paddingRight = parseFloat(computed.paddingRight) || 0;
-        const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
-        const borderRight = parseFloat(computed.borderRightWidth) || 0;
-        const totalExtras = paddingLeft + paddingRight + borderLeft + borderRight;
-
-        const desiredWidth = Math.ceil(select.scrollWidth + totalExtras + 4);
-        const parentWidth = select.parentElement ? select.parentElement.clientWidth : desiredWidth;
-        const maxAvailable = parentWidth || desiredWidth;
-        const finalWidth = Math.min(desiredWidth, maxAvailable);
-
-        select.style.width = `${finalWidth}px`;
-        select.style.minWidth = '160px';
-    });
 }
 
 function getRowIdentifier(row, fallbackIndex) {
@@ -750,7 +713,6 @@ function updateMethodFilterCounts(selectedArea) {
         const size = set ? set.size : 0;
         opt.text = `${opt.value} [~${size} matches]`;
     });
-    updateFilterDropdownWidths();
 }
 
 function updateAreaFilterCounts(selectedMethod) {
@@ -803,7 +765,6 @@ function updateAreaFilterCounts(selectedMethod) {
             opt.dataset.label = labels[key];
         }
     });
-    updateFilterDropdownWidths();
 }
 
 function updateFilterStatus() {
@@ -909,13 +870,12 @@ function clearAllFilters() {
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
         if (dataTable) {
-            requestTableScrollReset();
             dataTable.draw(false);
         }
         updateFilterStatus && updateFilterStatus();
         updateFilterNotice && updateFilterNotice();
         adjustContentMargin && adjustContentMargin();
-        updateFilterDropdownWidths && updateFilterDropdownWidths();
+        scheduleTableScrollReset({ smooth: false });
         isResettingFilters = false;
     }, 80);
 } // end clearAllFilters()
@@ -927,16 +887,19 @@ function clearAllFilters() {
 function forceScrollbarVisibility() {
     const docHeight = document.documentElement.scrollHeight;
     const windowHeight = window.innerHeight;
-    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-    document.documentElement.style.setProperty('--scrollbar-gap', `${scrollbarWidth}px`);
     if (docHeight <= windowHeight) {
         document.body.style.paddingBottom = '80px';
     } else {
         document.body.style.paddingBottom = '';
     }
+
+    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
     document.querySelectorAll('.blue-bar, .fixed-header').forEach(el => {
-        el.style.removeProperty('width');
-        el.style.removeProperty('max-width');
+        if (scrollbarWidth > 0) {
+            el.style.marginRight = `${scrollbarWidth}px`;
+        } else {
+            el.style.removeProperty('margin-right');
+        }
     });
 }
 
