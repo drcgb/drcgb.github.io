@@ -31,12 +31,13 @@ let isResettingFilters = false; // Add this flag at the top with other global va
 // Function to adjust content margin
 function adjustContentMargin() {
   requestAnimationFrame(() => {
+    const blueBarHeight = $('.blue-bar').outerHeight(true) || 40; // Include the blue bar height
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const headerHeight = $('.fixed-header').outerHeight(true);
-    const totalMargin = headerHeight + filterNoticeHeight;
+    const totalMargin = blueBarHeight + headerHeight + filterNoticeHeight; // Include blue bar in calculation
 
     // Set the margin-top for the content area
-    $('.content').css('margin-top', totalMargin);
+    $('.content').css('margin-top', totalMargin + 'px');
   });
 }
 
