@@ -112,8 +112,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 $(document).ready(function() {
-    // REMOVE this line - don't adjust margin before data is loaded
-    // adjustContentMargin();
 
     // Instructions Toggle
     $('#instructionsToggle').on('click', function() {
@@ -125,7 +123,6 @@ $(document).ready(function() {
             detailsElement.attr('open', true);
             $(this).text('▼ Instructions');
         }
-        adjustContentMargin(); // Adjust margin when instructions toggle changes
     });
 
     // Close Instructions Link
