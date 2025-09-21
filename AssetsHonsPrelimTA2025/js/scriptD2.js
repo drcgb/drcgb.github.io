@@ -31,10 +31,13 @@ let isResettingFilters = false; // Add this flag at the top with other global va
 // Function to adjust content margin
 function adjustContentMargin() {
   requestAnimationFrame(() => {
-    const blueBarHeight = $('.blue-bar').outerHeight(true) || 40; // Include the blue bar height
+    const blueBarHeight = $('.blue-bar').outerHeight(true) || 40;
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true);
-    const totalMargin = blueBarHeight + headerHeight + filterNoticeHeight; // Include blue bar in calculation
+    const headerHeight = $('.fixed-header').outerHeight(true) || 120; // Add fallback value
+    
+    // Add some extra padding to ensure no clipping
+    const extraPadding = 20;
+    const totalMargin = blueBarHeight + headerHeight + filterNoticeHeight + extraPadding;
 
     // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin + 'px');
@@ -66,8 +69,7 @@ function resetFontSize() {
 
 // Event listener for DOMContentLoaded to handle data loading and initialization
 document.addEventListener("DOMContentLoaded", async () => {
-  // Step 1: Set toggleLogging to 'true' to enable console logging to debug the data loading process
-  toggleLogging(false); // Turn logging OFF for production
+  toggleLogging(false);
 
   try {
     const response = await fetch("AssetsHonsPrelimTA2025/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2025_FinalX.xlsx");
@@ -87,18 +89,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateFilterStatus();
     }, 500);
 
-    requestAnimationFrame(() => {
+    // Delay the margin calculation even more to ensure proper header height calculation
+    setTimeout(() => {
       adjustContentMargin();
-      // Add delay for matchNoticeWidth to ensure DOM is ready
       setTimeout(() => {
         matchNoticeWidth();
       }, 100);
-    });
+    }, 800); // Increased delay
 
     // Adjustments on window resize
     window.addEventListener('resize', () => {
       adjustContentMargin();
-      // Add delay for resize as well
       setTimeout(() => {
         matchNoticeWidth();
       }, 100);
