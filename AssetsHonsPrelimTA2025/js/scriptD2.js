@@ -531,35 +531,39 @@ function updateFilterStatus() {
     const hasSearchFilter = customSearch.value.trim() !== '';
     const hasAnyFilter = hasMethodFilter || hasAreaFilter || hasSearchFilter;
 
-    if (hasAnyFilter) {
-        // Active filters - show red button and notice
-        filterStatusBtn.textContent = "Clear all filters";
-        filterStatusBtn.className = "filter-status-btn red";
-        
-        let filterText = "Active filters: ";
-        let filters = [];
-        
-        if (hasSearchFilter) filters.push(`Search: "${customSearch.value}"`);
-        if (hasMethodFilter) {
-            const methodText = methodFilter.options[methodFilter.selectedIndex].text.trim();
-            filters.push(`Method: ${methodText}`);
+    // Use requestAnimationFrame for Chrome compatibility
+    requestAnimationFrame(() => {
+        if (hasAnyFilter) {
+            // Active filters - show red button and notice
+            filterStatusBtn.textContent = "Clear all filters";
+            filterStatusBtn.className = "filter-status-btn red";
+            
+            let filterText = "Active filters: ";
+            let filters = [];
+            
+            if (hasSearchFilter) filters.push(`Search: "${customSearch.value}"`);
+            if (hasMethodFilter) {
+                const methodText = methodFilter.options[methodFilter.selectedIndex].text.trim();
+                filters.push(`Method: ${methodText}`);
+            }
+            if (hasAreaFilter) {
+                const areaText = areaFilter.options[areaFilter.selectedIndex].text.trim();
+                filters.push(`Area: ${areaText}`);
+            }
+            
+            filterNotice.textContent = filterText + filters.join(", ");
+            filterNotice.style.display = "block";
+            
+        } else {
+            // No active filters - show green button and hide notice
+            filterStatusBtn.textContent = "No filters active";
+            filterStatusBtn.className = "filter-status-btn green";
+            filterNotice.style.display = "none";
         }
-        if (hasAreaFilter) {
-            const areaText = areaFilter.options[areaFilter.selectedIndex].text.trim();
-            filters.push(`Area: ${areaText}`);
-        }
         
-        filterNotice.textContent = filterText + filters.join(", ");
-        filterNotice.style.display = "block";
-    } else {
-        // No active filters - show green button and hide notice
-        filterStatusBtn.textContent = "No filters active";
-        filterStatusBtn.className = "filter-status-btn green";
-        filterNotice.style.display = "none";
-    }
-    
-    // Adjust content margin when filter notice visibility changes
-    adjustContentMargin();
+        // Adjust content margin when filter notice visibility changes
+        adjustContentMargin();
+    });
 }
 
 function clearAllFilters() {
