@@ -41,31 +41,6 @@ function adjustContentMargin() {
   });
 }
 
-// New function specifically for instruction toggle margin adjustment
-function adjustInstructionsMargin() {
-    requestAnimationFrame(() => {
-        // Get the instructions element height if open
-        const instructionsHeight = $('#instructionsDetails').prop('open') 
-            ? $('#instructionsDetails').outerHeight(true) 
-            : 0;
-            
-        // Get the current margin and add instruction height if needed
-        const currentMargin = parseInt($('.content').css('margin-top'));
-        const baseMargin = 180; // Base margin from CSS
-        
-        // Calculate new margin based on instructions state
-        const filterNoticeHeight = $('#filterNotice').is(':visible') 
-            ? $('#filterNotice').outerHeight(true) 
-            : 0;
-            
-        const totalMargin = baseMargin + filterNoticeHeight + instructionsHeight;
-        
-        // Set the margin-top for the content area
-        $('.content').css('margin-top', totalMargin + 'px');
-    });
-}
-
-// Function to match filter notice width to search input - MOVED UP HERE
 function matchNoticeWidth() {
     // Add safety check to ensure elements exist
     const searchInput = document.getElementById('customSearch');
@@ -79,11 +54,14 @@ function matchNoticeWidth() {
 
 // Add font size control functions - MOVED UP HERE TOO
 function adjustFontSize(factor) {
-    $('body, table, th, td, .dataTables_wrapper, .filter-status-btn, .filter-notice, .abstract-title, .method-section, .areas-section').each(function() {
+    $('body, .page-wrapper, table, th, td, tr, .dataTables_wrapper, #abstractTable, #abstractTable td, .filter-status-btn, .filter-notice, .abstract-title, .method-section, .areas-section, td strong, td br').each(function() {
         const currentSize = parseFloat($(this).css('font-size'));
         const newSize = currentSize * factor;
         $(this).css('font-size', newSize + 'px');
     });
+    
+    // Add !important to ensure styles take precedence
+    $('#abstractTable td').css('font-size', `${parseFloat($('#abstractTable td').css('font-size')) * factor}px !important`);
     
     const currentFactor = parseFloat(localStorage.getItem('fontSizeFactor') || '1');
     localStorage.setItem('fontSizeFactor', (currentFactor * factor).toString());
@@ -479,18 +457,14 @@ function updateMethodFilterCounts(selectedArea) {
     if (!selectedArea || selectedArea === '') {
         isResettingFilters = true; // Set flag to prevent recursive calls
         
-        // Reset method filter to original state
+        // Store current method selection
+        const currentMethodValue = methodFilter.value;
+        
+        // Update method filter counts without resetting selection
         populateMethodFilter(allRows);
-        methodFilter.value = '';
         
-        // Store current area selection before repopulating
-        const currentAreaValue = areaFilter.value;
-        
-        // Repopulate area filter to reset counts
-        populateAreaFilter(allRows);
-        
-        // Restore the area filter selection (should be "" for "All Research Areas")
-        areaFilter.value = currentAreaValue;
+        // Restore method selection instead of resetting
+        methodFilter.value = currentMethodValue;
         
         // Update filter status and notice - ADD THIS
         updateFilterStatus();
