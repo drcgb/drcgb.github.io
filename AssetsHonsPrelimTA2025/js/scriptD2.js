@@ -39,6 +39,16 @@ function scheduleTableScrollReset(options = { smooth: true }) {
     }, 80);
 }
 
+function scrollTableAfterNextDraw(options = { smooth: true }) {
+    if (dataTable && typeof dataTable.one === 'function') {
+        dataTable.one('draw', () => {
+            scheduleTableScrollReset(options);
+        });
+    } else {
+        scheduleTableScrollReset(options);
+    }
+}
+
 function resetTableScrollPosition(options = { smooth: true }) {
     try {
         const table = document.getElementById('abstractTable');
@@ -269,17 +279,20 @@ $(document).ready(function() {
     $('#customSearch').on('input', function() {
         const searchValue = $(this).val();
         if (dataTable) {
+            scrollTableAfterNextDraw({ smooth: true });
             dataTable.search(searchValue).draw();
+        } else {
+            scheduleTableScrollReset({ smooth: true });
         }
         updateFilterStatus();
         updateFilterNotice();
-        scheduleTableScrollReset({ smooth: true });
     });
     // Method filter change handler
     $('#methodFilter').on('change', function() {
         const selectedMethod = $(this).val();
 
         if (dataTable) {
+            scrollTableAfterNextDraw({ smooth: true });
             dataTable.draw();
         }
 
@@ -295,6 +308,7 @@ $(document).ready(function() {
         const selectedArea = $(this).val();
 
         if (dataTable) {
+            scrollTableAfterNextDraw({ smooth: true });
             dataTable.draw();
         }
 
@@ -307,7 +321,6 @@ $(document).ready(function() {
         updateFilterStatus();
         updateFilterNotice();
         adjustContentMargin();
-        scheduleTableScrollReset({ smooth: true });
     });
 
     // Text size controls with updated handlers
@@ -870,6 +883,7 @@ function clearAllFilters() {
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
         if (dataTable) {
+            scrollTableAfterNextDraw({ smooth: false });
             dataTable.draw(false);
         }
         updateFilterStatus && updateFilterStatus();
