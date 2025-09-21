@@ -40,10 +40,32 @@ function adjustContentMargin() {
   });
 }
 
+// Function to match filter notice width to search input - MOVED UP HERE
+function matchNoticeWidth() {
+    const searchInput = document.getElementById('customSearch');
+    const filterNotice = document.getElementById('filterNotice');
+    
+    if (searchInput && filterNotice) {
+        const searchWidth = searchInput.offsetWidth;
+        filterNotice.style.width = searchWidth + 'px';
+    }
+}
+
+// Add font size control functions - MOVED UP HERE TOO
+function adjustFontSize(factor) {
+    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+    const newSize = currentSize * factor;
+    document.body.style.fontSize = newSize + 'px';
+}
+
+function resetFontSize() {
+    document.body.style.fontSize = '';
+}
+
 // Event listener for DOMContentLoaded to handle data loading and initialization
 document.addEventListener("DOMContentLoaded", async () => {
   // Step 1: Set toggleLogging to 'true' to enable console logging to debug the data loading process
-  toggleLogging(false); // Turn logging on(true)/off(false) for this section
+  toggleLogging(true); // Turn logging ON temporarily to debug the filter button issue
 
   try {
     console.log("Loading XLSX data...");
@@ -54,9 +76,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
     console.log("Data loaded:", allRows);
 
-    // Step 2: Disable logging after debugging
-    toggleLogging(false); // Turn console logging on(true)/off(false) after the debugging is done
-
     // Populate and initialize components
     populateTable(allRows);
     populateMethodFilter(allRows);
@@ -65,9 +84,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Add a small delay to ensure everything is rendered
     setTimeout(() => {
+      console.log("About to call updateFilterStatus...");
       updateFilterStatus();
-      console.log("Filter status button:", document.getElementById("filterStatusBtn")); // Debug line
-    }, 100);
+      console.log("Filter status button after update:", document.getElementById("filterStatusBtn"));
+    }, 500); // Increased delay to 500ms
 
     requestAnimationFrame(() => {
       adjustContentMargin();
@@ -76,12 +96,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Adjustments on window resize
     window.addEventListener('resize', () => {
-      adjustContentMargin(); // Adjust margin on window resize
-      matchNoticeWidth(); // Match filter notice width to search input
+      adjustContentMargin();
+      matchNoticeWidth();
     });
 
   } catch (err) {
-    console.error('Error loading XLSX data:', err); // Keep error logging enabled
+    console.error('Error loading XLSX data:', err);
   }
 });
 
@@ -502,16 +522,34 @@ function updateMethodFilterCounts(selectedArea) {
 }
 
 function updateFilterStatus() {
+    console.log("updateFilterStatus called");
+    
     const methodFilter = document.getElementById("methodFilter");
     const areaFilter = document.getElementById("areaFilter");
     const customSearch = document.getElementById("customSearch");
     const filterStatusBtn = document.getElementById("filterStatusBtn");
     const filterNotice = document.getElementById("filterNotice");
 
+    console.log("Elements found:", {
+        methodFilter: !!methodFilter,
+        areaFilter: !!areaFilter, 
+        customSearch: !!customSearch,
+        filterStatusBtn: !!filterStatusBtn,
+        filterNotice: !!filterNotice
+    });
+
+    // Safety check
+    if (!methodFilter || !areaFilter || !customSearch || !filterStatusBtn || !filterNotice) {
+        console.error("Missing elements! Cannot update filter status.");
+        return;
+    }
+
     const hasMethodFilter = methodFilter.value !== '';
     const hasAreaFilter = areaFilter.value !== '';
     const hasSearchFilter = customSearch.value.trim() !== '';
     const hasAnyFilter = hasMethodFilter || hasAreaFilter || hasSearchFilter;
+
+    console.log("Filter states:", {hasMethodFilter, hasAreaFilter, hasSearchFilter, hasAnyFilter});
 
     if (hasAnyFilter) {
         // Active filters - show red button and notice
@@ -540,6 +578,8 @@ function updateFilterStatus() {
         filterNotice.style.display = "none";
     }
     
+    console.log("Button updated:", filterStatusBtn.textContent, filterStatusBtn.className);
+    
     // Adjust content margin when filter notice visibility changes
     adjustContentMargin();
 }
@@ -565,27 +605,5 @@ function clearAllFilters() {
     
     // Update filter status
     updateFilterStatus();
-}
-
-// Add font size control functions
-function adjustFontSize(factor) {
-    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
-    const newSize = currentSize * factor;
-    document.body.style.fontSize = newSize + 'px';
-}
-
-function resetFontSize() {
-    document.body.style.fontSize = '';
-}
-
-// Add a function to match filter notice width to search input
-function matchNoticeWidth() {
-    const searchInput = document.getElementById('customSearch');
-    const filterNotice = document.getElementById('filterNotice');
-    
-    if (searchInput && filterNotice) {
-        const searchWidth = searchInput.offsetWidth;
-        filterNotice.style.width = searchWidth + 'px';
-    }
 }
 
