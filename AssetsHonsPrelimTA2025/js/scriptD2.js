@@ -33,6 +33,17 @@ let fontSizeAdjustLevel = 0; // Current adjustment level: 0 is baseline
 const MAX_INCREASE = 3;      // Maximum 3 clicks to increase
 const MAX_DECREASE = -2;     // Maximum 2 clicks to decrease
 
+function resetTableScrollPosition(options = { smooth: true }) {
+    try {
+        const table = document.getElementById('abstractTable');
+        const targetTop = table ? Math.max(0, table.getBoundingClientRect().top + window.pageYOffset - 40) : 0;
+        const behavior = options && options.smooth ? 'smooth' : 'auto';
+        window.scrollTo({ top: targetTop, behavior });
+    } catch (err) {
+        window.scrollTo(0, 0);
+    }
+}
+
 // Unified margin adjustment function that handles both instructions and filters
 function adjustContentMargin() {
   requestAnimationFrame(() => {
@@ -69,7 +80,7 @@ function adjustFontSize(factor) {
     // Update the adjustment level
     fontSizeAdjustLevel += (factor > 1) ? 1 : -1;
     
-    const baseSelectors = 'body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice';
+    const baseSelectors = 'body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice, select, option, .filter-group select';
     const importantSelector = '#abstractTable td, #abstractTable th';
 
     const targets = new Set();
@@ -87,18 +98,19 @@ function adjustFontSize(factor) {
             el.style.fontSize = `${newSize}px`;
         }
     });
-    
+
     // Store the current level and factor in localStorage
     localStorage.setItem('fontSizeAdjustLevel', fontSizeAdjustLevel.toString());
     const currentFactor = parseFloat(localStorage.getItem('fontSizeFactor') || '1');
     localStorage.setItem('fontSizeFactor', (currentFactor * factor).toString());
-    
+
     // Update button states
     updateFontSizeButtonStates();
+    updateFilterDropdownWidths();
 }
 
 function resetFontSize() {
-    const baseSelectors = 'body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice';
+    const baseSelectors = 'body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice, select, option, .filter-group select';
     document.querySelectorAll(baseSelectors).forEach(el => {
         el.style.removeProperty('font-size');
     });
@@ -110,6 +122,7 @@ function resetFontSize() {
     
     // Update button states
     updateFontSizeButtonStates();
+    updateFilterDropdownWidths();
 }
 
 // New function to update button states based on current adjustment level
@@ -165,6 +178,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateTable(allRows);
     populateMethodFilter(allRows);
     populateAreaFilter(allRows);
+    updateFilterDropdownWidths();
     initializeDataTable();
 
     // Define a global function instead of a local alias
@@ -193,6 +207,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => {
         matchNoticeWidth();
       }, 100);
+      forceScrollbarVisibility();
+      updateFilterDropdownWidths();
     });
 
     // Add this line near other layout adjustments
@@ -251,6 +267,7 @@ $(document).ready(function() {
         }
         updateFilterStatus();
         updateFilterNotice();
+        resetTableScrollPosition();
     });
     // Method filter change handler
     $('#methodFilter').on('change', function() {
@@ -264,6 +281,8 @@ $(document).ready(function() {
         updateFilterStatus();
         updateFilterNotice();
         adjustContentMargin();
+        updateFilterDropdownWidths();
+        resetTableScrollPosition();
     });
 
     // Area filter change handler
@@ -283,6 +302,8 @@ $(document).ready(function() {
         updateFilterStatus();
         updateFilterNotice();
         adjustContentMargin();
+        updateFilterDropdownWidths();
+        resetTableScrollPosition();
     });
 
     // Text size controls with updated handlers
@@ -303,6 +324,7 @@ $(document).ready(function() {
     });
 
     updateFontSizeButtonStates();
+    updateFilterDropdownWidths();
 });
 
 // Initialize DataTable configuration
@@ -430,6 +452,52 @@ function extractAreas(row) {
         return possibleAreas.filter(Boolean).map(area => area.toString().trim());
     }
     return [];
+}
+
+function updateFilterDropdownWidths() {
+    ['methodFilter', 'areaFilter'].forEach(id => {
+        const select = document.getElementById(id);
+        if (!select) return;
+
+        select.style.width = 'auto';
+        select.style.minWidth = '';
+
+        // Force reflow to ensure scrollWidth is accurate after font-size changes
+        const computed = window.getComputedStyle(select);
+        const paddingLeft = parseFloat(computed.paddingLeft) || 0;
+        const paddingRight = parseFloat(computed.paddingRight) || 0;
+        const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
+        const borderRight = parseFloat(computed.borderRightWidth) || 0;
+        const totalExtras = paddingLeft + paddingRight + borderLeft + borderRight;
+
+        const desiredWidth = Math.ceil(select.scrollWidth + totalExtras + 4);
+        const parentWidth = select.parentElement ? select.parentElement.clientWidth : desiredWidth;
+        const maxAvailable = parentWidth || desiredWidth;
+        const finalWidth = Math.min(desiredWidth, maxAvailable);
+
+        select.style.width = `${finalWidth}px`;
+        select.style.minWidth = '160px';
+    });
+}
+
+function getRowIdentifier(row, fallbackIndex) {
+    if (Array.isArray(row)) {
+        const idCandidate = row[0];
+        if (idCandidate !== undefined && idCandidate !== null && idCandidate !== '') {
+            return idCandidate.toString().trim();
+        }
+    }
+
+    if (row && typeof row === 'object') {
+        const keys = ['id', 'ID', 'Id', 'abstractID', 'AbstractID'];
+        for (const key of keys) {
+            if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                return row[key].toString().trim();
+            }
+        }
+    }
+
+    return `row-${fallbackIndex}`;
 }
 
 function rowMatchesSearch(row, searchTerm) {
@@ -567,14 +635,18 @@ function populateAreaFilter(rows) {
     if (!select) return;
 
     const sourceRows = getVisibleRowsFromDataTable().length ? getVisibleRowsFromDataTable() : (rows || []);
-    const counts = {};
+    const areaMatches = new Map();
     const labels = {};
 
-    sourceRows.forEach(r => {
+    sourceRows.forEach((r, rowIndex) => {
+        const rowId = getRowIdentifier(r, rowIndex);
         extractAreas(r).forEach(area => {
             const key = normalizeString(area);
             if (!key) return;
-            counts[key] = (counts[key] || 0) + 1;
+            if (!areaMatches.has(key)) {
+                areaMatches.set(key, new Set());
+            }
+            areaMatches.get(key).add(rowId);
             if (!labels[key]) {
                 labels[key] = area;
             }
@@ -584,16 +656,19 @@ function populateAreaFilter(rows) {
     const prev = select.value;
     select.innerHTML = '';
 
-    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    let total = 0;
+    areaMatches.forEach(set => {
+        total += set.size;
+    });
     const allOpt = document.createElement('option');
     allOpt.value = '';
     allOpt.text = `All research areas [~${total} matches]`;
     select.appendChild(allOpt);
 
-    Object.keys(counts).sort().forEach(key => {
+    Array.from(areaMatches.keys()).sort().forEach(key => {
         const opt = document.createElement('option');
         opt.value = key;
-        opt.text = `${labels[key]} [~${counts[key]} matches]`;
+        opt.text = `${labels[key]} [~${areaMatches.get(key).size} matches]`;
         opt.dataset.label = labels[key];
         select.appendChild(opt);
     });
@@ -618,7 +693,7 @@ function updateMethodFilterCounts(selectedArea) {
 
     const counts = {};
 
-    rows.forEach(row => {
+    rows.forEach((row, rowIndex) => {
         if (!rowMatchesSearch(row, searchTerm)) {
             return;
         }
@@ -632,22 +707,27 @@ function updateMethodFilterCounts(selectedArea) {
 
         const methodVal = getRowValue(row, 1) || 'Unspecified';
         const key = normalizeString(methodVal) || 'unspecified';
-        counts[key] = (counts[key] || 0) + 1;
+        const rowId = getRowIdentifier(row, rowIndex);
+
+        if (!counts[key]) {
+            counts[key] = new Set();
+        }
+        counts[key].add(rowId);
     });
 
     const grouped = {
         'all-quantitative': 0,
-        'meta-analysis': counts['meta-analysis'] || 0,
-        'mixed-methods': counts['mixed-methods'] || 0,
+        'meta-analysis': counts['meta-analysis'] ? counts['meta-analysis'].size : 0,
+        'mixed-methods': counts['mixed-methods'] ? counts['mixed-methods'].size : 0,
         'all-qualitative': 0,
-        'meta-synthesis': counts['meta-synthesis'] || 0
+        'meta-synthesis': counts['meta-synthesis'] ? counts['meta-synthesis'].size : 0
     };
-    grouped['all-quantitative'] = (counts['quantitative'] || 0) + grouped['meta-analysis'] + grouped['mixed-methods'];
-    grouped['all-qualitative'] = (counts['qualitative'] || 0) + grouped['meta-synthesis'] + grouped['mixed-methods'];
+    grouped['all-quantitative'] = (counts['quantitative'] ? counts['quantitative'].size : 0) + grouped['meta-analysis'] + grouped['mixed-methods'];
+    grouped['all-qualitative'] = (counts['qualitative'] ? counts['qualitative'].size : 0) + grouped['meta-synthesis'] + grouped['mixed-methods'];
 
     Array.from(select.options).forEach(opt => {
         if (!opt.value) {
-            const tot = Object.values(counts).reduce((a, b) => a + b, 0);
+            const tot = Object.values(counts).reduce((acc, set) => acc + set.size, 0);
             opt.text = `All research methods [~${tot} matches]`;
             return;
         }
@@ -657,9 +737,11 @@ function updateMethodFilterCounts(selectedArea) {
             return;
         }
 
-        const c = counts[normalizeString(opt.value)] || 0;
-        opt.text = `${opt.value} [~${c} matches]`;
+        const set = counts[normalizeString(opt.value)];
+        const size = set ? set.size : 0;
+        opt.text = `${opt.value} [~${size} matches]`;
     });
+    updateFilterDropdownWidths();
 }
 
 function updateAreaFilterCounts(selectedMethod) {
@@ -670,10 +752,10 @@ function updateAreaFilterCounts(selectedMethod) {
     const methodKey = normalizeString(selectedMethod);
     const rows = Array.isArray(allRows) ? allRows : [];
 
-    const counts = {};
+    const areaMatches = new Map();
     const labels = {};
 
-    rows.forEach(row => {
+    rows.forEach((row, rowIndex) => {
         if (!rowMatchesSearch(row, searchTerm)) {
             return;
         }
@@ -683,10 +765,14 @@ function updateAreaFilterCounts(selectedMethod) {
             return;
         }
 
+        const rowId = getRowIdentifier(row, rowIndex);
         extractAreas(row).forEach(area => {
             const key = normalizeString(area);
             if (!key) return;
-            counts[key] = (counts[key] || 0) + 1;
+            if (!areaMatches.has(key)) {
+                areaMatches.set(key, new Set());
+            }
+            areaMatches.get(key).add(rowId);
             if (!labels[key]) {
                 labels[key] = area;
             }
@@ -695,16 +781,24 @@ function updateAreaFilterCounts(selectedMethod) {
 
     Array.from(select.options).forEach(opt => {
         if (!opt.value) {
-            const total = Object.values(counts).reduce((a, b) => a + b, 0);
+            let total = 0;
+            areaMatches.forEach(set => {
+                total += set.size;
+            });
             opt.text = `All research areas [~${total} matches]`;
             return;
         }
 
         const key = opt.value;
         const label = opt.dataset.label || opt.text.split(' [~')[0];
-        const c = counts[key] || 0;
+        const set = areaMatches.get(key);
+        const c = set ? set.size : 0;
         opt.text = `${label} [~${c} matches]`;
+        if (!opt.dataset.label && labels[key]) {
+            opt.dataset.label = labels[key];
+        }
     });
+    updateFilterDropdownWidths();
 }
 
 function updateFilterStatus() {
@@ -813,6 +907,8 @@ function clearAllFilters() {
         updateFilterStatus && updateFilterStatus();
         updateFilterNotice && updateFilterNotice();
         adjustContentMargin && adjustContentMargin();
+        updateFilterDropdownWidths && updateFilterDropdownWidths();
+        resetTableScrollPosition && resetTableScrollPosition({ smooth: false });
         isResettingFilters = false;
     }, 80);
 } // end clearAllFilters()
@@ -824,14 +920,16 @@ function clearAllFilters() {
 function forceScrollbarVisibility() {
     const docHeight = document.documentElement.scrollHeight;
     const windowHeight = window.innerHeight;
+    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+    document.documentElement.style.setProperty('--scrollbar-gap', `${scrollbarWidth}px`);
     if (docHeight <= windowHeight) {
         document.body.style.paddingBottom = '80px';
     } else {
         document.body.style.paddingBottom = '';
     }
     document.querySelectorAll('.blue-bar, .fixed-header').forEach(el => {
-        el.style.width = '100%';
-        el.style.maxWidth = '100%';
+        el.style.removeProperty('width');
+        el.style.removeProperty('max-width');
     });
 }
 

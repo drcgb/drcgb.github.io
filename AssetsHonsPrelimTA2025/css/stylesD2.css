@@ -1,4 +1,7 @@
 /* Global Styles */
+:root {
+    --scrollbar-gap: 0px;
+}
 html, body {
     height: 100%;
     margin: 0;
@@ -38,8 +41,10 @@ html {
 .blue-bar {
     background-color: #0056b3;
     height: 40px;
-    width: 100%;
-    max-width: 100%;
+    width: auto;
+    max-width: none;
+    left: 0;
+    right: var(--scrollbar-gap);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -94,10 +99,10 @@ html {
 }
 
 .fixed-header {
-    width: 100%;
-    max-width: 100%;
+    width: auto;
+    max-width: none;
     left: 0;
-    right: 0;
+    right: var(--scrollbar-gap);
     box-sizing: border-box;
     flex: 1;
     width: 100%; /* Ensure it fits within the viewport */
@@ -171,9 +176,9 @@ p.instructions {
 }
 
 .filter-group select {
-    width: 220; /* Set a fixed width */
-    max-width: 500px; /* Ensure the width doesn't exceed this value */
-    min-width: 135px; /* Ensure the width doesn't go below this value */
+    width: auto;
+    min-width: 160px;
+    max-width: 100%;
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
