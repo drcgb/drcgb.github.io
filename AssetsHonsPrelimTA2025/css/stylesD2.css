@@ -41,8 +41,6 @@ html {
 .blue-bar {
     background-color: #0056b3;
     height: 40px;
-    width: auto;
-    max-width: none;
     left: 0;
     right: var(--scrollbar-gap);
     display: flex;
@@ -99,13 +97,10 @@ html {
 }
 
 .fixed-header {
-    width: auto;
-    max-width: none;
     left: 0;
     right: var(--scrollbar-gap);
     box-sizing: border-box;
     flex: 1;
-    width: 100%; /* Ensure it fits within the viewport */
     position: fixed;
     top: 40px; /* Adjust based on blue bar height */
     padding: 0px 12px 2px 8px; /* Adjust padding: top right bottom left */

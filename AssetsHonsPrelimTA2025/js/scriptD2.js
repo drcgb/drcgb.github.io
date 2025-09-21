@@ -656,13 +656,9 @@ function populateAreaFilter(rows) {
     const prev = select.value;
     select.innerHTML = '';
 
-    let total = 0;
-    areaMatches.forEach(set => {
-        total += set.size;
-    });
     const allOpt = document.createElement('option');
     allOpt.value = '';
-    allOpt.text = `All research areas [~${total} matches]`;
+    allOpt.text = 'All research areas';
     select.appendChild(allOpt);
 
     Array.from(areaMatches.keys()).sort().forEach(key => {
@@ -727,8 +723,7 @@ function updateMethodFilterCounts(selectedArea) {
 
     Array.from(select.options).forEach(opt => {
         if (!opt.value) {
-            const tot = Object.values(counts).reduce((acc, set) => acc + set.size, 0);
-            opt.text = `All research methods [~${tot} matches]`;
+            opt.text = 'All research methods';
             return;
         }
 
@@ -781,11 +776,7 @@ function updateAreaFilterCounts(selectedMethod) {
 
     Array.from(select.options).forEach(opt => {
         if (!opt.value) {
-            let total = 0;
-            areaMatches.forEach(set => {
-                total += set.size;
-            });
-            opt.text = `All research areas [~${total} matches]`;
+            opt.text = 'All research areas';
             return;
         }
 
