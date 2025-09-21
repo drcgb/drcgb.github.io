@@ -33,6 +33,12 @@ let fontSizeAdjustLevel = 0; // Current adjustment level: 0 is baseline
 const MAX_INCREASE = 3;      // Maximum 3 clicks to increase
 const MAX_DECREASE = -2;     // Maximum 2 clicks to decrease
 
+let pendingScrollReset = false;
+
+function requestTableScrollReset() {
+    pendingScrollReset = true;
+}
+
 function resetTableScrollPosition(options = { smooth: true }) {
     try {
         const table = document.getElementById('abstractTable');
@@ -271,7 +277,7 @@ $(document).ready(function() {
         }
         updateFilterStatus();
         updateFilterNotice();
-        resetTableScrollPosition();
+        requestTableScrollReset();
     });
     // Method filter change handler
     $('#methodFilter').on('change', function() {
@@ -286,7 +292,7 @@ $(document).ready(function() {
         updateFilterNotice();
         adjustContentMargin();
         updateFilterDropdownWidths();
-        resetTableScrollPosition();
+        requestTableScrollReset();
     });
 
     // Area filter change handler
@@ -307,7 +313,7 @@ $(document).ready(function() {
         updateFilterNotice();
         adjustContentMargin();
         updateFilterDropdownWidths();
-        resetTableScrollPosition();
+        requestTableScrollReset();
     });
 
     // Text size controls with updated handlers
@@ -353,6 +359,10 @@ function initializeDataTable() {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
             updateFilterNotice();
+            if (pendingScrollReset) {
+                pendingScrollReset = false;
+                resetTableScrollPosition({ smooth: false });
+            }
         }
     });
 
@@ -898,12 +908,14 @@ function clearAllFilters() {
     setTimeout(() => {
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
-        if (dataTable) dataTable.draw(false);
+        if (dataTable) {
+            requestTableScrollReset();
+            dataTable.draw(false);
+        }
         updateFilterStatus && updateFilterStatus();
         updateFilterNotice && updateFilterNotice();
         adjustContentMargin && adjustContentMargin();
         updateFilterDropdownWidths && updateFilterDropdownWidths();
-        resetTableScrollPosition && resetTableScrollPosition({ smooth: false });
         isResettingFilters = false;
     }, 80);
 } // end clearAllFilters()
