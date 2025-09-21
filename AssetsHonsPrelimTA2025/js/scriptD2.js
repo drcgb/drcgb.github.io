@@ -65,16 +65,14 @@ function resetFontSize() {
 // Event listener for DOMContentLoaded to handle data loading and initialization
 document.addEventListener("DOMContentLoaded", async () => {
   // Step 1: Set toggleLogging to 'true' to enable console logging to debug the data loading process
-  toggleLogging(true); // Turn logging ON temporarily to debug the filter button issue
+  toggleLogging(false); // Turn logging OFF for production
 
   try {
-    console.log("Loading XLSX data...");
     const response = await fetch("AssetsHonsPrelimTA2025/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2025_FinalX.xlsx");
     const data = await response.arrayBuffer();
     const workbook = XLSX.read(data, { type: "array" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-    console.log("Data loaded:", allRows);
 
     // Populate and initialize components
     populateTable(allRows);
@@ -84,10 +82,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Add a small delay to ensure everything is rendered
     setTimeout(() => {
-      console.log("About to call updateFilterStatus...");
       updateFilterStatus();
-      console.log("Filter status button after update:", document.getElementById("filterStatusBtn"));
-    }, 500); // Increased delay to 500ms
+    }, 500);
 
     requestAnimationFrame(() => {
       adjustContentMargin();
@@ -181,8 +177,6 @@ $(document).ready(function() {
 });
 
 function initializeDataTable() {
-    console.log("Initializing DataTable...");
-
     dataTable = $('#abstractTable').DataTable({
         paging: false,
         searching: true,
@@ -249,7 +243,6 @@ function initializeDataTable() {
 
 // Populate the table with rows
 function populateTable(rows) {
-    console.log("Populating table...");
     methodData = [];
     researchAreasData = [];
 
@@ -271,7 +264,6 @@ function populateTable(rows) {
 
 // Populate the method filter dropdown
 function populateMethodFilter(rows) {
-    console.log("Populating method filter...");
     const methodCounts = {
         quantitative: 0,
         metaAnalysis: 0,
@@ -522,25 +514,14 @@ function updateMethodFilterCounts(selectedArea) {
 }
 
 function updateFilterStatus() {
-    console.log("updateFilterStatus called");
-    
     const methodFilter = document.getElementById("methodFilter");
     const areaFilter = document.getElementById("areaFilter");
     const customSearch = document.getElementById("customSearch");
     const filterStatusBtn = document.getElementById("filterStatusBtn");
     const filterNotice = document.getElementById("filterNotice");
 
-    console.log("Elements found:", {
-        methodFilter: !!methodFilter,
-        areaFilter: !!areaFilter, 
-        customSearch: !!customSearch,
-        filterStatusBtn: !!filterStatusBtn,
-        filterNotice: !!filterNotice
-    });
-
     // Safety check
     if (!methodFilter || !areaFilter || !customSearch || !filterStatusBtn || !filterNotice) {
-        console.error("Missing elements! Cannot update filter status.");
         return;
     }
 
@@ -548,8 +529,6 @@ function updateFilterStatus() {
     const hasAreaFilter = areaFilter.value !== '';
     const hasSearchFilter = customSearch.value.trim() !== '';
     const hasAnyFilter = hasMethodFilter || hasAreaFilter || hasSearchFilter;
-
-    console.log("Filter states:", {hasMethodFilter, hasAreaFilter, hasSearchFilter, hasAnyFilter});
 
     if (hasAnyFilter) {
         // Active filters - show red button and notice
@@ -577,8 +556,6 @@ function updateFilterStatus() {
         filterStatusBtn.className = "filter-status-btn green";
         filterNotice.style.display = "none";
     }
-    
-    console.log("Button updated:", filterStatusBtn.textContent, filterStatusBtn.className);
     
     // Adjust content margin when filter notice visibility changes
     adjustContentMargin();
