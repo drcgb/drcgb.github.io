@@ -478,6 +478,10 @@ function normalizeString(value) {
     return (value == null ? '' : value).toString().trim().toLowerCase();
 }
 
+function capitalizeText(value) {
+    return (value || '').toString().replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
 function extractAreas(row) {
     if (Array.isArray(row)) {
         return row.slice(5).filter(Boolean).map(area => area.toString().trim());
@@ -615,30 +619,61 @@ function populateMethodFilter(rows) {
 
     // rebuild options
     select.innerHTML = '';
-    // All option
-    const total = Object.values(counts).reduce((a,b)=>a+b,0);
+    const makeGroupLabel = (text) => {
+        const labelOpt = document.createElement('option');
+        labelOpt.text = text;
+        labelOpt.disabled = true;
+        labelOpt.value = `__label-${text.toLowerCase().replace(/\s+/g,'-')}`;
+        labelOpt.className = 'method-group-label';
+        labelOpt.style.fontWeight = 'bold';
+        labelOpt.style.color = '#666';
+        return labelOpt;
+    };
+
+    const formatText = (label, count) => `${label} [~${count} matches]`;
+    const capitalise = (key) => key.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
     const allOpt = document.createElement('option');
     allOpt.value = '';
-    allOpt.text = 'All research methods';
+    allOpt.text = 'All Methods';
     select.appendChild(allOpt);
 
-    // grouped options first (stable order)
-    const groupedOrder = ['all-quantitative','meta-analysis','mixed-methods','all-qualitative','meta-synthesis'];
-    groupedOrder.forEach(key => {
-        if (grouped[key] !== undefined) {
-            const opt = document.createElement('option');
-            opt.value = key;
-            opt.text = `${key} [~${grouped[key]} matches]`;
-            select.appendChild(opt);
-        }
+    select.appendChild(makeGroupLabel('Quantitative'));
+    const quantitativeOptions = [
+        { value: 'all-quantitative', label: 'All Quantitative', count: grouped['all-quantitative'] },
+        { value: 'meta-analysis', label: 'Meta-Analysis', count: grouped['meta-analysis'] },
+        { value: 'mixed-methods', label: 'Mixed-Methods', count: grouped['mixed-methods'] }
+    ];
+    quantitativeOptions.forEach(({ value, label, count }) => {
+        if (count === undefined) return;
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.text = formatText(label, count || 0);
+        select.appendChild(opt);
     });
 
-    // then add any other raw methods not covered above
+    select.appendChild(makeGroupLabel('Qualitative'));
+    const qualitativeOptions = [
+        { value: 'all-qualitative', label: 'All Qualitative', count: grouped['all-qualitative'] },
+        { value: 'meta-synthesis', label: 'Meta-Synthesis', count: grouped['meta-synthesis'] },
+        { value: 'mixed-methods', label: 'Mixed-Methods', count: grouped['mixed-methods'] }
+    ];
+    const handledValues = new Set(quantitativeOptions.map(o => o.value));
+    qualitativeOptions.forEach(({ value, label, count }) => {
+        if (count === undefined) return;
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.text = formatText(label, count || 0);
+        select.appendChild(opt);
+        handledValues.add(value);
+    });
+
     Object.keys(counts).sort().forEach(k => {
         if (['quantitative','qualitative','meta-analysis','meta-synthesis','mixed-methods','unspecified'].includes(k)) return;
+        if (handledValues.has(k)) return;
         const opt = document.createElement('option');
         opt.value = k;
-        opt.text = `${k} [~${counts[k]} matches]`;
+        opt.text = formatText(capitalise(k), counts[k] || 0);
         select.appendChild(opt);
     });
 
@@ -740,20 +775,33 @@ function updateMethodFilterCounts(selectedArea) {
     grouped['all-quantitative'] = (counts['quantitative'] ? counts['quantitative'].size : 0) + grouped['meta-analysis'] + grouped['mixed-methods'];
     grouped['all-qualitative'] = (counts['qualitative'] ? counts['qualitative'].size : 0) + grouped['meta-synthesis'] + grouped['mixed-methods'];
 
+    const labelLookup = {
+        'all-quantitative': 'All Quantitative',
+        'meta-analysis': 'Meta-Analysis',
+        'mixed-methods': 'Mixed-Methods',
+        'all-qualitative': 'All Qualitative',
+        'meta-synthesis': 'Meta-Synthesis'
+    };
+
     Array.from(select.options).forEach(opt => {
+        if (opt.disabled || (opt.value || '').startsWith('__label-')) {
+            return;
+        }
+
         if (!opt.value) {
-            opt.text = 'All research methods';
+            opt.text = 'All Methods';
             return;
         }
 
         if (grouped[opt.value] !== undefined) {
-            opt.text = `${opt.value} [~${grouped[opt.value]} matches]`;
+            opt.text = `${labelLookup[opt.value] || opt.value} [~${grouped[opt.value]} matches]`;
             return;
         }
 
         const set = counts[normalizeString(opt.value)];
         const size = set ? set.size : 0;
-        opt.text = `${opt.value} [~${size} matches]`;
+        const label = labelLookup[opt.value] || capitalizeText(opt.value);
+        opt.text = `${label} [~${size} matches]`;
     });
 }
 
