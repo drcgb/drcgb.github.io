@@ -103,8 +103,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 $(document).ready(function() {
-    // Adjust content margin initially
-    adjustContentMargin();
+    // REMOVE this line - don't adjust margin before data is loaded
+    // adjustContentMargin();
 
     // Instructions Toggle
     $('#instructionsToggle').on('click', function() {
