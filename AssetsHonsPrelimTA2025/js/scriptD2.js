@@ -36,7 +36,11 @@ const MAX_DECREASE = -2;     // Maximum 2 clicks to decrease
 function resetTableScrollPosition(options = { smooth: true }) {
     try {
         const table = document.getElementById('abstractTable');
-        const targetTop = table ? Math.max(0, table.getBoundingClientRect().top + window.pageYOffset - 40) : 0;
+        const blueBar = document.querySelector('.blue-bar');
+        const fixedHeader = document.querySelector('.fixed-header');
+        const offset = (blueBar ? blueBar.getBoundingClientRect().height : 0) +
+                       (fixedHeader ? fixedHeader.getBoundingClientRect().height : 0) + 10;
+        const targetTop = table ? Math.max(0, table.getBoundingClientRect().top + window.pageYOffset - offset) : 0;
         const behavior = options && options.smooth ? 'smooth' : 'auto';
         window.scrollTo({ top: targetTop, behavior });
     } catch (err) {
@@ -600,7 +604,7 @@ function populateMethodFilter(rows) {
     const total = Object.values(counts).reduce((a,b)=>a+b,0);
     const allOpt = document.createElement('option');
     allOpt.value = '';
-    allOpt.text = `All research methods [~${total} matches]`;
+    allOpt.text = 'All research methods';
     select.appendChild(allOpt);
 
     // grouped options first (stable order)
