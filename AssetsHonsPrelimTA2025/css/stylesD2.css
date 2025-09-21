@@ -238,21 +238,25 @@ table.dataTable tbody tr:hover {
 @media (max-width: 600px) {
     .filter-container {
         flex-direction: column;
-        align-items: stretch;
+        align-items: flex-start;
     }
 
-    .filter-group,
-    .filter-status-btn,
-    .custom-search-container input {
+    .filter-group {
         width: 100%;
+        text-align: left;
     }
 
     .filter-status-btn {
+        width: 100%;
+        margin-left: 0;
+        text-align: center;
         display: flex;
         justify-content: center;
+        align-items: center;
     }
 
-    .content {
-        margin-top: 260px;
+    .custom-search-container input,
+    .filter-status-btn {
+        width: 100%;
     }
 }
