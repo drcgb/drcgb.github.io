@@ -33,11 +33,11 @@ function adjustContentMargin() {
   requestAnimationFrame(() => {
     const blueBarHeight = $('.blue-bar').outerHeight(true) || 40;
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true) || 120; // Add fallback value
+    const headerHeight = $('.fixed-header').outerHeight(true) || 140; // Increased fallback from 120 to 140
     
     // Add some extra padding to ensure no clipping
-    const extraPadding = 20;
-    const totalMargin = blueBarHeight + headerHeight + filterNoticeHeight + extraPadding;
+    const extraPadding = 30; // Increased from 20 to 30
+    const totalMargin = Math.max(220, blueBarHeight + headerHeight + filterNoticeHeight + extraPadding); // Use Math.max to ensure minimum of 220px
 
     // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin + 'px');

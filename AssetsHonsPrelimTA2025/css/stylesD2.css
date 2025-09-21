@@ -127,7 +127,7 @@ body, table, th, td,
     max-width: 100%; /* Prevent expansion */
     flex: 1;
     padding: 10px 10px 1px 10px; /* Adjust padding: top right bottom left */
-    margin-top: 180px; /* Increased from 27px to provide enough space for the fixed header */
+    margin-top: 220px; /* Increased from 180px to 220px to prevent clipping */
     transition: margin-top 0.3s ease;
     text-align: left; /* Ensure left alignment */
 }
