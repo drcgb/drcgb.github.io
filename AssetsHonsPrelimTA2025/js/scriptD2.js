@@ -36,12 +36,12 @@ function adjustContentMargin() {
     const headerHeight = $('.fixed-header').outerHeight(true);
     
     // Only adjust if header has a reasonable height (indicating it's properly rendered)
-    if (headerHeight > 50) { // Add this check
-        const extraPadding = 30;
+    if (headerHeight > 50) {
+        const extraPadding = 10; // Reduced from 30 to 10
         const calculatedMargin = blueBarHeight + headerHeight + filterNoticeHeight + extraPadding;
         
-        // Use Math.max to ensure margin never goes below your CSS value of 220px
-        const totalMargin = Math.max(220, calculatedMargin);
+        // Use the smaller of CSS value (220px) or calculated value
+        const totalMargin = Math.min(220, calculatedMargin); // Changed from Math.max to Math.min
 
         // Set the margin-top for the content area
         $('.content').css('margin-top', totalMargin + 'px');
