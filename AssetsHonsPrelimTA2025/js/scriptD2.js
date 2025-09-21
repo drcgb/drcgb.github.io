@@ -67,8 +67,6 @@ function resetFontSize() {
 
 // Event listener for DOMContentLoaded to handle data loading and initialization
 document.addEventListener("DOMContentLoaded", async () => {
-  // REMOVE THIS LINE: toggleLogging(false); // MAKE SURE THIS IS FALSE
-
   try {
     const response = await fetch("AssetsHonsPrelimTA2025/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2025_FinalX.xlsx");
     const data = await response.arrayBuffer();
@@ -87,17 +85,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateFilterStatus();
     }, 500);
 
-    // Delay the margin calculation much longer to ensure proper header height calculation
+    // DON'T call adjustContentMargin() on initial load - REMOVE THIS ENTIRE BLOCK
+    // setTimeout(() => {
+    //   adjustContentMargin();
+    //   setTimeout(() => {
+    //     matchNoticeWidth();
+    //   }, 100);
+    // }, 1500);
+
+    // Just call matchNoticeWidth without adjusting margin
     setTimeout(() => {
-      adjustContentMargin();
-      setTimeout(() => {
-        matchNoticeWidth();
-      }, 100);
-    }, 1500); // Increased delay from 800ms to 1500ms
+      matchNoticeWidth();
+    }, 600);
 
     // Adjustments on window resize
     window.addEventListener('resize', () => {
-      adjustContentMargin();
+      adjustContentMargin(); // Only adjust on resize
       setTimeout(() => {
         matchNoticeWidth();
       }, 100);
@@ -537,6 +540,9 @@ function updateFilterStatus() {
     const hasSearchFilter = customSearch.value.trim() !== '';
     const hasAnyFilter = hasMethodFilter || hasAreaFilter || hasSearchFilter;
 
+    // Check current filter notice visibility BEFORE making changes
+    const wasVisible = filterNotice.style.display === "block";
+
     // Use requestAnimationFrame for Chrome compatibility
     requestAnimationFrame(() => {
         if (hasAnyFilter) {
@@ -567,8 +573,11 @@ function updateFilterStatus() {
             filterNotice.style.display = "none";
         }
         
-        // Adjust content margin when filter notice visibility changes
-        adjustContentMargin();
+        // Only adjust margin if filter notice visibility actually changed
+        const isNowVisible = filterNotice.style.display === "block";
+        if (wasVisible !== isNowVisible) {
+            adjustContentMargin();
+        }
     });
 }
 
