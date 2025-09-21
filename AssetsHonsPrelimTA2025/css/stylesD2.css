@@ -251,4 +251,8 @@ table.dataTable tbody tr:hover {
         display: flex;
         justify-content: center;
     }
+
+    .content {
+        margin-top: 240px;
+    }
 }
