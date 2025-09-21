@@ -63,8 +63,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateAreaFilter(allRows);
     initializeDataTable();
 
+    // Add a small delay to ensure everything is rendered
+    setTimeout(() => {
+      updateFilterStatus();
+      console.log("Filter status button:", document.getElementById("filterStatusBtn")); // Debug line
+    }, 100);
+
     requestAnimationFrame(() => {
-      adjustContentMargin(); // Adjust after the initial load
+      adjustContentMargin();
       matchNoticeWidth();
     });
 
