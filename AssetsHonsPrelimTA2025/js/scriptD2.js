@@ -69,14 +69,23 @@ function adjustFontSize(factor) {
     // Update the adjustment level
     fontSizeAdjustLevel += (factor > 1) ? 1 : -1;
     
-    // Use a more powerful selector that targets everything
-    $('body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice').css('font-size', function() {
-        return (parseFloat($(this).css('font-size')) * factor) + 'px';
-    });
-    
-    // Force direct style application to table cells with !important
-    $('#abstractTable td, #abstractTable th').attr('style', function(i, style) {
-        return (style || '') + 'font-size: ' + (parseFloat($(this).css('font-size')) * factor) + 'px !important;';
+    const baseSelectors = 'body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice';
+    const importantSelector = '#abstractTable td, #abstractTable th';
+
+    const targets = new Set();
+    document.querySelectorAll(baseSelectors).forEach(el => targets.add(el));
+
+    targets.forEach(el => {
+        const computedSize = parseFloat(window.getComputedStyle(el).fontSize);
+        if (Number.isNaN(computedSize)) {
+            return;
+        }
+        const newSize = computedSize * factor;
+        if (el.matches(importantSelector)) {
+            el.style.setProperty('font-size', `${newSize}px`, 'important');
+        } else {
+            el.style.fontSize = `${newSize}px`;
+        }
     });
     
     // Store the current level and factor in localStorage
@@ -89,12 +98,11 @@ function adjustFontSize(factor) {
 }
 
 function resetFontSize() {
-    // Should match the selectors from adjustFontSize()
-    $('body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice').css('font-size', '');
-    
-    // Remove inline styles with !important
-    $('#abstractTable td, #abstractTable th').removeAttr('style');
-    
+    const baseSelectors = 'body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice';
+    document.querySelectorAll(baseSelectors).forEach(el => {
+        el.style.removeProperty('font-size');
+    });
+
     // Reset level and remove localStorage items
     fontSizeAdjustLevel = 0;
     localStorage.removeItem('fontSizeFactor');
@@ -159,9 +167,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateAreaFilter(allRows);
     initializeDataTable();
 
-    // Add a small alias so DOMContentLoaded can call adjustScrollbarVisibility()
+    // Define a global function instead of a local alias
     function adjustScrollbarVisibility() {
-        // alias to the safer helper
+        // call the safer helper
         forceScrollbarVisibility();
     }
 
@@ -242,44 +250,39 @@ $(document).ready(function() {
             dataTable.search(searchValue).draw();
         }
         updateFilterStatus();
+        updateFilterNotice();
     });
-    
     // Method filter change handler
     $('#methodFilter').on('change', function() {
         const selectedMethod = $(this).val();
-        updateAreaFilterCounts(selectedMethod);
+
         if (dataTable) {
             dataTable.draw();
         }
+
+        updateAreaFilterCounts(selectedMethod);
         updateFilterStatus();
-        adjustContentMargin(); // Force margin adjustment
+        updateFilterNotice();
+        adjustContentMargin();
     });
-    
+
     // Area filter change handler
     $('#areaFilter').on('change', function() {
         const selectedArea = $(this).val();
-        
-        // If selecting "All research areas", we need to properly update method filter counts
-        if (selectedArea === '') {
-            // We need to properly refresh the method filter with correct counts
-            populateMethodFilter(allRows);
-            
-            // Just update the table directly
-            if (dataTable) {
-                dataTable.draw();
-            }
-            updateFilterStatus();
-        } else {
-            // Normal behavior for selecting a specific area
-            updateMethodFilterCounts(selectedArea);
-            if (dataTable) {
-                dataTable.draw();
-            }
-            updateFilterStatus();
+
+        if (dataTable) {
+            dataTable.draw();
         }
 
-        // Add this to both if/else branches:
-        adjustContentMargin(); // Force margin adjustment
+        if (selectedArea === '') {
+            populateMethodFilter(allRows);
+        } else {
+            updateMethodFilterCounts(selectedArea);
+        }
+
+        updateFilterStatus();
+        updateFilterNotice();
+        adjustContentMargin();
     });
 
     // Text size controls with updated handlers
@@ -298,12 +301,11 @@ $(document).ready(function() {
     $('#resetTextSize').on('click', function() {
         resetFontSize();
     });
-    
-    // Initialize button states
+
     updateFontSizeButtonStates();
 });
 
-// Initialize DataTable
+// Initialize DataTable configuration
 function initializeDataTable() {
     dataTable = $('#abstractTable').DataTable({
         paging: false,
@@ -324,46 +326,19 @@ function initializeDataTable() {
             if (rows === 0 || rows > 0) {
                 $('#abstractTable tbody').append('<tr class="end-of-records"><td style="text-align: center; font-weight: bold; padding: 10px;">End of records</td></tr>');
             }
+            updateFilterNotice();
         }
     });
 
     // Custom filtering logic
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const methodValue = $('#methodFilter').val().toLowerCase().trim();
-        const areaValue = $('#areaFilter').val().toLowerCase().trim();
+        const methodValue = $('#methodFilter').val();
+        const areaValue = $('#areaFilter').val();
 
-        const mainMethod = methodData[dataIndex] ? methodData[dataIndex].toLowerCase().trim() : '';
-        const researchAreasContent = researchAreasData[dataIndex] ? researchAreasData[dataIndex].toLowerCase().trim() : '';
+        const mainMethod = methodData[dataIndex] || '';
+        const researchAreasContent = researchAreasData[dataIndex] || '';
 
-        let methodMatch = false;
-
-        switch (methodValue) {
-            case '':
-                methodMatch = true;
-                break;
-            case 'all-quantitative':
-                methodMatch = mainMethod === 'quantitative' || mainMethod === 'meta-analysis' || mainMethod === 'mixed-methods';
-                break;
-            case 'meta-analysis':
-                methodMatch = mainMethod === 'meta-analysis';
-                break;
-            case 'mixed-methods-quantitative':
-                methodMatch = mainMethod === 'mixed-methods';
-                break;
-            case 'all-qualitative':
-                methodMatch = mainMethod === 'qualitative' || mainMethod === 'meta-synthesis' || mainMethod === 'mixed-methods';
-                break;
-            case 'meta-synthesis':
-                methodMatch = mainMethod === 'meta-synthesis';
-                break;
-            case 'mixed-methods-qualitative':
-                methodMatch = mainMethod === 'mixed-methods';
-                break;
-        }
-
-        const areaMatch = areaValue === '' || researchAreasContent.split('; ').includes(areaValue);
-
-        return methodMatch && areaMatch;
+        return methodMatchesFilter(mainMethod, methodValue) && areaMatchesFilter(researchAreasContent, areaValue);
     });
 
     dataTable.draw(); // Apply filters initially
@@ -395,20 +370,20 @@ function populateTable(rows) {
  * Falls back to allRows if dataTable is not available.
  */
 function getVisibleRowsFromDataTable() {
-    if (window.dataTable && typeof dataTable.rows === 'function' && Array.isArray(allRows) && allRows.length) {
-        try {
-            // Get indexes of rows that are currently visible (search/filters applied)
-            const idxs = dataTable.rows({ search: 'applied' }).indexes().toArray();
-            if (idxs && idxs.length) {
-                return idxs.map(i => allRows[i]).filter(Boolean);
-            }
-            // If no rows matched search, return empty array (counts should show zero)
-            return [];
-        } catch (e) {
-            // fallback
-        }
-    }
-    return Array.isArray(allRows) ? allRows : [];
+    if (typeof dataTable !== 'undefined' && dataTable && typeof dataTable.rows === 'function' && Array.isArray(allRows) && allRows.length) {
+         try {
+             // Get indexes of rows that are currently visible (search/filters applied)
+             const idxs = dataTable.rows({ search: 'applied' }).indexes().toArray();
+             if (idxs && idxs.length) {
+                 return idxs.map(i => allRows[i]).filter(Boolean);
+             }
+             // If no rows matched search, return empty array (counts should show zero)
+             return [];
+         } catch (e) {
+             // fallback
+         }
+     }
+     return Array.isArray(allRows) ? allRows : [];
 }
 
 /**
@@ -438,6 +413,82 @@ function getRowValue(row, colIndexOrKey) {
     }
     // colIndexOrKey as string (object property)
     return (row[colIndexOrKey] || '').toString().trim();
+}
+
+function normalizeString(value) {
+    return (value == null ? '' : value).toString().trim().toLowerCase();
+}
+
+function extractAreas(row) {
+    if (Array.isArray(row)) {
+        return row.slice(5).filter(Boolean).map(area => area.toString().trim());
+    }
+    if (row && typeof row === 'object') {
+        const possibleAreas = Object.keys(row)
+            .filter(key => /area|discipline/i.test(key))
+            .map(key => row[key]);
+        return possibleAreas.filter(Boolean).map(area => area.toString().trim());
+    }
+    return [];
+}
+
+function rowMatchesSearch(row, searchTerm) {
+    if (!searchTerm) {
+        return true;
+    }
+
+    const normalizedTerm = searchTerm.toLowerCase();
+
+    if (Array.isArray(row)) {
+        return row.some(cell => (cell || '').toString().toLowerCase().includes(normalizedTerm));
+    }
+
+    if (row && typeof row === 'object') {
+        return Object.values(row).some(value => (value || '').toString().toLowerCase().includes(normalizedTerm));
+    }
+
+    return false;
+}
+
+function methodMatchesFilter(mainMethodValue, filterValue) {
+    const method = normalizeString(mainMethodValue);
+    const target = normalizeString(filterValue);
+
+    switch (target) {
+        case '':
+            return true;
+        case 'all-quantitative':
+            return method === 'quantitative' || method === 'meta-analysis' || method === 'mixed-methods';
+        case 'meta-analysis':
+            return method === 'meta-analysis';
+        case 'mixed-methods-quantitative':
+            return method === 'mixed-methods';
+        case 'all-qualitative':
+            return method === 'qualitative' || method === 'meta-synthesis' || method === 'mixed-methods';
+        case 'meta-synthesis':
+            return method === 'meta-synthesis';
+        case 'mixed-methods-qualitative':
+            return method === 'mixed-methods';
+        default:
+            return method === target;
+    }
+}
+
+function areaMatchesFilter(areaSource, filterValue) {
+    const target = normalizeString(filterValue);
+    if (!target) {
+        return true;
+    }
+
+    if (!areaSource) {
+        return false;
+    }
+
+    if (Array.isArray(areaSource)) {
+        return areaSource.some(area => normalizeString(area) === target);
+    }
+
+    return areaSource.split('; ').some(area => normalizeString(area) === target);
 }
 
 /**
@@ -511,58 +562,232 @@ function populateMethodFilter(rows) {
     }
 }
 
+function populateAreaFilter(rows) {
+    const select = document.getElementById('areaFilter');
+    if (!select) return;
+
+    const sourceRows = getVisibleRowsFromDataTable().length ? getVisibleRowsFromDataTable() : (rows || []);
+    const counts = {};
+    const labels = {};
+
+    sourceRows.forEach(r => {
+        extractAreas(r).forEach(area => {
+            const key = normalizeString(area);
+            if (!key) return;
+            counts[key] = (counts[key] || 0) + 1;
+            if (!labels[key]) {
+                labels[key] = area;
+            }
+        });
+    });
+
+    const prev = select.value;
+    select.innerHTML = '';
+
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    const allOpt = document.createElement('option');
+    allOpt.value = '';
+    allOpt.text = `All research areas [~${total} matches]`;
+    select.appendChild(allOpt);
+
+    Object.keys(counts).sort().forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.text = `${labels[key]} [~${counts[key]} matches]`;
+        opt.dataset.label = labels[key];
+        select.appendChild(opt);
+    });
+
+    if (prev) {
+        const exists = Array.from(select.options).some(o => o.value === prev);
+        select.value = exists ? prev : '';
+    }
+}
+
 /**
  * Update the method filter counts based on currently visible rows,
  * optionally filtered by a selected area value.
  */
 function updateMethodFilterCounts(selectedArea) {
-    const visible = getVisibleRowsFromDataTable();
-    // try header lookup first, fall back to known data column indexes
-    let methodColIndex = getColumnIndexByHeader(/method/);
-    if (methodColIndex < 0) methodColIndex = 1; // mainMethod is at index 1 in allRows
-    let areaColIndex = getColumnIndexByHeader(/area|research area|discipline/);
-    if (areaColIndex < 0) areaColIndex = 5; // research areas start at index 5 in row arrays
-    const counts = {};
-
-    visible.forEach(r => {
-        // If an area is selected, skip rows that don't match
-        if (selectedArea && selectedArea !== '') {
-            // when rows are arrays, research areas are from index 5 onward — build a string to compare
-            let areaVal = '';
-            if (Array.isArray(r)) {
-                areaVal = r.slice(5).filter(Boolean).join('; ').toString().trim();
-            } else {
-                areaVal = areaColIndex >= 0 ? getRowValue(r, areaColIndex) : ((r && r.Area) ? r.Area.toString().trim() : '');
-            }
-            if ((areaVal || '').toLowerCase() !== selectedArea.toLowerCase()) return;
-        }
-
-        const methodVal = methodColIndex >= 0 ? getRowValue(r, methodColIndex) : (
-            (r && typeof r === 'object' && r.Method) ? r.Method.toString().trim() : ''
-        );
-        const key = (methodVal || 'Unspecified').toLowerCase();
-        counts[key] = (counts[key] || 0) + 1;
-    });
-
     const select = document.getElementById('methodFilter');
     if (!select) return;
 
+    const searchTerm = normalizeString($('#customSearch').val());
+    const areaKey = normalizeString(selectedArea);
+    const rows = Array.isArray(allRows) ? allRows : [];
+
+    const counts = {};
+
+    rows.forEach(row => {
+        if (!rowMatchesSearch(row, searchTerm)) {
+            return;
+        }
+
+        if (areaKey) {
+            const areas = extractAreas(row).map(area => normalizeString(area));
+            if (!areas.includes(areaKey)) {
+                return;
+            }
+        }
+
+        const methodVal = getRowValue(row, 1) || 'Unspecified';
+        const key = normalizeString(methodVal) || 'unspecified';
+        counts[key] = (counts[key] || 0) + 1;
+    });
+
+    const grouped = {
+        'all-quantitative': 0,
+        'meta-analysis': counts['meta-analysis'] || 0,
+        'mixed-methods': counts['mixed-methods'] || 0,
+        'all-qualitative': 0,
+        'meta-synthesis': counts['meta-synthesis'] || 0
+    };
+    grouped['all-quantitative'] = (counts['quantitative'] || 0) + grouped['meta-analysis'] + grouped['mixed-methods'];
+    grouped['all-qualitative'] = (counts['qualitative'] || 0) + grouped['meta-synthesis'] + grouped['mixed-methods'];
+
     Array.from(select.options).forEach(opt => {
         if (!opt.value) {
-            // "All" option — compute total
-            const tot = Object.values(counts).reduce((a,b)=>a+b,0);
+            const tot = Object.values(counts).reduce((a, b) => a + b, 0);
             opt.text = `All research methods [~${tot} matches]`;
             return;
         }
-        const c = counts[opt.value.toLowerCase()] || 0;
+
+        if (grouped[opt.value] !== undefined) {
+            opt.text = `${opt.value} [~${grouped[opt.value]} matches]`;
+            return;
+        }
+
+        const c = counts[normalizeString(opt.value)] || 0;
         opt.text = `${opt.value} [~${c} matches]`;
     });
 }
 
-/**
- * Improved clearAllFilters: clear UI, clear DataTable search, then rebuild filters from the
- * resulting visible rows (with a tiny delay to let DataTable update).
- */
+function updateAreaFilterCounts(selectedMethod) {
+    const select = document.getElementById('areaFilter');
+    if (!select) return;
+
+    const searchTerm = normalizeString($('#customSearch').val());
+    const methodKey = normalizeString(selectedMethod);
+    const rows = Array.isArray(allRows) ? allRows : [];
+
+    const counts = {};
+    const labels = {};
+
+    rows.forEach(row => {
+        if (!rowMatchesSearch(row, searchTerm)) {
+            return;
+        }
+
+        const mainMethod = getRowValue(row, 1);
+        if (!methodMatchesFilter(mainMethod, methodKey)) {
+            return;
+        }
+
+        extractAreas(row).forEach(area => {
+            const key = normalizeString(area);
+            if (!key) return;
+            counts[key] = (counts[key] || 0) + 1;
+            if (!labels[key]) {
+                labels[key] = area;
+            }
+        });
+    });
+
+    Array.from(select.options).forEach(opt => {
+        if (!opt.value) {
+            const total = Object.values(counts).reduce((a, b) => a + b, 0);
+            opt.text = `All research areas [~${total} matches]`;
+            return;
+        }
+
+        const key = opt.value;
+        const label = opt.dataset.label || opt.text.split(' [~')[0];
+        const c = counts[key] || 0;
+        opt.text = `${label} [~${c} matches]`;
+    });
+}
+
+function updateFilterStatus() {
+    const searchValue = ($('#customSearch').val() || '').toString().trim();
+    const methodValue = $('#methodFilter').val() || '';
+    const areaValue = $('#areaFilter').val() || '';
+
+    const button = $('#filterStatusBtn');
+    if (!button.length) return;
+
+    const filterActive = !!(searchValue || methodValue || areaValue);
+
+    if (filterActive) {
+        button.removeClass('green').addClass('red').text('Click to clear all filters');
+    } else {
+        button.removeClass('red').addClass('green').text('No filters active');
+    }
+}
+
+function updateFilterNotice() {
+    const notice = $('#filterNotice');
+    if (!notice.length) return;
+
+    const searchValue = ($('#customSearch').val() || '').toString().trim();
+    const methodValue = $('#methodFilter').val() || '';
+    const areaValue = $('#areaFilter').val() || '';
+
+    const filters = [];
+
+    if (searchValue) {
+        filters.push(`Search: "${searchValue}"`);
+    }
+
+    if (methodValue) {
+        const selectedMethod = $('#methodFilter option:selected').text().split(' [')[0];
+        filters.push(`Method: "${selectedMethod}"`);
+    }
+
+    if (areaValue) {
+        const selectedAreaOption = $('#areaFilter option:selected');
+        const areaLabel = selectedAreaOption.data('label') || selectedAreaOption.text().split(' [')[0] || areaValue;
+        filters.push(`Area: "${areaLabel}"`);
+    }
+
+    if (!filters.length) {
+        notice.hide();
+        adjustContentMargin();
+        return;
+    }
+
+    let filteredRowCount = 0;
+    if (dataTable) {
+        const data = dataTable.rows({ search: 'applied' }).data().toArray();
+        filteredRowCount = data.filter(row => {
+            const value = Array.isArray(row) ? row[0] : row;
+            return typeof value === 'string' && !value.toLowerCase().includes('end of records');
+        }).length;
+    }
+
+    if (filteredRowCount > 0) {
+        notice
+            .html(`<strong>Active Filters:</strong> ${filters.join(' <strong>+</strong> ')} | <strong>${filteredRowCount} record(s) found.</strong>`)
+            .show();
+    } else {
+        notice
+            .html(`
+                <strong>No results</strong> found with the current filter <u>combination</u>.<br>
+                <strong>Active Filters:</strong> ${filters.join(' <strong>+</strong> ')}<br>
+                Try adjusting the individual filters or <a href="#" id="clearAllFiltersLink" style="font-weight: bold; color: red;">clear all</a> filters.
+            `)
+            .show();
+
+        notice.find('#clearAllFiltersLink')
+            .off('click')
+            .on('click', function(e) {
+                e.preventDefault();
+                clearAllFilters();
+            });
+    }
+
+    matchNoticeWidth();
+    adjustContentMargin();
+}
 function clearAllFilters() {
     if (isResettingFilters) return;
     isResettingFilters = true;
@@ -586,10 +811,11 @@ function clearAllFilters() {
         populateAreaFilter(allRows);
         if (dataTable) dataTable.draw(false);
         updateFilterStatus && updateFilterStatus();
+        updateFilterNotice && updateFilterNotice();
         adjustContentMargin && adjustContentMargin();
         isResettingFilters = false;
     }, 80);
-}
+} // end clearAllFilters()
 
 /**
  * Less intrusive scrollbar helper: adds bottom padding when content shorter than viewport,
@@ -609,3 +835,4 @@ function forceScrollbarVisibility() {
     });
 }
 
+// duplicate area/filter helpers removed — single canonical copy lives near populateMethodFilter
