@@ -3,17 +3,8 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    /*scrollbar-width: thin; /* Makes the scrollbar thinner - commented out */
-    display: flex;
-    flex-direction: column;
-    -webkit-text-size-adjust: 99%;
-    text-size-adjust: 99%;
+    overflow-y: auto; /* use native scrollbar */
     box-sizing: border-box;
-    width: 100%; /* Prevent width expansion */
-    max-width: 100%;
-    scrollbar-gutter: stable; /* Reserve space for the scrollbar to prevent layout shift */
-    overflow-y: scroll;
-    overflow-x: hidden;
 }
 
 /* Your existing styles here... */
@@ -22,49 +13,33 @@ html, body {
 html {
     scrollbar-width: auto;
     scrollbar-color: #007bff #f9f9f9; /* Thumb color, Track color */
+    scrollbar-gutter: stable;
 }
 
 /* For WebKit Browsers (Chrome, Safari, Edge) */
+/* Use a reasonable native scrollbar width; do not reposition it with CSS */
 ::-webkit-scrollbar {
-    width: 24px; /* Increased width of the scrollbar */
-    height: 24px; /* Increased height of the scrollbar */
-    position: fixed;
-    right: 0;
-    z-index: 2000; /* Higher than other fixed elements */
+    width: 16px;
+    height: 16px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #007bff; /* Color of the scrollbar thumb */
-    border-radius: 12px; /* Increased roundness of the scrollbar thumb */
-    border: 6px solid #f9f9f9; /* Thicker padding around the thumb */
-    min-height: 40px; /* Minimum height of the scrollbar thumb */
-
+    background-color: #007bff;
+    border-radius: 8px;
+    border: 4px solid #f9f9f9;
+    min-height: 32px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f9f9f9; /* Color of the scrollbar track */
+    background: #f9f9f9;
 }
 
-
-body, table, th, td, 
-.dataTables_wrapper .dataTables_filter input, 
-.dataTables_wrapper .dataTables_length, 
-.dataTables_wrapper .dataTables_info {
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.2;
-}
-
-*, *::before, *::after {
-    box-sizing: inherit;
-}
-
-/* Blue Bar Styling */
+/* Blue Bar Styling - use full width, do not subtract scrollbar width */
 .blue-bar {
-    background-color: #0056b3; /* Dark blue background */
-    height: 40px; /* Adjust height if needed */
-    width: calc(100% - 24px); /* Account for scrollbar width */
-    max-width: calc(100% - 24px); /* Also adjust max-width */
+    background-color: #0056b3;
+    height: 40px;
+    width: 100%;
+    max-width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -119,6 +94,11 @@ body, table, th, td,
 }
 
 .fixed-header {
+    width: 100%;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
     flex: 1;
     width: 100%; /* Ensure it fits within the viewport */
     position: fixed;
@@ -288,32 +268,4 @@ table.dataTable tbody tr:hover {
         width: 100%; /* Ensure it fits within the container */
         text-align: left; /* Ensure left alignment for input and buttons on small screens */
     }
-}
-
-/* Add these styles to ensure scrollbar visibility */
-html, body {
-    overflow-y: scroll !important;
-    overflow-x: hidden;
-    scrollbar-gutter: stable both-edges;
-}
-
-.blue-bar {
-    width: calc(100% - 24px) !important;
-    right: 0;
-    z-index: 1001;
-}
-
-.fixed-header {
-    width: calc(100% - 24px) !important;
-    right: 0;
-    z-index: 999;
-}
-
-/* Force scrollbar to stay visible and above other elements */
-::-webkit-scrollbar {
-    width: 24px !important;
-    height: 24px !important;
-    position: fixed !important;
-    right: 0 !important;
-    z-index: 2000 !important;
 }

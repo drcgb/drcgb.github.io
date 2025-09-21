@@ -159,6 +159,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     populateAreaFilter(allRows);
     initializeDataTable();
 
+    // Add a small alias so DOMContentLoaded can call adjustScrollbarVisibility()
+    function adjustScrollbarVisibility() {
+        // alias to the safer helper
+        forceScrollbarVisibility();
+    }
+
     // Add a small delay to ensure everything is rendered
     setTimeout(() => {
       updateFilterStatus();
@@ -384,394 +390,222 @@ function populateTable(rows) {
     console.log("Table populated.");
 }
 
-// Populate the method filter dropdown
+/**
+ * Helper: return array of visible original rows (from allRows) based on DataTable filtering.
+ * Falls back to allRows if dataTable is not available.
+ */
+function getVisibleRowsFromDataTable() {
+    if (window.dataTable && typeof dataTable.rows === 'function' && Array.isArray(allRows) && allRows.length) {
+        try {
+            // Get indexes of rows that are currently visible (search/filters applied)
+            const idxs = dataTable.rows({ search: 'applied' }).indexes().toArray();
+            if (idxs && idxs.length) {
+                return idxs.map(i => allRows[i]).filter(Boolean);
+            }
+            // If no rows matched search, return empty array (counts should show zero)
+            return [];
+        } catch (e) {
+            // fallback
+        }
+    }
+    return Array.isArray(allRows) ? allRows : [];
+}
+
+/**
+ * Find a column index from the table header by matching header text (case-insensitive).
+ * Returns -1 if not found.
+ */
+function getColumnIndexByHeader(regex) {
+    try {
+        const headers = document.querySelectorAll('#abstractTable thead th');
+        for (let i = 0; i < headers.length; i++) {
+            const txt = (headers[i].textContent || '').trim().toLowerCase();
+            if (regex.test(txt)) return i;
+        }
+    } catch (e) { /* ignore */ }
+    return -1;
+}
+
+/**
+ * Build a normalized value for a row at a given column index or object key.
+ */
+function getRowValue(row, colIndexOrKey) {
+    if (row == null) return '';
+    if (typeof colIndexOrKey === 'number') {
+        if (Array.isArray(row)) return (row[colIndexOrKey] || '').toString().trim();
+        // if row is object, try to map to header name later
+        return '';
+    }
+    // colIndexOrKey as string (object property)
+    return (row[colIndexOrKey] || '').toString().trim();
+}
+
+/**
+ * Rebuild method filter options from the provided rows (uses visible rows when possible).
+ * Preserves currently selected value when possible.
+ */
 function populateMethodFilter(rows) {
-    const methodCounts = {
-        quantitative: 0,
-        metaAnalysis: 0,
-        mixedMethodsQuantitative: 0,
-        qualitative: 0,
-        metaSynthesis: 0,
-        mixedMethodsQualitative: 0
+    const sourceRows = getVisibleRowsFromDataTable().length ? getVisibleRowsFromDataTable() : (rows || []);
+    // try header lookup first, fall back to known data column index (method = 1)
+    let methodColIndex = getColumnIndexByHeader(/method/);
+    if (methodColIndex < 0) methodColIndex = 1; // fallback to array column index used in populateTable
+
+    // raw method counts
+    const counts = {};
+    sourceRows.forEach(r => {
+        const methodVal = methodColIndex >= 0 ? getRowValue(r, methodColIndex) : (
+            (r && typeof r === 'object' && r.Method) ? r.Method.toString().trim() : ''
+        );
+        const norm = (methodVal || 'Unspecified').toLowerCase();
+        counts[norm] = (counts[norm] || 0) + 1;
+    });
+
+    // grouped counts used by filtering logic
+    const grouped = {
+        'all-quantitative': 0,
+        'all-qualitative': 0,
+        'meta-analysis': counts['meta-analysis'] || 0,
+        'meta-synthesis': counts['meta-synthesis'] || 0,
+        'mixed-methods': counts['mixed-methods'] || 0
     };
+    grouped['all-quantitative'] = (counts['quantitative'] || 0) + grouped['meta-analysis'] + grouped['mixed-methods'];
+    grouped['all-qualitative'] = (counts['qualitative'] || 0) + grouped['meta-synthesis'] + grouped['mixed-methods'];
 
-    rows.forEach(row => {
-        const mainMethod = row[1]?.trim().toLowerCase();
-        if (mainMethod) {
-            switch (mainMethod) {
-                case 'quantitative':
-                    methodCounts.quantitative += 1;
-                    break;
-                case 'meta-analysis':
-                    methodCounts.metaAnalysis += 1;
-                    break;
-                case 'mixed-methods':
-                    methodCounts.mixedMethodsQuantitative += 1;
-                    methodCounts.mixedMethodsQualitative += 1;
-                    break;
-                case 'qualitative':
-                    methodCounts.qualitative += 1;
-                    break;
-                case 'meta-synthesis':
-                    methodCounts.metaSynthesis += 1;
-                    break;
-            }
+    const select = document.getElementById('methodFilter');
+    if (!select) return;
+    const prev = select.value;
+
+    // rebuild options
+    select.innerHTML = '';
+    // All option
+    const total = Object.values(counts).reduce((a,b)=>a+b,0);
+    const allOpt = document.createElement('option');
+    allOpt.value = '';
+    allOpt.text = `All research methods [~${total} matches]`;
+    select.appendChild(allOpt);
+
+    // grouped options first (stable order)
+    const groupedOrder = ['all-quantitative','meta-analysis','mixed-methods','all-qualitative','meta-synthesis'];
+    groupedOrder.forEach(key => {
+        if (grouped[key] !== undefined) {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.text = `${key} [~${grouped[key]} matches]`;
+            select.appendChild(opt);
         }
     });
 
-    const methodFilter = document.getElementById("methodFilter");
-    methodFilter.innerHTML = `
-        <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]</option>
-            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]</option>
-            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]</option>
-            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]</option>
-            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]</option>
-    `;
-
-    console.log("Method filter populated.");
-}
-
-// Populate the area filter dropdown
-function populateAreaFilter(rows) {
-    console.log("Populating area filter...");
-    const areaCountsByMethod = {};
-
-    rows.forEach(row => {
-        const mainMethod = row[1]?.trim().toLowerCase();
-        const researchAreas = row.slice(5, 11).map(area => area?.trim().toLowerCase() || '');
-
-        researchAreas.forEach(area => {
-            if (area) {
-                if (!areaCountsByMethod[area]) {
-                    areaCountsByMethod[area] = {
-                        all: 0,
-                        quantitative: 0,
-                        metaAnalysis: 0,
-                        mixedMethodsQuantitative: 0,
-                        qualitative: 0,
-                        metaSynthesis: 0,
-                        mixedMethodsQualitative: 0
-                    };
-                }
-
-                areaCountsByMethod[area].all += 1; // General count
-
-                // Increment count based on the method
-                switch (mainMethod) {
-                    case 'quantitative':
-                        areaCountsByMethod[area].quantitative += 1;
-                        break;
-                    case 'meta-analysis':
-                        areaCountsByMethod[area].metaAnalysis += 1;
-                        break;
-                    case 'mixed-methods':
-                        areaCountsByMethod[area].mixedMethodsQuantitative += 1;
-                        areaCountsByMethod[area].mixedMethodsQualitative += 1;
-                        break;
-                    case 'qualitative':
-                        areaCountsByMethod[area].qualitative += 1;
-                        break;
-                    case 'meta-synthesis':
-                        areaCountsByMethod[area].metaSynthesis += 1;
-                        break;
-                }
-            }
-        });
+    // then add any other raw methods not covered above
+    Object.keys(counts).sort().forEach(k => {
+        if (['quantitative','qualitative','meta-analysis','meta-synthesis','mixed-methods','unspecified'].includes(k)) return;
+        const opt = document.createElement('option');
+        opt.value = k;
+        opt.text = `${k} [~${counts[k]} matches]`;
+        select.appendChild(opt);
     });
 
-    const sortedAreas = Object.entries(areaCountsByMethod).sort(([a], [b]) => a.localeCompare(b));
-    const areaFilter = document.getElementById("areaFilter");
-    
-    // Store the calculated counts in a global variable to be accessed later
-    window.areaCountsByMethod = areaCountsByMethod;
-
-    areaFilter.innerHTML = `<option value="">All Research Areas</option>`;
-    areaFilter.innerHTML += sortedAreas.map(([area, counts]) => {
-        return `<option value="${area}">${area} [~${counts.all} matches]</option>`;
-    }).join('');
-    
-    console.log("Area filter populated.");
-}
-
-function updateAreaFilterCounts(selectedMethod) {
-    // Get references
-    const areaFilter = document.getElementById("areaFilter");
-    const areaCountsByMethod = window.areaCountsByMethod;
-    
-    // If we don't have area counts data, rebuild it
-    if (!areaCountsByMethod) {
-        populateAreaFilter(allRows);
-        return;
+    // restore previous selection if still present
+    if (prev) {
+        const exists = Array.from(select.options).some(o => o.value === prev);
+        select.value = exists ? prev : '';
     }
-
-    // Loop through each option and update the count
-    Array.from(areaFilter.options).forEach(option => {
-        const area = option.value;
-
-        if (area && areaCountsByMethod[area]) {
-            let count = 0;
-
-            // Calculate count based on selected method
-            switch (selectedMethod) {
-                case 'all-quantitative':
-                    count = areaCountsByMethod[area].quantitative + 
-                            areaCountsByMethod[area].metaAnalysis + 
-                            areaCountsByMethod[area].mixedMethodsQuantitative;
-                    break;
-                case 'meta-analysis':
-                    count = areaCountsByMethod[area].metaAnalysis;
-                    break;
-                case 'mixed-methods-quantitative':
-                    count = areaCountsByMethod[area].mixedMethodsQuantitative;
-                    break;
-                case 'all-qualitative':
-                    count = areaCountsByMethod[area].qualitative + 
-                            areaCountsByMethod[area].metaSynthesis + 
-                            areaCountsByMethod[area].mixedMethodsQualitative;
-                    break;
-                case 'meta-synthesis':
-                    count = areaCountsByMethod[area].metaSynthesis;
-                    break;
-                case 'mixed-methods-qualitative':
-                    count = areaCountsByMethod[area].mixedMethodsQualitative;
-                    break;
-                default:
-                    count = areaCountsByMethod[area].all; // Default to all
-                    break;
-            }
-
-            // Add an asterisk if count is greater than 0
-            let matchText = count === 0 ? `[~${count} matches]` : `[~${count} matches]*`;
-            option.text = `${area} ${matchText}`;
-        }
-    });
-
-    // Force UI updates
-    updateFilterStatus();
 }
 
+/**
+ * Update the method filter counts based on currently visible rows,
+ * optionally filtered by a selected area value.
+ */
 function updateMethodFilterCounts(selectedArea) {
-    // Prevent recursive calls during reset
-    if (isResettingFilters) return;
-    
-    const methodFilter = document.getElementById("methodFilter");
-    const areaFilter = document.getElementById("areaFilter");
-    const areaCountsByMethod = window.areaCountsByMethod;
+    const visible = getVisibleRowsFromDataTable();
+    // try header lookup first, fall back to known data column indexes
+    let methodColIndex = getColumnIndexByHeader(/method/);
+    if (methodColIndex < 0) methodColIndex = 1; // mainMethod is at index 1 in allRows
+    let areaColIndex = getColumnIndexByHeader(/area|research area|discipline/);
+    if (areaColIndex < 0) areaColIndex = 5; // research areas start at index 5 in row arrays
+    const counts = {};
 
-    // If no area is selected (All Research Areas), reset to original state
-    if (!selectedArea || selectedArea === '') {
-        isResettingFilters = true; // Set flag to prevent recursive calls
-        
-        // Store current method selection
-        const currentMethodValue = methodFilter.value;
-        
-        // Update method filter counts without resetting selection
-        populateMethodFilter(allRows);
-        
-        // Restore method selection instead of resetting
-        methodFilter.value = currentMethodValue;
-        
-        // Update filter status and notice - ADD THIS
-        updateFilterStatus();
-        
-        // Force a table redraw to ensure filters are properly applied
-        if (dataTable) {
-            dataTable.draw();
-        }
-        
-        isResettingFilters = false; // Clear flag
-        return;
-    }
-
-    // Check if the selected area exists in our data
-    if (!areaCountsByMethod || !areaCountsByMethod[selectedArea]) {
-        isResettingFilters = true; // Set flag to prevent recursive calls
-        
-        populateMethodFilter(allRows);
-        methodFilter.value = '';
-        
-        // Reset area filter to original state
-        populateAreaFilter(allRows);
-        areaFilter.value = ''; // Reset to "All Research Areas"
-        
-        // Update filter status and notice - ADD THIS
-        updateFilterStatus();
-        
-        if (dataTable) {
-            dataTable.draw();
-        }
-        
-        isResettingFilters = false; // Clear flag
-        return;
-    }
-
-    // Get the current selected method to preserve it
-    const currentMethodValue = methodFilter.value;
-
-    // Recalculate counts for the selected area
-    const methodCounts = {
-        quantitative: areaCountsByMethod[selectedArea].quantitative || 0,
-        metaAnalysis: areaCountsByMethod[selectedArea].metaAnalysis || 0,
-        mixedMethodsQuantitative: areaCountsByMethod[selectedArea].mixedMethodsQuantitative || 0,
-        qualitative: areaCountsByMethod[selectedArea].qualitative || 0,
-        metaSynthesis: areaCountsByMethod[selectedArea].metaSynthesis || 0,
-        mixedMethodsQualitative: areaCountsByMethod[selectedArea].mixedMethodsQualitative || 0
-    };
-
-    // Rebuild the method filter with updated counts
-    methodFilter.innerHTML = `
-        <option value="" style="font-weight: bold;">All Methods</option>
-        <optgroup label="Quantitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;All Quantitative [~${methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative} matches]${(methodCounts.quantitative + methodCounts.metaAnalysis + methodCounts.mixedMethodsQuantitative) > 0 ? '*' : ''}</option>
-            <option value="meta-analysis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Analysis [~${methodCounts.metaAnalysis} matches]${methodCounts.metaAnalysis > 0 ? '*' : ''}</option>
-            <option value="mixed-methods-quantitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQuantitative} matches]${methodCounts.mixedMethodsQuantitative > 0 ? '*' : ''}</option>
-        <optgroup label="Qualitative" style="font-weight: bold; color: grey;" disabled></optgroup>
-            <option value="all-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;All Qualitative [~${methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative} matches]${(methodCounts.qualitative + methodCounts.metaSynthesis + methodCounts.mixedMethodsQualitative) > 0 ? '*' : ''}</option>
-            <option value="meta-synthesis">&nbsp;&nbsp;&nbsp;&nbsp;Meta-Synthesis [~${methodCounts.metaSynthesis} matches]${methodCounts.metaSynthesis > 0 ? '*' : ''}</option>
-            <option value="mixed-methods-qualitative">&nbsp;&nbsp;&nbsp;&nbsp;Mixed-Methods [~${methodCounts.mixedMethodsQualitative} matches]${methodCounts.mixedMethodsQualitative > 0 ? '*' : ''}</option>
-    `;
-
-    // Restore the previously selected method if it's still valid
-    if (currentMethodValue) {
-        methodFilter.value = currentMethodValue;
-    }
-    
-    // Update filter status and notice - ADD THIS
-    updateFilterStatus();
-}
-
-function updateFilterStatus() {
-    const methodFilter = document.getElementById("methodFilter");
-    const areaFilter = document.getElementById("areaFilter");
-    const customSearch = document.getElementById("customSearch");
-    const filterStatusBtn = document.getElementById("filterStatusBtn");
-    const filterNotice = document.getElementById("filterNotice");
-
-    // Safety check
-    if (!methodFilter || !areaFilter || !customSearch || !filterStatusBtn || !filterNotice) {
-        return;
-    }
-
-    const hasMethodFilter = methodFilter.value !== '';
-    const hasAreaFilter = areaFilter.value !== '';
-    const hasSearchFilter = customSearch.value.trim() !== '';
-    const hasAnyFilter = hasMethodFilter || hasAreaFilter || hasSearchFilter;
-
-    // Check current filter notice visibility BEFORE making changes
-    const wasVisible = filterNotice.style.display === "block";
-
-    // Use requestAnimationFrame for Chrome compatibility
-    requestAnimationFrame(() => {
-        if (hasAnyFilter) {
-            // Active filters - show red button and notice
-            filterStatusBtn.textContent = "Clear all filters";
-            filterStatusBtn.className = "filter-status-btn red";
-            
-            let filterText = "Active filters: ";
-            let filters = [];
-            
-            if (hasSearchFilter) filters.push(`Search: "${customSearch.value}"`);
-            if (hasMethodFilter) {
-                const methodText = methodFilter.options[methodFilter.selectedIndex].text.trim();
-                filters.push(`Method: ${methodText}`);
+    visible.forEach(r => {
+        // If an area is selected, skip rows that don't match
+        if (selectedArea && selectedArea !== '') {
+            // when rows are arrays, research areas are from index 5 onward — build a string to compare
+            let areaVal = '';
+            if (Array.isArray(r)) {
+                areaVal = r.slice(5).filter(Boolean).join('; ').toString().trim();
+            } else {
+                areaVal = areaColIndex >= 0 ? getRowValue(r, areaColIndex) : ((r && r.Area) ? r.Area.toString().trim() : '');
             }
-            if (hasAreaFilter) {
-                const areaText = areaFilter.options[areaFilter.selectedIndex].text.trim();
-                filters.push(`Area: ${areaText}`);
-            }
-            
-            filterNotice.textContent = filterText + filters.join(", ");
-            filterNotice.style.display = "block";
-            
-        } else {
-            // No active filters - show green button and hide notice
-            filterStatusBtn.textContent = "No filters active";
-            filterStatusBtn.className = "filter-status-btn green";
-            filterNotice.style.display = "none";
+            if ((areaVal || '').toLowerCase() !== selectedArea.toLowerCase()) return;
         }
-        
-        // Only adjust margin if filter notice visibility actually changed
-        const isNowVisible = filterNotice.style.display === "block";
-        if (wasVisible !== isNowVisible) {
-            adjustContentMargin();
+
+        const methodVal = methodColIndex >= 0 ? getRowValue(r, methodColIndex) : (
+            (r && typeof r === 'object' && r.Method) ? r.Method.toString().trim() : ''
+        );
+        const key = (methodVal || 'Unspecified').toLowerCase();
+        counts[key] = (counts[key] || 0) + 1;
+    });
+
+    const select = document.getElementById('methodFilter');
+    if (!select) return;
+
+    Array.from(select.options).forEach(opt => {
+        if (!opt.value) {
+            // "All" option — compute total
+            const tot = Object.values(counts).reduce((a,b)=>a+b,0);
+            opt.text = `All research methods [~${tot} matches]`;
+            return;
         }
+        const c = counts[opt.value.toLowerCase()] || 0;
+        opt.text = `${opt.value} [~${c} matches]`;
     });
 }
 
+/**
+ * Improved clearAllFilters: clear UI, clear DataTable search, then rebuild filters from the
+ * resulting visible rows (with a tiny delay to let DataTable update).
+ */
 function clearAllFilters() {
-    // Set the resetting flag to prevent recursive calls
+    if (isResettingFilters) return;
     isResettingFilters = true;
-    
-    // Get references to all filter elements
-    const methodFilter = document.getElementById("methodFilter");
-    const areaFilter = document.getElementById("areaFilter");
-    const customSearch = document.getElementById("customSearch");
-    
-    // Clear search input and DataTable search
-    customSearch.value = '';
+
+    // clear inputs/UI
+    const customSearch = document.getElementById('customSearch');
+    if (customSearch) customSearch.value = '';
+    const methodFilterEl = document.getElementById('methodFilter');
+    const areaFilterEl = document.getElementById('areaFilter');
+    if (methodFilterEl) methodFilterEl.value = '';
+    if (areaFilterEl) areaFilterEl.value = '';
+
+    // clear DataTable search and redraw
     if (dataTable) {
-        dataTable.search('').draw();
+        dataTable.search('').columns().search('').draw();
     }
-    
-    // Clear all filter values - important to do this BEFORE rebuilding filters
-    methodFilter.value = '';
-    areaFilter.value = '';
-    
-    // Completely rebuild filters from original data
+
+    // After DataTable redraw, rebuild filters from visible rows
     setTimeout(() => {
-        // Rebuild filters from scratch with original data
         populateMethodFilter(allRows);
         populateAreaFilter(allRows);
-        
-        // Update filter status
-        updateFilterStatus();
-        
-        // Force a complete redraw of the table
-        if (dataTable) {
-            dataTable.draw();
-        }
-        
-        // Force margin adjustment
-        adjustContentMargin();
-        
-        // Clear the resetting flag
+        if (dataTable) dataTable.draw(false);
+        updateFilterStatus && updateFilterStatus();
+        adjustContentMargin && adjustContentMargin();
         isResettingFilters = false;
-    }, 50);
+    }, 80);
 }
 
-// Add this improved function to ensure window scrollbar is always visible
+/**
+ * Less intrusive scrollbar helper: adds bottom padding when content shorter than viewport,
+ * and ensures fixed bars use full width.
+ */
 function forceScrollbarVisibility() {
-    // Force body to have enough content to show scrollbar
     const docHeight = document.documentElement.scrollHeight;
     const windowHeight = window.innerHeight;
-    
     if (docHeight <= windowHeight) {
-        // Add padding to force scrollbar to appear
-        document.body.style.paddingBottom = '100px';
+        document.body.style.paddingBottom = '80px';
+    } else {
+        document.body.style.paddingBottom = '';
     }
-    
-    // Force scrollbar width in UI calculations
-    document.documentElement.style.setProperty('--scrollbar-width', '24px');
-    
-    // Ensure fixed elements don't overlap scrollbar
     document.querySelectorAll('.blue-bar, .fixed-header').forEach(el => {
-        el.style.width = 'calc(100% - 24px)';
-        el.style.maxWidth = 'calc(100% - 24px)';
+        el.style.width = '100%';
+        el.style.maxWidth = '100%';
     });
 }
-
-// Call this function at appropriate times
-document.addEventListener('DOMContentLoaded', function() {
-    // Add to existing DOMContentLoaded event
-    setTimeout(forceScrollbarVisibility, 100);
-    
-    // Ensure it runs after window resize as well
-    window.addEventListener('resize', function() {
-        setTimeout(forceScrollbarVisibility, 100);
-    });
-});
 
