@@ -34,7 +34,8 @@ function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const instructionsHeight = $('#instructionsDetails').prop('open') ? $('#instructionsDetails').outerHeight(true) : 0;
     
-    const baseMargin = 180;
+    // Increase base margin
+    const baseMargin = 200; // Increased from 180px for better initial spacing
     const totalMargin = baseMargin + filterNoticeHeight + instructionsHeight;
     
     $('.content').css('margin-top', totalMargin + 'px');
@@ -54,21 +55,27 @@ function matchNoticeWidth() {
 
 // Add font size control functions - MOVED UP HERE TOO
 function adjustFontSize(factor) {
-    $('body, .page-wrapper, table, th, td, tr, .dataTables_wrapper, #abstractTable, #abstractTable td, .filter-status-btn, .filter-notice, .abstract-title, .method-section, .areas-section, td strong, td br').each(function() {
-        const currentSize = parseFloat($(this).css('font-size'));
-        const newSize = currentSize * factor;
-        $(this).css('font-size', newSize + 'px');
+    // Use a more powerful selector that targets everything
+    $('body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice').css('font-size', function() {
+        return (parseFloat($(this).css('font-size')) * factor) + 'px';
     });
     
-    // Add !important to ensure styles take precedence
-    $('#abstractTable td').css('font-size', `${parseFloat($('#abstractTable td').css('font-size')) * factor}px !important`);
+    // Force direct style application to table cells with !important
+    $('#abstractTable td, #abstractTable th').attr('style', function(i, style) {
+        return (style || '') + 'font-size: ' + (parseFloat($(this).css('font-size')) * factor) + 'px !important;';
+    });
     
     const currentFactor = parseFloat(localStorage.getItem('fontSizeFactor') || '1');
     localStorage.setItem('fontSizeFactor', (currentFactor * factor).toString());
 }
 
 function resetFontSize() {
-    $('body, table, th, td, .dataTables_wrapper, .filter-status-btn, .filter-notice, .abstract-title, .method-section, .areas-section').css('font-size', '');
+    // Should match the selectors from adjustFontSize()
+    $('body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice').css('font-size', '');
+    
+    // Remove inline styles with !important
+    $('#abstractTable td, #abstractTable th').removeAttr('style');
+    
     localStorage.removeItem('fontSizeFactor');
 }
 
@@ -112,6 +119,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         matchNoticeWidth();
       }, 100);
     });
+
+    // Add this back around line 95:
+    setTimeout(() => {
+      adjustContentMargin(); // Initial margin adjustment
+    }, 800);
 
   } catch (err) {
     console.error('Error loading XLSX data:', err);
@@ -165,15 +177,16 @@ $(document).ready(function() {
             dataTable.draw();
         }
         updateFilterStatus();
+        adjustContentMargin(); // Force margin adjustment
     });
     
     // Area filter change handler
     $('#areaFilter').on('change', function() {
         const selectedArea = $(this).val();
         
-        // If selecting "All research areas", don't reset the Method filter
+        // If selecting "All research areas", DON'T modify method filter at all
         if (selectedArea === '') {
-            // Just update counts without resetting Method filter
+            // Just update the table directly without touching method filter
             if (dataTable) {
                 dataTable.draw();
             }
@@ -186,6 +199,9 @@ $(document).ready(function() {
             }
             updateFilterStatus();
         }
+
+        // Add this to both if/else branches:
+        adjustContentMargin(); // Force margin adjustment
     });
 
     // Text size controls
