@@ -19,7 +19,7 @@ html, body {
 
 /* For Firefox */
 html {
-    scrollbar-width: thick; /* Makes scrollbar thicker */
+    scrollbar-width: auto;
     scrollbar-color: #007bff #f9f9f9; /* Thumb color, Track color */
 }
 
@@ -27,6 +27,9 @@ html {
 ::-webkit-scrollbar {
     width: 24px; /* Increased width of the scrollbar */
     height: 24px; /* Increased height of the scrollbar */
+    position: fixed;
+    right: 0;
+    z-index: 2000; /* Higher than other fixed elements */
 }
 
 ::-webkit-scrollbar-thumb {
@@ -59,8 +62,8 @@ body, table, th, td,
 .blue-bar {
     background-color: #0056b3; /* Dark blue background */
     height: 40px; /* Adjust height if needed */
-    width: 100%; /* Consistent width */
-    max-width: 100%; /* Prevent expansion */
+    width: calc(100% - 24px); /* Account for scrollbar width */
+    max-width: calc(100% - 24px); /* Also adjust max-width */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -87,6 +90,11 @@ body, table, th, td,
     margin-left: 10px;
     cursor: pointer;
     font-weight: bold;
+}
+
+.blue-bar .text-size-controls span.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .blue-bar .reset-text-size {
