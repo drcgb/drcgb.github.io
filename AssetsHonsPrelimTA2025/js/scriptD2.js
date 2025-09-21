@@ -43,10 +43,11 @@ function adjustContentMargin() {
 
 // Function to match filter notice width to search input - MOVED UP HERE
 function matchNoticeWidth() {
+    // Add safety check to ensure elements exist
     const searchInput = document.getElementById('customSearch');
     const filterNotice = document.getElementById('filterNotice');
     
-    if (searchInput && filterNotice) {
+    if (searchInput && filterNotice && searchInput.offsetWidth > 0) {
         const searchWidth = searchInput.offsetWidth;
         filterNotice.style.width = searchWidth + 'px';
     }
@@ -88,13 +89,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     requestAnimationFrame(() => {
       adjustContentMargin();
-      matchNoticeWidth();
+      // Add delay for matchNoticeWidth to ensure DOM is ready
+      setTimeout(() => {
+        matchNoticeWidth();
+      }, 100);
     });
 
     // Adjustments on window resize
     window.addEventListener('resize', () => {
       adjustContentMargin();
-      matchNoticeWidth();
+      // Add delay for resize as well
+      setTimeout(() => {
+        matchNoticeWidth();
+      }, 100);
     });
 
   } catch (err) {
