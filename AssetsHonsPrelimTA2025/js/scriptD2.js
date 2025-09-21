@@ -31,20 +31,14 @@ let isResettingFilters = false; // Add this flag at the top with other global va
 // Function to adjust content margin
 function adjustContentMargin() {
   requestAnimationFrame(() => {
-    const blueBarHeight = $('.blue-bar').outerHeight(true) || 40;
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true);
     
-    // Only adjust if header has a reasonable height (indicating it's properly rendered)
-    if (headerHeight > 50) {
-        // Base margin (what CSS sets) + filter notice height only
-        const baseMargin = 200; // Slightly less than CSS 220px to account for variations
-        const totalMargin = baseMargin + filterNoticeHeight;
+    // Use a smaller base margin that works well
+    const baseMargin = 180; // Reduced from 200px
+    const totalMargin = baseMargin + filterNoticeHeight;
 
-        // Set the margin-top for the content area
-        $('.content').css('margin-top', totalMargin + 'px');
-    }
-    // If headerHeight is too small, don't adjust - let CSS handle it
+    // Set the margin-top for the content area
+    $('.content').css('margin-top', totalMargin + 'px');
   });
 }
 

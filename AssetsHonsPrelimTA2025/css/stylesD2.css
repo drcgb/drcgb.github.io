@@ -123,13 +123,13 @@ body, table, th, td,
 }
 
 .content {
-    width: 100%; /* Consistent width */
-    max-width: 100%; /* Prevent expansion */
+    width: 100%;
+    max-width: 100%;
     flex: 1;
-    padding: 10px 10px 1px 10px; /* Adjust padding: top right bottom left */
-    margin-top: 220px; /* Increased from 180px to 220px to prevent clipping */
+    padding: 10px 10px 1px 10px;
+    margin-top: 180px; /* Reduced from 220px to match JavaScript base */
     transition: margin-top 0.3s ease;
-    text-align: left; /* Ensure left alignment */
+    text-align: left;
 }
 
 .custom-search-container {
