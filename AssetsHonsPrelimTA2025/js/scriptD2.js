@@ -927,14 +927,6 @@ function forceScrollbarVisibility() {
         document.body.style.paddingBottom = '';
     }
 
-    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-    document.querySelectorAll('.blue-bar, .fixed-header').forEach(el => {
-        if (scrollbarWidth > 0) {
-            el.style.marginRight = `${scrollbarWidth + 12}px`;
-        } else {
-            el.style.marginRight = '12px';
-        }
-    });
 }
 
 // duplicate area/filter helpers removed — single canonical copy lives near populateMethodFilter
