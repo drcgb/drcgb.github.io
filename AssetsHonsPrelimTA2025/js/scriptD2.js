@@ -308,13 +308,25 @@ $(document).ready(function() {
         const selectedArea = $(this).val();
 
         if (dataTable) {
+            const refreshMethods = () => {
+                if (selectedArea === '') {
+                    populateMethodFilter(getRowsMatchingCurrentSearch());
+                }
+            };
+
+            if (typeof dataTable.one === 'function') {
+                dataTable.one('draw', refreshMethods);
+            } else {
+                refreshMethods();
+            }
+
             scrollTableAfterNextDraw({ smooth: true });
             dataTable.draw();
+        } else if (selectedArea === '') {
+            populateMethodFilter(getRowsMatchingCurrentSearch());
         }
 
-        if (selectedArea === '') {
-            populateMethodFilter(allRows);
-        } else {
+        if (selectedArea !== '') {
             updateMethodFilterCounts(selectedArea);
         }
 
@@ -508,6 +520,14 @@ function rowMatchesSearch(row, searchTerm) {
     return false;
 }
 
+function getRowsMatchingCurrentSearch() {
+    const term = ($('#customSearch').val() || '').toString();
+    if (!term.trim()) {
+        return Array.isArray(allRows) ? allRows : [];
+    }
+    return (Array.isArray(allRows) ? allRows : []).filter(row => rowMatchesSearch(row, term));
+}
+
 function methodMatchesFilter(mainMethodValue, filterValue) {
     const method = normalizeString(mainMethodValue);
     const target = normalizeString(filterValue);
@@ -554,7 +574,7 @@ function areaMatchesFilter(areaSource, filterValue) {
  * Preserves currently selected value when possible.
  */
 function populateMethodFilter(rows) {
-    const sourceRows = getVisibleRowsFromDataTable().length ? getVisibleRowsFromDataTable() : (rows || []);
+    const sourceRows = rows && rows.length ? rows : getVisibleRowsFromDataTable();
     // try header lookup first, fall back to known data column index (method = 1)
     let methodColIndex = getColumnIndexByHeader(/method/);
     if (methodColIndex < 0) methodColIndex = 1; // fallback to array column index used in populateTable
