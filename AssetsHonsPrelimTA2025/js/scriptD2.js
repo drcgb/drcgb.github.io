@@ -33,31 +33,35 @@ let fontSizeAdjustLevel = 0; // Current adjustment level: 0 is baseline
 const MAX_INCREASE = 3;      // Maximum 3 clicks to increase
 const MAX_DECREASE = -2;     // Maximum 2 clicks to decrease
 
-function scheduleTableScrollReset(options = { smooth: true }) {
+function scheduleTableScrollReset(options = {}) {
+    const { smooth = true, target = 'table' } = options || {};
     setTimeout(() => {
-        resetTableScrollPosition(options);
+        resetTableScrollPosition({ smooth, target });
     }, 80);
 }
 
-function scrollTableAfterNextDraw(options = { smooth: true }) {
+function scrollTableAfterNextDraw(options = {}) {
+    const opts = options || {};
     if (dataTable && typeof dataTable.one === 'function') {
         dataTable.one('draw', () => {
-            scheduleTableScrollReset(options);
+            scheduleTableScrollReset(opts);
         });
     } else {
-        scheduleTableScrollReset(options);
+        scheduleTableScrollReset(opts);
     }
 }
 
-function resetTableScrollPosition(options = { smooth: true }) {
+function resetTableScrollPosition(options = {}) {
     try {
+        const { smooth = true, target = 'table' } = options || {};
         const table = document.getElementById('abstractTable');
         const blueBar = document.querySelector('.blue-bar');
         const fixedHeader = document.querySelector('.fixed-header');
         const offset = (blueBar ? blueBar.getBoundingClientRect().height : 0) +
                        (fixedHeader ? fixedHeader.getBoundingClientRect().height : 0) + 10;
-        const targetTop = table ? Math.max(0, table.getBoundingClientRect().top + window.pageYOffset - offset) : 0;
-        const behavior = options && options.smooth ? 'smooth' : 'auto';
+        const tableTop = table ? Math.max(0, table.getBoundingClientRect().top + window.pageYOffset - offset) : 0;
+        const targetTop = target === 'page' ? 0 : tableTop;
+        const behavior = smooth ? 'smooth' : 'auto';
         window.scrollTo({ top: targetTop, behavior });
     } catch (err) {
         window.scrollTo(0, 0);
@@ -293,15 +297,17 @@ $(document).ready(function() {
         const selectedMethod = $(this).val();
 
         if (dataTable) {
-            scrollTableAfterNextDraw({ smooth: true });
+            scrollTableAfterNextDraw({ smooth: true, target: 'page' });
             dataTable.draw();
+        } else {
+            scheduleTableScrollReset({ smooth: true, target: 'page' });
         }
 
         updateAreaFilterCounts(selectedMethod);
         updateFilterStatus();
         updateFilterNotice();
         adjustContentMargin();
-        scheduleTableScrollReset({ smooth: true });
+        scheduleTableScrollReset({ smooth: true, target: 'page' });
     });
 
     // Area filter change handler
@@ -321,10 +327,11 @@ $(document).ready(function() {
                 refreshMethods();
             }
 
-            scrollTableAfterNextDraw({ smooth: true });
+            scrollTableAfterNextDraw({ smooth: true, target: 'page' });
             dataTable.draw();
         } else if (selectedArea === '') {
             populateMethodFilter(getRowsMatchingCurrentSearch());
+            scheduleTableScrollReset({ smooth: true, target: 'page' });
         }
 
         if (selectedArea !== '') {
@@ -334,6 +341,7 @@ $(document).ready(function() {
         updateFilterStatus();
         updateFilterNotice();
         adjustContentMargin();
+        scheduleTableScrollReset({ smooth: true, target: 'page' });
     });
 
     // Text size controls with updated handlers
