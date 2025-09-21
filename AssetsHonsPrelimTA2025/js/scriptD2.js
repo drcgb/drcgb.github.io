@@ -33,11 +33,13 @@ function adjustContentMargin() {
   requestAnimationFrame(() => {
     const blueBarHeight = $('.blue-bar').outerHeight(true) || 40;
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
-    const headerHeight = $('.fixed-header').outerHeight(true) || 140; // Increased fallback from 120 to 140
+    const headerHeight = $('.fixed-header').outerHeight(true) || 140;
     
-    // Add some extra padding to ensure no clipping
-    const extraPadding = 30; // Increased from 20 to 30
-    const totalMargin = Math.max(220, blueBarHeight + headerHeight + filterNoticeHeight + extraPadding); // Use Math.max to ensure minimum of 220px
+    const extraPadding = 30;
+    const calculatedMargin = blueBarHeight + headerHeight + filterNoticeHeight + extraPadding;
+    
+    // Use Math.max to ensure margin never goes below your CSS value of 220px
+    const totalMargin = Math.max(220, calculatedMargin);
 
     // Set the margin-top for the content area
     $('.content').css('margin-top', totalMargin + 'px');
@@ -69,7 +71,8 @@ function resetFontSize() {
 
 // Event listener for DOMContentLoaded to handle data loading and initialization
 document.addEventListener("DOMContentLoaded", async () => {
-  toggleLogging(false);
+  // Turn off logging for production
+  toggleLogging(false); // MAKE SURE THIS IS FALSE
 
   try {
     const response = await fetch("AssetsHonsPrelimTA2025/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2025_FinalX.xlsx");
@@ -89,13 +92,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateFilterStatus();
     }, 500);
 
-    // Delay the margin calculation even more to ensure proper header height calculation
+    // Delay the margin calculation much longer to ensure proper header height calculation
     setTimeout(() => {
       adjustContentMargin();
       setTimeout(() => {
         matchNoticeWidth();
       }, 100);
-    }, 800); // Increased delay
+    }, 1500); // Increased delay from 800ms to 1500ms
 
     // Adjustments on window resize
     window.addEventListener('resize', () => {
