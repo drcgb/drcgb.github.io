@@ -28,18 +28,41 @@ let methodData = [];
 let researchAreasData = [];
 let isResettingFilters = false; // Add this flag at the top with other global variables
 
-// Function to adjust content margin
+// Unified margin adjustment function that handles both instructions and filters
 function adjustContentMargin() {
   requestAnimationFrame(() => {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
+    const instructionsHeight = $('#instructionsDetails').prop('open') ? $('#instructionsDetails').outerHeight(true) : 0;
     
-    // Use a smaller base margin that works well
-    const baseMargin = 180; // Reduced from 200px
-    const totalMargin = baseMargin + filterNoticeHeight;
-
-    // Set the margin-top for the content area
+    const baseMargin = 180;
+    const totalMargin = baseMargin + filterNoticeHeight + instructionsHeight;
+    
     $('.content').css('margin-top', totalMargin + 'px');
   });
+}
+
+// New function specifically for instruction toggle margin adjustment
+function adjustInstructionsMargin() {
+    requestAnimationFrame(() => {
+        // Get the instructions element height if open
+        const instructionsHeight = $('#instructionsDetails').prop('open') 
+            ? $('#instructionsDetails').outerHeight(true) 
+            : 0;
+            
+        // Get the current margin and add instruction height if needed
+        const currentMargin = parseInt($('.content').css('margin-top'));
+        const baseMargin = 180; // Base margin from CSS
+        
+        // Calculate new margin based on instructions state
+        const filterNoticeHeight = $('#filterNotice').is(':visible') 
+            ? $('#filterNotice').outerHeight(true) 
+            : 0;
+            
+        const totalMargin = baseMargin + filterNoticeHeight + instructionsHeight;
+        
+        // Set the margin-top for the content area
+        $('.content').css('margin-top', totalMargin + 'px');
+    });
 }
 
 // Function to match filter notice width to search input - MOVED UP HERE
@@ -56,13 +79,19 @@ function matchNoticeWidth() {
 
 // Add font size control functions - MOVED UP HERE TOO
 function adjustFontSize(factor) {
-    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
-    const newSize = currentSize * factor;
-    document.body.style.fontSize = newSize + 'px';
+    $('body, table, th, td, .dataTables_wrapper, .filter-status-btn, .filter-notice, .abstract-title, .method-section, .areas-section').each(function() {
+        const currentSize = parseFloat($(this).css('font-size'));
+        const newSize = currentSize * factor;
+        $(this).css('font-size', newSize + 'px');
+    });
+    
+    const currentFactor = parseFloat(localStorage.getItem('fontSizeFactor') || '1');
+    localStorage.setItem('fontSizeFactor', (currentFactor * factor).toString());
 }
 
 function resetFontSize() {
-    document.body.style.fontSize = '';
+    $('body, table, th, td, .dataTables_wrapper, .filter-status-btn, .filter-notice, .abstract-title, .method-section, .areas-section').css('font-size', '');
+    localStorage.removeItem('fontSizeFactor');
 }
 
 // Event listener for DOMContentLoaded to handle data loading and initialization
@@ -113,7 +142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 $(document).ready(function() {
 
-    // Instructions Toggle
+    // Instructions Toggle - Use the unified function
     $('#instructionsToggle').on('click', function() {
         const detailsElement = $('#instructionsDetails');
         if (detailsElement.prop('open')) {
@@ -123,14 +152,15 @@ $(document).ready(function() {
             detailsElement.attr('open', true);
             $(this).text('▼ Instructions');
         }
+        adjustContentMargin(); // Use unified margin function
     });
 
-    // Close Instructions Link
+    // Close Instructions Link - Use the unified function
     $('#closeInstructions').on('click', function(e) {
         e.preventDefault();
         $('#instructionsDetails').removeAttr('open');
         $('#instructionsToggle').text('► Instructions');
-        adjustContentMargin(); // Adjust margin when instructions are closed
+        adjustContentMargin(); // Use unified margin function
     });
 
     // Filter status button click handler
@@ -162,11 +192,22 @@ $(document).ready(function() {
     // Area filter change handler
     $('#areaFilter').on('change', function() {
         const selectedArea = $(this).val();
-        updateMethodFilterCounts(selectedArea);
-        if (dataTable) {
-            dataTable.draw();
+        
+        // If selecting "All research areas", don't reset the Method filter
+        if (selectedArea === '') {
+            // Just update counts without resetting Method filter
+            if (dataTable) {
+                dataTable.draw();
+            }
+            updateFilterStatus();
+        } else {
+            // Normal behavior for selecting a specific area
+            updateMethodFilterCounts(selectedArea);
+            if (dataTable) {
+                dataTable.draw();
+            }
+            updateFilterStatus();
         }
-        updateFilterStatus();
     });
 
     // Text size controls
