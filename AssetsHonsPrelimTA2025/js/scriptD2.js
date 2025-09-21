@@ -70,8 +70,9 @@ function adjustContentMargin() {
     const filterNoticeHeight = $('#filterNotice').is(':visible') ? $('#filterNotice').outerHeight(true) : 0;
     const instructionsHeight = $('#instructionsDetails').prop('open') ? $('#instructionsDetails').outerHeight(true) : 0;
     
-    // Increase base margin
-    const baseMargin = 200; // Increased from 180px for better initial spacing
+    // Responsive base margin keeps table clear of fixed header across breakpoints
+    const isSmallScreen = window.matchMedia('(max-width: 600px)').matches;
+    const baseMargin = isSmallScreen ? 260 : 180;
     const totalMargin = baseMargin + filterNoticeHeight + instructionsHeight;
     
     $('.content').css('margin-top', totalMargin + 'px');
