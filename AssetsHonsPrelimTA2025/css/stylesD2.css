@@ -13,6 +13,7 @@ html, body {
     max-width: 100%;
     scrollbar-gutter: stable; /* Reserve space for the scrollbar to prevent layout shift */
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 /* Your existing styles here... */
@@ -287,4 +288,32 @@ table.dataTable tbody tr:hover {
         width: 100%; /* Ensure it fits within the container */
         text-align: left; /* Ensure left alignment for input and buttons on small screens */
     }
+}
+
+/* Add these styles to ensure scrollbar visibility */
+html, body {
+    overflow-y: scroll !important;
+    overflow-x: hidden;
+    scrollbar-gutter: stable both-edges;
+}
+
+.blue-bar {
+    width: calc(100% - 24px) !important;
+    right: 0;
+    z-index: 1001;
+}
+
+.fixed-header {
+    width: calc(100% - 24px) !important;
+    right: 0;
+    z-index: 999;
+}
+
+/* Force scrollbar to stay visible and above other elements */
+::-webkit-scrollbar {
+    width: 24px !important;
+    height: 24px !important;
+    position: fixed !important;
+    right: 0 !important;
+    z-index: 2000 !important;
 }

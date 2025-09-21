@@ -184,6 +184,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Add this line near other layout adjustments
     adjustScrollbarVisibility();
 
+    // Add to the end of your DOMContentLoaded handler:
+    setTimeout(() => {
+        forceScrollbarVisibility();
+        
+        // Force a complete refresh of filters
+        if (dataTable) {
+            dataTable.draw();
+            updateFilterStatus();
+        }
+    }, 1000);
+
   } catch (err) {
     console.error('Error loading XLSX data:', err);
   }
@@ -487,18 +498,29 @@ function populateAreaFilter(rows) {
 }
 
 function updateAreaFilterCounts(selectedMethod) {
+    // Get references
     const areaFilter = document.getElementById("areaFilter");
     const areaCountsByMethod = window.areaCountsByMethod;
+    
+    // If we don't have area counts data, rebuild it
+    if (!areaCountsByMethod) {
+        populateAreaFilter(allRows);
+        return;
+    }
 
+    // Loop through each option and update the count
     Array.from(areaFilter.options).forEach(option => {
         const area = option.value;
 
         if (area && areaCountsByMethod[area]) {
             let count = 0;
 
+            // Calculate count based on selected method
             switch (selectedMethod) {
                 case 'all-quantitative':
-                    count = areaCountsByMethod[area].quantitative + areaCountsByMethod[area].metaAnalysis + areaCountsByMethod[area].mixedMethodsQuantitative;
+                    count = areaCountsByMethod[area].quantitative + 
+                            areaCountsByMethod[area].metaAnalysis + 
+                            areaCountsByMethod[area].mixedMethodsQuantitative;
                     break;
                 case 'meta-analysis':
                     count = areaCountsByMethod[area].metaAnalysis;
@@ -507,7 +529,9 @@ function updateAreaFilterCounts(selectedMethod) {
                     count = areaCountsByMethod[area].mixedMethodsQuantitative;
                     break;
                 case 'all-qualitative':
-                    count = areaCountsByMethod[area].qualitative + areaCountsByMethod[area].metaSynthesis + areaCountsByMethod[area].mixedMethodsQualitative;
+                    count = areaCountsByMethod[area].qualitative + 
+                            areaCountsByMethod[area].metaSynthesis + 
+                            areaCountsByMethod[area].mixedMethodsQualitative;
                     break;
                 case 'meta-synthesis':
                     count = areaCountsByMethod[area].metaSynthesis;
@@ -520,13 +544,13 @@ function updateAreaFilterCounts(selectedMethod) {
                     break;
             }
 
-            // Add an asterisk if the count is greater than 0
+            // Add an asterisk if count is greater than 0
             let matchText = count === 0 ? `[~${count} matches]` : `[~${count} matches]*`;
             option.text = `${area} ${matchText}`;
         }
     });
 
-    // At the end of the function, add:
+    // Force UI updates
     updateFilterStatus();
 }
 
@@ -679,109 +703,75 @@ function updateFilterStatus() {
 }
 
 function clearAllFilters() {
+    // Set the resetting flag to prevent recursive calls
+    isResettingFilters = true;
+    
+    // Get references to all filter elements
     const methodFilter = document.getElementById("methodFilter");
     const areaFilter = document.getElementById("areaFilter");
     const customSearch = document.getElementById("customSearch");
     
-    // Clear DataTable search first (before changing filters)
+    // Clear search input and DataTable search
+    customSearch.value = '';
     if (dataTable) {
         dataTable.search('').draw();
     }
     
-    // Clear all filter values
+    // Clear all filter values - important to do this BEFORE rebuilding filters
     methodFilter.value = '';
     areaFilter.value = '';
-    customSearch.value = '';
     
-    // Reset filters to original state - with proper counts
-    populateMethodFilter(allRows);
-    populateAreaFilter(allRows);
-    
-    // Force a redraw to ensure everything is in sync
-    if (dataTable) {
-        dataTable.draw();
-    }
-    
-    // Update filter status
-    updateFilterStatus();
-    
-    // Force margin adjustment to handle any UI changes
-    adjustContentMargin();
+    // Completely rebuild filters from original data
+    setTimeout(() => {
+        // Rebuild filters from scratch with original data
+        populateMethodFilter(allRows);
+        populateAreaFilter(allRows);
+        
+        // Update filter status
+        updateFilterStatus();
+        
+        // Force a complete redraw of the table
+        if (dataTable) {
+            dataTable.draw();
+        }
+        
+        // Force margin adjustment
+        adjustContentMargin();
+        
+        // Clear the resetting flag
+        isResettingFilters = false;
+    }, 50);
 }
 
-// Add this function at the bottom of your file or near other layout functions
-function adjustScrollbarVisibility() {
-  // Add a padding-right to the body when scrollbar is present
-  const hasScrollbar = document.documentElement.scrollHeight > window.innerHeight;
-  if (hasScrollbar) {
-    document.body.style.paddingRight = '24px'; // Match scrollbar width
-  } else {
-    document.body.style.paddingRight = '0';
-  }
-}
-
-// Update DOMContentLoaded event to call the new function
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    // Load saved font size adjustment level from localStorage
-    const savedLevel = localStorage.getItem('fontSizeAdjustLevel');
-    if (savedLevel !== null) {
-      fontSizeAdjustLevel = parseInt(savedLevel);
-      
-      // Apply saved font size if needed
-      const savedFactor = parseFloat(localStorage.getItem('fontSizeFactor') || '1');
-      if (savedFactor !== 1) {
-        $('body, table, #abstractTable, #abstractTable *, th, td, tr, tbody, thead, .dataTables_wrapper, .filter-status-btn, .filter-notice')
-          .css('font-size', function() {
-            return (parseFloat(getComputedStyle(this).fontSize) * savedFactor) + 'px';
-          });
-      }
-      
-      // Update button states based on loaded level
-      setTimeout(() => {
-        updateFontSizeButtonStates();
-      }, 200);
+// Add this improved function to ensure window scrollbar is always visible
+function forceScrollbarVisibility() {
+    // Force body to have enough content to show scrollbar
+    const docHeight = document.documentElement.scrollHeight;
+    const windowHeight = window.innerHeight;
+    
+    if (docHeight <= windowHeight) {
+        // Add padding to force scrollbar to appear
+        document.body.style.paddingBottom = '100px';
     }
-
-    const response = await fetch("AssetsHonsPrelimTA2025/data/Prelim_Hons_Thesis_Titles_and_Abstracts_2025_FinalX.xlsx");
-    const data = await response.arrayBuffer();
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    allRows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
-
-    // Populate and initialize components
-    populateTable(allRows);
-    populateMethodFilter(allRows);
-    populateAreaFilter(allRows);
-    initializeDataTable();
-
-    // Add a small delay to ensure everything is rendered
-    setTimeout(() => {
-      updateFilterStatus();
-    }, 500);
-
-    setTimeout(() => {
-      matchNoticeWidth();
-    }, 600);
-
-    // Add this back around line 95:
-    setTimeout(() => {
-      adjustContentMargin(); // Initial margin adjustment
-    }, 800);
-
-    // Adjustments on window resize
-    window.addEventListener('resize', () => {
-      adjustContentMargin(); // Only adjust on resize
-      setTimeout(() => {
-        matchNoticeWidth();
-      }, 100);
+    
+    // Force scrollbar width in UI calculations
+    document.documentElement.style.setProperty('--scrollbar-width', '24px');
+    
+    // Ensure fixed elements don't overlap scrollbar
+    document.querySelectorAll('.blue-bar, .fixed-header').forEach(el => {
+        el.style.width = 'calc(100% - 24px)';
+        el.style.maxWidth = 'calc(100% - 24px)';
     });
+}
 
-    // Add this line near other layout adjustments
-    adjustScrollbarVisibility();
-
-  } catch (err) {
-    console.error('Error loading XLSX data:', err);
-  }
+// Call this function at appropriate times
+document.addEventListener('DOMContentLoaded', function() {
+    // Add to existing DOMContentLoaded event
+    setTimeout(forceScrollbarVisibility, 100);
+    
+    // Ensure it runs after window resize as well
+    window.addEventListener('resize', function() {
+        setTimeout(forceScrollbarVisibility, 100);
+    });
 });
 
