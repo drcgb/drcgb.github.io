@@ -78,6 +78,7 @@ td,
     justify-content: space-between;
     padding: 5px 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    margin-right: 12px;
     z-index: 1000;
 }
 
@@ -115,7 +116,8 @@ td,
     left: 0;
     right: 0;
     padding: 0 12px 2px 8px;
-    background-color: transparent;
+    margin-right: 12px;
+    background-color: #ffffff;
     border-bottom: 2px solid #377e22;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 900;

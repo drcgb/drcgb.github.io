@@ -930,9 +930,9 @@ function forceScrollbarVisibility() {
     const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
     document.querySelectorAll('.blue-bar, .fixed-header').forEach(el => {
         if (scrollbarWidth > 0) {
-            el.style.marginRight = `${scrollbarWidth}px`;
+            el.style.marginRight = `${scrollbarWidth + 12}px`;
         } else {
-            el.style.removeProperty('margin-right');
+            el.style.marginRight = '12px';
         }
     });
 }
